@@ -1,0 +1,72 @@
+[
+  {
+    "padron": 1234567890,
+    "nombre": "Juan Pérez",
+    "fecha": "1985-05-15",
+    "sueldo": 75000.0,
+    "pais": "50A"
+  },
+  {
+    "padron": 2345678901,
+    "nombre": "María González",
+    "fecha": "1990-08-22",
+    "sueldo": 82000.0,
+    "pais": "75M"
+  },
+  {
+    "padron": 3456789012,
+    "nombre": "Carlos Rodríguez",
+    "fecha": "1978-12-03",
+    "sueldo": 92000.0,
+    "pais": "00E"
+  },
+  {
+    "padron": 4567890123,
+    "nombre": "Ana Martínez",
+    "fecha": "1982-07-11",
+    "sueldo": 68000.0,
+    "pais": "25C"
+  },
+  {
+    "padron": 5678901234,
+    "nombre": "Luis Fernández",
+    "fecha": "1995-03-28",
+    "sueldo": 55000.0,
+    "pais": "80C"
+  },
+  {
+    "padron": 6789012345,
+    "nombre": "Laura Sánchez",
+    "fecha": "1988-09-17",
+    "sueldo": 89000.0,
+    "pais": "30P"
+  },
+  {
+    "padron": 7890123456,
+    "nombre": "Pedro Gómez",
+    "fecha": "1975-06-09",
+    "sueldo": 105000.0,
+    "pais": ".60"
+  },
+  {
+    "padron": 8901234567,
+    "nombre": "Sofía Díaz",
+    "fecha": "1992-11-30",
+    "sueldo": 72000.0,
+    "pais": "45E"
+  },
+  {
+    "padron": 9012345678,
+    "nombre": "Miguel Torres",
+    "fecha": "1980-04-14",
+    "sueldo": 81000.0,
+    "pais": "90V"
+  },
+  {
+    "padron": 123456789,
+    "nombre": "Elena Ruiz",
+    "fecha": "1987-02-19",
+    "sueldo": 94000.0,
+    "pais": "15U"
+  }
+]
