@@ -1,0 +1,19 @@
+import { usePost!ModuloSecundario!ByFieldMutation } from "../../store/apiSlice";
+
+const Componente = () => {
+  const [buscar!CampoSecundario!] = usePost!ModuloSecundario!ByFieldMutation();
+  
+  const recuperar!CampoSecundario! = useCallback(async (!campoPrimario!) => {
+    if (!!campoPrimario!) return []; // Mejor retornar array vacío para consistencia
+    
+    const filtro = { !campoPrimario! };
+    
+    try {
+      const result = await buscar!CampoSecundario!(filtro).unwrap();
+      const !campoSecundario!sDistinct = [...new Set(
+        result
+          .filter(item => item.!campoSecundario!) // Asegura que !campoSecundario! no sea null/undefined
+          .map(item => item.!campoSecundario!.trim()) // Limpia espacios
+      )];
+      
+      return !campoSecundario!sDistinct;

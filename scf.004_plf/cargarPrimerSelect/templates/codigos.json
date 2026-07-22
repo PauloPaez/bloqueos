@@ -1,0 +1,17 @@
+[
+{ 
+    "criterio": "import { resetModulo } from '../../store/appSlice';",
+    "axn": "antes",
+    "codigoNuevo": "import { useGetDistinct!ModuloOrigen!Query } from '../../store/apiSlice';\n"
+},
+{
+    "criterio": "const user = useSelector((state) => state.acceso.user);",
+    "axn": "despues",
+    "codigoNuevo": " const { data: !CampoOpcionesPl! = [] } = useGetDistinct!ModuloOrigen!Query('!campoOrigen!');"
+},
+{
+    "criterio": "'!campoOpcionesPl!': []",  
+    "axn": "reemplazar",
+    "codigoNuevo": "    '!campoOpcionesPl!': !CampoOpcionesPl!,\n"
+}
+]

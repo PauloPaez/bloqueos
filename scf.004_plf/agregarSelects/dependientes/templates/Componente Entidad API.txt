@@ -1,0 +1,55 @@
+| Componente              | Entidad API          | Endpoint                     | Hook correspondiente                     |
+|-------------------------|----------------------|------------------------------|------------------------------------------|
+| ListarNotas_solicitadas | notas_solicitadas    | /notas_solicitadas/search/   | usePostNotas_solicitadasByFieldMutation  |
+| EditarNotas_solicitadas | tipos_de_notas       | /tipos_de_notas/search/      | usePostTipos_de_notasByFieldMutation     |
+
+
+
+ //************* Consultas API para obtener categorías y tipos ************************* */ 
+
+  const { data: !campoPrimario! = [] } = useGetDistinct!Model!Query('categoria'); //primer nivel de búsqueda con select 
+                                                                                    // dependientes, se ejecuta al cargar el componente
+  const [seek!Model!] = usePost!Model!ByFieldMutation(); //segundo nivel de búsqueda con select dependientes
+
+  // Actualización de categorías
+  useEffect(() => {
+    if (!campoPrimario!.length > 0) {
+      setDatosSelect(prev => ({ ...prev, !campoPrimario! }));
+    }
+  }, [!campoPrimario!]);
+
+  // Función para recuperar tipos según categoría
+  const recuperar!Campoprimario! = useCallback(async (!campoPrimario!) => {
+    if (!!campoPrimario!) return;
+
+    const filtro = { !campoPrimario! };
+    console.log("Recuperando tipos para categoría:", filtro);
+    try {
+      const result = await seekNotas_solicitadas(filtro).unwrap();
+      console.log("Tipos recuperados:", result);
+      const !campoSecundario!Unicos = [...new Set(result.map(item => item.!campoSecundario!))];
+      setDatosSelect(prev => ({ ...prev, !campoSecundario: !campoSecundarioUnicos! }));
+    } catch (err) {
+      console.error("Error fetching tipos según categoria:", err);
+      setDatosSelect(prev => ({ ...prev, !campoSecundario!: [] }));
+    }
+  }, [seek!Model!]);
+
+  //*************************FIN * Consultas API para obtener categorías y tipos ***************** */    
+  
+  //*********************************EN LA DEFINICION DEL FORMULARIO*************************************/
+  {
+      name: "categoria",
+      label: "Categoría",
+      type: "select",
+      optionsKey: "categorias"
+    },
+    {
+      name: "!campooSecundario!",
+      label: "CcampooSecundario1",
+      type: "select",
+      optionsKey: "!campooSecundario!",
+      disabled: !!campoprimario!Seleccionada
+    },
+    
+    //************************** FIN EN LA DEFINICION DEL FORMULARIO*************************************/

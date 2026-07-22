@@ -1,0 +1,57 @@
+[
+ 
+    {
+        "name": "nombre_producto",
+        "type": "str",
+        "label": "Nombre producto",
+        "placeholder": "Nombre producto"
+    },
+    {
+        "name": "tipo",
+        "type": "str",
+        "label": "Tipo producto",
+        "placeholder": "Tipo producto"
+    },
+    {
+        "name": "cantidad_minima",
+        "type": "int",
+        "label": "Cantidad minima",
+        "placeholder": "Cantidad minima"
+    },
+    {
+        "name": "descuento",
+        "type": "float",
+        "label": "Descuento promocion",
+        "placeholder": "Descuento promocion"
+    },
+    {
+        "name": "dias_aplicados",
+        "type": "str",
+        "label": "Dias aplicacion promocion",
+        "placeholder": "Dias aplicacion promocion"
+    },
+    {
+        "name": "texto_promocion",
+        "type": "str",
+        "label": "Mensaje promocional",
+        "placeholder": "Mensaje promocional"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

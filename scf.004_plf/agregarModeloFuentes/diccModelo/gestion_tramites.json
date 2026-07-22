@@ -1,0 +1,69 @@
+[
+    {
+        "name": "nombre_apoderado",
+        "type": "str",
+        "label": "Nombre Apoderado",
+        "placeholder": "Nombre Apoderado"
+    },
+    {
+        "name": "apellido_apoderado",
+        "type": "str",
+        "label": "Apellido Apoderado",
+        "placeholder": "Apellido Apoderado"
+    },
+    {
+        "name": "tramite",
+        "label": "Tramite",
+        "type": "select",
+        "optionsKey": "tramites",
+        "placeholder": "Tramite"
+    },
+    {
+        "name": "requisitos",
+        "type": "list",
+        "label": "Requisitos",
+        "placeholder": "Requisitos"
+    },
+    {
+        "name": "requisitos_total",
+        "type": "int",
+        "label": "Total de requisitos",
+        "placeholder": "Total de requisitos"
+    },
+    {
+        "name": "turno",
+        "type": "datetime",
+        "label": "Turno",
+        "placeholder": "Turno"
+    },
+    {
+        "name": "derivado",
+        "type": "str",
+        "label": "Derivado",
+        "placeholder": "Derivado"
+    },
+    {
+        "name": "estado",
+        "type": "str",
+        "label": "Estados",
+        "placeholder": "Estados"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

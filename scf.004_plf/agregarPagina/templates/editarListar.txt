@@ -1,0 +1,18 @@
+import React from 'react';
+import Editar!Model! from './Editar!Model!';
+import Listar!Model! from './Listar!Model!';
+
+const Actualizar!Model! = () => {
+  return (
+    <div className="pantalla-container">
+      <div className="editar-modelo">
+        <Editar!Model! />
+      </div>
+      <div className="listar-modelo">
+        <Listar!Model! />
+      </div>
+    </div>
+  );
+};
+
+export default Actualizar!Model!;

@@ -1,0 +1,17 @@
+[
+    {
+        "criterio": "const dispatch = useDispatch();",
+        "pre": false,
+        "codigoNuevo": " const { data: Categorias = [] } = useGetDistinctTipo_notasQuery('categoria');"
+    },
+    {
+        "criterio": "const filaSeleccionada = useSelector((state) => state.modulos.nro_notas).datos;",
+        "pre": false,
+        "codigoNuevo": "    const [Tipos, setTipos] = useState([]);\n   const [recuperarTipos] = usePostTipo_notasByFieldMutation(); \n\n  const datosSelect = {\n    \"categorias\": Categorias,\n    \"tipos\": Tipos,\n  };"
+    },
+    {
+        "criterio": "  const onSubmit = async (data) => {",
+        "pre": true,
+        "codigoNuevo": "    const categoriaSeleccionado = watch('nro_notas.0.categoria')\n      // Función para cargar los tomos\n    const cargarTipos = useCallback(async (categoria) => {\n        if (!categoria) {\n           setTipos([]);\n            return;\n        }\n        try {\n            const result = await recuperarTipos({ categoria }).unwrap();\n            // Asumiendo que result es un array de objetos con propiedad tipo\n            const TiposUnicos = [...new Set(\n                result\n                    .filter(item => item.tipo)\n                    .map(item => item.tipo.toString().trim())\n            )];\n            setTipos(TiposUnicos);\n        } catch (error) {\n            console.error(\"Error al cargar Tipos:\", error);\n            setTipos([]);\n        }\n    }, [recuperarTipos]);\n    \n    // Efecto que se dispara cuando cambia el libro seleccionado\n    useEffect(() => {\n        console.log(categoriaSeleccionado)\n        cargarTipos(categoriaSeleccionado);\n    }, [categoriaSeleccionado, cargarTipos]);"
+    }
+]

@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import json
+
+# Lista para almacenar los campos ingresados
+arreglo_campos = []
+# Opciones para el select de tipos de datos
+tipos_dato = ["str", "int", "float", "file", "bool", "datetime"]
+
+def agregar_campo():
+    """Función para agregar un campo al arreglo."""
+    nombre = entry_nombre.get().strip()
+    tipo = tipo_var.get().strip()  # Obtener el valor seleccionado del OptionMenu
+    etiqueta = entry_etiqueta.get().strip()
+    placeholder = entry_placeholder.get().strip()
+
+    if not nombre or not tipo or not etiqueta:
+        messagebox.showwarning("Advertencia", "Los campos Nombre, Tipo y Etiqueta son obligatorios.")
+        return
+
+    # Crear el diccionario del campo
+    print(nombre,";", tipo,";",etiqueta,";",placeholder)
+    campo = {"name": nombre, "type": tipo, "label": etiqueta}
+    if placeholder:
+        campo["placeholder"] = placeholder
+
+    arreglo_campos.append(campo)
+    mensaje = (
+    f"Nombre: {nombre}\n"
+    f"Tipo: {tipo}\n"
+    f"Etiqueta: {etiqueta}\n"
+    f"Placeholder: {placeholder if placeholder else 'N/A'}"
+    )
+    messagebox.showinfo("Objeto agregado", mensaje)
+    # messagebox.showinfo("Éxito", f"Campo '{nombre}' agregado correctamente.")
+    
+    # Limpiar las entradas
+    entry_nombre.delete(0, tk.END)
+    tipo_var.set(tipos_dato[0])  # Reiniciar el valor del select
+    entry_etiqueta.delete(0, tk.END)
+    entry_placeholder.delete(0, tk.END)
+
+def guardar_archivo():
+    """Función para guardar el arreglo en un archivo JSON."""
+    if not arreglo_campos:
+        messagebox.showwarning("Advertencia", "No hay campos para guardar.")
+        return
+    
+    archivo = filedialog.asksaveasfilename(
+        defaultextension=".json",
+        filetypes=[("Archivos JSON", "*.json"), ("Todos los archivos", "*.*")]
+    )
+    if archivo:
+        try:
+            # Agregar el campos al final del arreglo
+            campo = {"name": "empresa", "type": "str", "label": "Empresa", "placeholder": "no_visible"}
+            arreglo_campos.append(campo)
+            campo = {"name": "activo", "type": "bool", "label": "Activo", "placeholder": "Activo"}
+            arreglo_campos.append(campo)
+
+            with open(archivo, "w", encoding="utf-8") as f:
+                json.dump(arreglo_campos, f, ensure_ascii=False, indent=4)
+
+            messagebox.showinfo("Éxito", "El archivo se guardó correctamente.")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
+# Crear ventana principal
+ventana = tk.Tk()
+ventana.title("Generador de Arreglo de Campos")
+ventana.geometry("400x400")
+
+# Entradas de datos
+tk.Label(ventana, text="Nombre del Campo:").pack(pady=5)
+entry_nombre = tk.Entry(ventana, width=40)
+entry_nombre.pack()
+
+tk.Label(ventana, text="Tipo de Dato:").pack(pady=5)
+tipo_var = tk.StringVar(ventana)
+tipo_var.set(tipos_dato[0])  # Valor inicial del select
+option_menu_tipo = tk.OptionMenu(ventana, tipo_var, *tipos_dato)
+option_menu_tipo.pack()
+
+tk.Label(ventana, text="Etiqueta:").pack(pady=5)
+entry_etiqueta = tk.Entry(ventana, width=40)
+entry_etiqueta.pack()
+
+tk.Label(ventana, text="Placeholder (opcional):").pack(pady=5)
+entry_placeholder = tk.Entry(ventana, width=40)
+entry_placeholder.pack()
+
+# Botones
+boton_agregar = tk.Button(ventana, text="Ingresar otro", command=agregar_campo)
+boton_agregar.pack(pady=10)
+
+boton_guardar = tk.Button(ventana, text="Grabar", command=guardar_archivo)
+boton_guardar.pack(pady=10)
+
+# Iniciar la ventana
+ventana.mainloop()
+

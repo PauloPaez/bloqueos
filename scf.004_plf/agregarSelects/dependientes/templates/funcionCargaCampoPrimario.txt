@@ -1,0 +1,12 @@
+  const !campoPrimario!Seleccionada = watch('notas_solicitadas.0.!campoPrimario!');
+
+  useEffect(() => {
+    console.log("!CampoPrimario! seleccionada:", !campoPrimario!Seleccionada);
+    if (!campoPrimario!Seleccionada) {
+      recuperarTipos(!campoPrimario!Seleccionada);
+      setValue('notas_solicitadas.0.tipo', '');
+    } else {
+      setDatosSelect(prev => ({ ...prev, tipos: [] }));
+    }
+  }, [!campoPrimario!Seleccionada, recuperar!CampoSecundario!, setValue]);
+  

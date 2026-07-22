@@ -1,0 +1,27 @@
+[
+    {
+        "name": "domicilio",
+        "type": "str",
+        "label": "Domicilio",
+        "placeholder": "Domicilio"
+    },
+    {
+        "name": "privincia",
+        "label": "Provincias",
+        "type": "select",
+        "optionsKey": "privincias",
+        "placeholder": "Provincias"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

@@ -1,0 +1,98 @@
+# routers/!model!.py
+from fastapi import APIRouter, HTTPException
+from typing import List, Dict, Any
+from pydantic import BaseModel
+
+# ----------------------------------------------------
+from scripts.models.!model! import !Model!
+# ----------------------------------------------------
+from scripts.querys.!model! import get_!model!, add_!model!, \
+    put_!model!, get_!model!_by_id, search_!model!_in_db,\
+    patch_!model!, get_!model!_distinct
+# ----------------------------------------------------
+# Importa desde el módulo externo
+from utils.websockets_manager import notify_clients
+
+!model! = APIRouter()
+
+
+@!model!.get("/!model!/", response_model=List[!Model!])
+async def fetch_!model!():
+    try:
+        return await get_!model!()
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error al obtener los datos: {e}"
+        )
+
+@!model!.get("/!model!/{id}/", response_model=!Model!)
+async def fetch_m_entrada_by_id(id: str):
+    try:
+        documento= await get_!model!_by_id(id)
+        if not documento:
+            raise HTTPException(
+                status_code=404, detail="Documento no encontrado")
+        return documento
+    except Exception as e:
+        raise HTTPException(
+            status_code =500, detail=f"Error al obtener el documento: {e}"
+        )
+
+@!model!.post("/!model!/search/", response_model=List[!Model!])
+async def search_!model!(filter: Dict[str, Any]):
+    try:
+        documentos= await search_!model!_in_db(filter)
+        return documentos
+    except Exception as e:
+        raise HTTPException(
+        status_code =500, detail=f"Error al realizar la búsqueda: {e}"
+        )
+
+
+@!model!.post("/!model!/", status_code=201)
+async def post_!model!(!model!: !Model!):
+    try:
+        result = await add_!model!(!model!.dict())
+        await notify_clients("!model!", "Nuevo !model! agregado")
+        return {"message": "Documento insertado con éxito", "id": str(result)}
+    except Exception as e:
+        raise HTTPException(
+        status_code =500, detail=f"Error al insertar el documento: {e}"
+    )
+
+@!model!.put("/!model!/")
+async def update_!model!(item: !Model!):
+    try:
+        result= await put_!model!(item.dict())
+        await notify_clients("!model!", "!model! actualizado")
+        return {"message": "Documento actualizado con éxito", "id": str(result)}
+    except Exception as e:
+        raise HTTPException(
+            status_code =500, detail=f"Error al actualizar el documento: {e}"
+        )
+@!model!.patch("/!model!/")
+async def partial_update_!model!(document: dict):
+    try:
+        result = await patch_!model!(document)
+        await notify_clients("!model!", "Documento actualizado parcialmente")
+        return {
+            "message": "Actualización parcial exitosa",
+            "result": result
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error al actualizar parcialmente el documento: {e}"
+        )
+
+@!model!.get("/!model!/distinct/{campo}/")
+async def get_TN_distinct(campo: str):
+    try:
+        documento= await get_!model!_distinct(campo)
+        if not documento:
+            raise HTTPException(
+                status_code=404, detail="Documento no encontrado")
+        return documento
+    except Exception as e:
+        raise HTTPException(
+            status_code =500, detail=f"Error al obtener el documento: {e}"
+        )

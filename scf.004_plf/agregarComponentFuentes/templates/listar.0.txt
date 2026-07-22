@@ -1,0 +1,152 @@
+import React, { useState, useEffect, useCallback } from "react";
+import { usePost!Model!ByFieldMutation } from "../../store/apiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {setModuloState , resetModulo,  setFiltroListado} from "../../store/appSlice";
+import Filtro!Model! from "./Filtro!Model!";
+import { convertirMesANumero } from "../../common/meses"; 
+import '../../common/tables.css';
+
+const Listar!Model! = () => {
+  const dispatch = useDispatch();
+  const filtroListado = useSelector((state) => state.listado.filtro);
+  const [post!Model!, { error}] = usePost!Model!ByFieldMutation();
+  const [datos, setDatos] = useState([]);
+  const user = useSelector((state) => state.acceso.user);
+  
+  // Definir el filtro inicial
+  const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
+  const filtroInicial = { "activo": true };
+  const postFijo = { "empresa": user.empresa };
+  
+  // Función para cargar datos con memoización
+  const fetchData = useCallback(async (filtro) => {
+    try {
+      const filtroFinal = Object.keys(filtro).length > 0 ? 
+        {...filtro, ...postFijo} : {...filtroInicial, ...postFijo};
+      const result = await post!Model!(filtroFinal).unwrap();
+      setDatos(result || []);
+      setMostrarFiltroInicial(result?.length === 0 && Object.keys(filtro).length > 0);
+    } catch (err) {
+      console.error("Error fetching datos:", err);
+      setDatos([]);
+      setMostrarFiltroInicial(true);
+    }
+  }, [post!Model!]);
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    const filtroActual = { ...filtroInicial, ...postFijo };  
+    dispatch(setFiltroListado(filtroActual));
+    fetchData(filtroInicial);
+  }, [dispatch, fetchData, user.roles, user.empresa]);
+
+  // Manejar cambios en los filtros
+  useEffect(() => {
+    dispatch(resetModulo({ modulo: 'empleado' }));
+    if (Object.keys(filtroListado).length > 0 || filtroListado.todo !== undefined) {
+      const filtroTransformado = { ...filtroListado };
+      if (
+        filtroTransformado.hasOwnProperty("mes") &&
+        typeof filtroTransformado.mes === "string"
+      ) {
+        const numeroMes = convertirMesANumero(filtroTransformado.mes);
+        if (numeroMes) {
+          filtroTransformado.mes = numeroMes;
+        }
+      }
+      const filtroMongo = { ...filtroTransformado, ...postFijo }
+      fetchData(filtroMongo); //Nuevo Filtro
+    }
+  }, [filtroListado, fetchData]);
+
+  // WebSocket
+  useEffect(() => {
+    const websocket = new WebSocket("ws://localhost:8000/ws/!model!");
+
+    websocket.onmessage = () => {
+      fetchData(filtroListado);
+    };
+
+    return () => websocket.close();
+  }, [filtroListado, fetchData]);
+
+  // if (isLoading) return <p>Cargando !model!...</p>;
+  if (error) return <p>Error al cargar !model!: {error.message}</p>;
+
+  const formFields = [
+
+  ];
+
+  const handleRowClick = (dato) => {
+    dispatch(setModuloState({
+    modulo: '!model!',
+    nuevosDatos: {
+      datos: dato,
+      estadoEdicion: true
+    }
+  }));
+  };
+
+  const handleResetFilter = () => {
+    dispatch(setFiltroListado(filtroInicial));
+    fetchData(filtroInicial);
+    };
+
+  return (
+    <div>
+      <h2 className="centered-title">Listado de !Model!</h2>
+      <Filtro!Model! filtroInicial={filtroInicial} postFijo={postFijo} />
+      {/* {isLoading && <p>Cargando datos...</p>} */}
+      {mostrarFiltroInicial && (
+        <div className="alert alert-info">
+          No hay datos disponibles con los filtros actuales.
+          <button onClick={handleResetFilter} className="btn btn-link">
+            Mostrar todos los datos
+          </button>
+        </div>
+      )}
+
+      {datos.length > 0 ? (
+        <div className="table-container-wrapper">
+          <div className="table-container">
+            <table className="sticky-table">
+              <thead>
+                <tr className="sticky-header">
+                  {formFields.filter(field => field.placeholder !== "no_visible").map((field) => (
+                    <th key={field.name}>{field.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {datos.filter(field => field.placeholder !== "no_visible").map((item, index) => (
+                  <tr key={index} onClick={() => handleRowClick(item)}>
+                    {formFields.filter(field => field.placeholder !== "no_visible").map((field) => {
+                      const valor = item[field.name];
+                      if (field.type === "date" && valor) {
+                        return <td key={field.name}>{new Date(valor).toLocaleDateString('es-ES')}</td>;
+                      }
+                      if (typeof valor === "boolean") {
+                        return <td key={field.name}>{valor ? "SI" : "NO"}</td>;
+                      }
+                      // Nueva condición para el campo 'nota'
+                      if (field.name === "nota") {
+                        return <td key={field.name}>{valor && valor.trim() !== "" ? "SI" : "NO"}</td>;
+                      }
+                      return <td key={field.name}>{valor || "-"}</td>;
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <p>No hay datos disponibles</p>
+      )}
+
+    </div>
+  );
+};
+
+export default Listar!Model!;
+

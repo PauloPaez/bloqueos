@@ -1,0 +1,14 @@
+    {
+      name: "!campoPrimario!",
+      label: "!CampoPrimario!,
+      type: "select",
+      optionsKey: "!campoPrimario!"
+    },
+    {
+      name: "!campoSecundario!",
+      label: "!CampoSecundario!",
+      type: "select",
+      optionsKey: "!campoSecundario!",
+      disabled: !campoPrimario!Seleccionada
+    },
+    

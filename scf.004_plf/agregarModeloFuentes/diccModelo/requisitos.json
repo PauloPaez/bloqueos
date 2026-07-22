@@ -1,0 +1,33 @@
+[
+    {
+        "name": "tramite",
+        "label": "Tramite",
+        "type": "select",
+        "optionsKey": "tramites",
+        "placeholder": "Tramite"
+    },
+    {
+        "name": "requisito",
+        "type": "str",
+        "label": "Requisito",
+        "placeholder": "Requisito"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

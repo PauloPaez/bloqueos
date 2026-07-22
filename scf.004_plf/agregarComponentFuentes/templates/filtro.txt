@@ -1,0 +1,22 @@
+import React from 'react';
+import GenericFilter from '../../common/GenericFilter';
+
+const Filtro!model! = ({ filtroInicial, postFijo }) => {
+    // console.log("Filtro!model!", filtroInicial);
+    const configuracionFiltro = [
+
+    ]
+    return (
+        <GenericFilter
+          configuracion={configuracionFiltro}
+          filtroInicial={filtroInicial} 
+          postFijo = {postFijo}
+        />
+      );
+};
+// tipo: "str" es para texto, "number" es para números, "list" es para listas desplegables y "checkbox" es para casillas de verificación
+// "placeholder" es el texto que aparece en el campo de entrada antes de que el usuario escriba algo
+// "etiqueta" es el texto que se muestra al lado del campo de entrada
+// "clave" es la clave que se usará para almacenar el valor en el estado
+// "valor" es el valor inicial del campo de entrada
+export default Filtro!model!;

@@ -1,0 +1,58 @@
+[
+    {
+        "rol": "Administrador",
+        "componente": "ActualizarUsuarios",
+        "path": "/Usuarios/ActualizarUsuarios",
+        "nombre": "Actualizar Usuarios",
+        "app": false
+    },
+    {
+        "rol": "Administrador",
+        "componente": "ListarUsuarios",
+        "path": "/Usuarios/ListarUsuarios",
+        "nombre": "Listar Usuarios",
+        "app": false
+    },
+    {
+        "rol": "Administrador",
+        "componente": "ActualizarRoles",
+        "path": "/Roles/ActualizarRoles",
+        "nombre": "Actualizar Roles",
+        "app": false
+    },
+    {
+        "rol": "Administrador",
+        "componente": "ListarRoles",
+        "path": "/Roles/ListarRoles",
+        "nombre": "Listar Roles",
+        "app": false
+    },
+    {
+        "rol": "Administrador",
+        "componente": "ActualizarRutas",
+        "path": "/Rutas/ActualizarRutas",
+        "nombre": "Actualizar Rutas",
+        "app": false
+    },
+    {
+        "rol": "Administrador",
+        "componente": "ListarRutas",
+        "path": "/Rutas/ListarRutas",
+        "nombre": "Listar Rutas",
+        "app": false
+    },
+    {
+        "componente": "ActualizarPersonas",
+        "path": "/Personas/ActualizarPersonas",
+        "nombre": "Actualizar Personas",
+        "rol": "Administrador",
+        "app": false
+    },
+    {
+        "componente": "ListarPersonas",
+        "path": "/Personas/ListarPersonas",
+        "nombre": "Listar Personas",
+        "rol": "Administrador",
+        "app": false
+    }
+]

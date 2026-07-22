@@ -1,0 +1,62 @@
+[
+    {
+        "name": "nota_a_director",
+        "type": "bool",
+        "label": "Nota dirigida al Director general",
+        "placeholder": "Nota dirigida al Director general"
+    },
+    {
+        "name": "formulario_tipo",
+        "type": "bool",
+        "label": "Formulario tipo",
+        "placeholder": "Formulario tipo"
+    },
+    {
+        "name": "contrato_constitutivo",
+        "type": "bool",
+        "label": "Contrato constitutivo certificado por escribano",
+        "placeholder": "Contrato constitutivo certificado por escribano"
+    },
+    {
+        "name": "unid_tributarias",
+        "type": "bool",
+        "label": "1500 unidades tributarias",
+        "placeholder": "1500 unidades tributarias"
+    },
+    {
+        "name": "declaracion_jurada",
+        "type": "bool",
+        "label": "Declaracion jurada sobre personas politicamente expuestas",
+        "placeholder": "Declaracion jurada sobre personas politicamente expuestas"
+    },
+    {
+        "name": "beneficiario_final",
+        "type": "bool",
+        "label": "Beneficiario final",
+        "placeholder": "Beneficiario final"
+    },
+    {
+        "name": "declaracion_art",
+        "type": "bool",
+        "label": "Declaracion si encuadra dentro del art. 199 LGS",
+        "placeholder": "Declaracion si encuadra dentro del art. 199 LGS"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

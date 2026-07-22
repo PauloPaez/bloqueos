@@ -1,0 +1,9 @@
+  const actualizarFormulario = (datos) => {
+    if (!datos) return;
+    const camposComunes = !camposInterseccion!
+    camposComunes.forEach(campo => {
+      if (datos[campo] !== undefined) {
+        setValue(`!model!.0.${campo}`, datos[campo] ?? "");
+      }
+    })
+  };

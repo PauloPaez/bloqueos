@@ -1,0 +1,18 @@
+  const buscar!Campo! = async (!campo!) => {
+    if (!campo!) {
+      const filtro = { !campo!: { "$regex": !campo!, "$options": "i" }, activo: true };
+      try {
+        const result = await post!Model!ByField(filtro).unwrap();
+        // Si hay resultados, actualizar los campos del formulario
+        if (result && result.length > 0) {
+          const !model! = result[0];
+          actualizarFormulario(!model!, '!model!');
+        }
+      } catch (error) {
+        console.error("Error al buscar !model!:", error);
+      }
+    } else {
+      console.error("!Campo! no proporcionado");
+    }
+  };
+
