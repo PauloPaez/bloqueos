@@ -16,8 +16,8 @@ export const objetosApi = createApi({
 		providesTags: (result, error, id) => [{ type: "Escuelas", id }],
 	}),
 	postEscuelasByField: builder.mutation({
-		query: (filter) => ({
-			url: "escuelas/search/",
+		query: ({ filter = {}, page = 1, page_size = 10 } = {}) => ({
+			url: `escuelas/search/?page=${page}&page_size=${page_size}`,
 			method: "POST",
 			body: filter, // Enviar el filtro como un objeto
 		}),
