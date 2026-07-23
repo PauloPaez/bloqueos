@@ -5,10 +5,10 @@ from pathlib import Path
 # 1. Conectar a MongoDB
 conn = MongoClient('mongodb+srv://paulo:Paulo2023@cluster0.prraayx.mongodb.net/BLOQUEOS_DPI?retryWrites=true&w=majority')
 db = conn['BLOQUEOS_DPI']
-coleccion = db['escuelas']
+coleccion = db['Escuelas']
 
 # 2. Cargar el archivo padrones.json
-archivo = Path('padrones.json')
+archivo = Path(__file__).resolve().parent / 'titulares2.json'
 if not archivo.exists():
     print(f"El archivo {archivo} no existe.")
     exit(1)
@@ -25,7 +25,13 @@ if not datos:
     print("El archivo está vacío, no hay documentos para insertar.")
     exit(0)
 
-# 4. Insertar en MongoDB (con manejo de errores)
+# 4. Agregar los campos adicionales a cada documento
+for documento in datos:
+    documento['login'] = "ppaez"
+    documento['empresa'] = "DPI"
+    documento['activo'] = True
+
+# 5. Insertar en MongoDB
 try:
     resultado = coleccion.insert_many(datos)
     print(f"✅ Se insertaron {len(resultado.inserted_ids)} documentos en la colección 'escuelas'.")

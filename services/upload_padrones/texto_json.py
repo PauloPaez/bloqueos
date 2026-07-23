@@ -7,7 +7,7 @@ from pathlib import Path
 # ============================================================
 directorio_actual = Path(__file__).resolve().parent
 directorio_back = directorio_actual.parent.parent
-directorio_fuente = directorio_back.parent / "fuente_de_verdad"
+directorio_fuente = directorio_back.parent / "bloqueos" / "fuente_de_verdad"
 
 print("Directorio fuente:", directorio_fuente)
 
@@ -64,25 +64,35 @@ def parsear_linea(linea: str) -> dict:
     padron = linea[105:111].strip()
     digito_padron = linea[111].strip()
 
-    registro = {
-        'tipo_reg': linea[0].strip(),
-        'codigo_liquidacion': linea[1:3].strip(),
-        'centro_pago': linea[3:6].strip(),
-        'fecha_pago': f"{año}/{mes}/{dia}",
-        'sucursal_acreditacion': linea[12:14].strip(),
-        'tipo_acreditacion': linea[14].strip(),
-        'cuenta_acreditacion_digito': f"{num_cuenta}/{digito_cuenta}" if digito_cuenta else num_cuenta,
-        'importe_acreditar': formatear_importe(linea[23:38]),
-        'ayn': linea[38:68].strip(),
-        'tipoynumdoc': f"{tipo_doc}/{num_doc}" if tipo_doc and num_doc else "",
-        'sucursal_cuenta_digitodebito': f"{sucursal_deb}/{cuenta_deb}/{digito_deb}" if digito_deb else f"{sucursal_deb}/{cuenta_deb}",
-        'cuil': formatear_cuil(linea[88:99]),
-        'zona': linea[99].strip(),
-        'centro_sector': f"{centro}/{sector}" if centro and sector else "",
-        'padron_digitoverificador': f"{padron}/{digito_padron}" if digito_padron else padron,
-        'codigo_banco': linea[126:128].strip()
+    return {
+        "tipo_reg": linea[0:1].strip(),                     # 1
+        "codigo_liquidacion": linea[1:3].strip(),           # 2-3
+        "centro_pago": linea[3:6].strip(),                  # 4-6
+        "pago_anio": año,                                  # 7-8
+        "pago_mes": mes,                                    # 9-10
+        "pago_dia": dia,                                    # 11-12
+        "suc_acreditacion": linea[12:14].strip(),           # 13-14
+        "tipo_acreditacion": linea[14:15].strip(),          # 15
+        "cuenta_acreditacion": linea[15:22].strip(),        # 16-22
+        "cuenta_acreditacion_dv": linea[22:23].strip(),     # 23
+        "importe_acreditado": formatear_importe(linea[23:38]),         # 24-38
+        "beneficiario_nombre": linea[38:68].strip(),        # 39-68
+        "documento_tipo": linea[68:69].strip(),             # 69
+        "documento_nro": linea[69:77].strip(),              # 70-77
+        "suc_debito": linea[77:79].strip(),                 # 78-79
+        "tipo_debito": linea[79:80].strip(),                # 80
+        "cuenta_debito": linea[80:87].strip(),              # 81-87
+        "cuenta_debito_dv": linea[87:88].strip(),           # 88
+        "cuil": formatear_cuil(linea[88:99]),                       # 89-99
+        "zona": linea[99:100].strip(),                      # 100
+        "centro": linea[100:102].strip(),                   # 101-102
+        "sector": linea[102:105].strip(),                   # 103-105
+        "padron": linea[105:111].strip(),                   # 106-111
+        "padron_dv": linea[111:112].strip(),                # 112
+        "reservado": linea[112:126].strip(),                # 113-126
+        "cod_banco": linea[126:128].strip(),                # 127-128
+        "fecha_pago": f"{dia}/{mes}/{año}",
     }
-    return registro
 
 # ============================================================
 # 4. Procesamiento de un archivo
@@ -121,7 +131,7 @@ def main():
             print(f"  -> {len(registros)} registros")
 
     # Guardar JSON
-    with open('titulares.json', 'w', encoding='utf-8') as f:
+    with open('titulares2.json', 'w', encoding='utf-8') as f:
         json.dump(todos, f, ensure_ascii=False, indent=2)
 
     print(f"\n✅ Total: {len(todos)} registros guardados en titulares.json")
