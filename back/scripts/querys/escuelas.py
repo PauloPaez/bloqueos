@@ -93,3 +93,31 @@ async def get_escuelas_distinct(campo) -> list:
 
     except Exception as e:
         raise Exception(f"Error al buscar documento: {e}")
+
+
+async def search_escuelas_paginado(filter: dict, page: int = 1, page_size: int = 10):
+    try:
+        # Filtrar eliminando valores nulos o vacíos
+        query = {k: v for k, v in filter.items() if v is not None}
+
+        # Calcular el total de documentos
+        total = await coleccion.count_documents(query)
+
+        # Calcular el offset
+        skip = (page - 1) * page_size
+
+        # Ejecutar la búsqueda con paginación
+        cursor = coleccion.find(query).skip(skip).limit(page_size)
+        data = []
+        async for document in cursor:
+            data.append(escuelasSh(document))
+
+        return {
+            "data": data,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total + page_size - 1) // page_size
+        }
+    except Exception as e:
+        raise Exception(f"Error al buscar documentos: {e}")
