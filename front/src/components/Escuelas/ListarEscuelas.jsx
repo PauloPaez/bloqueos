@@ -21,12 +21,11 @@ const ListarEscuelas = () => {
         page_size: 10,
         total_pages: 0,
     });
-  const user = useSelector((state) => state.acceso.user);
   const [isLoading, setIsLoading] = useState(true);
   // Definir el filtro inicial
   const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
-  const filtroInicial = { "activo": true };
-  const postFijo = { "empresa": user.empresa };
+  const filtroInicial = {};
+  const postFijo = {};
 
 
   // Cargar datos iniciales
