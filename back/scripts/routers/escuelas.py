@@ -1,7 +1,10 @@
 # routers/escuelas.py
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException, Request
+from fastapi.responses import StreamingResponse
+import polars as pl
+import io
 from pydantic import BaseModel
 
 # ----------------------------------------------------
@@ -118,4 +121,49 @@ async def get_TN_distinct(campo: str):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error al obtener el documento: {e}"
+        )
+
+
+@escuelas.post(
+    "/generar-excel-bloqueados"
+)  # Este endpoint lo hice en un momento cuando pidieron trabajar con excel, pero luego dijeron que se iba a trabajar desde frontend
+async def obtenerPartePoliciaImponibleExcel():
+    """Este endpoint por el momento no recibe nada pero genera un excel unicamente con las escuelas bloqueadas."""
+    try:
+        # 1. Obtener la data (lista de diccionarios)
+        resultado = await search_escuelas_in_db({"bloqueo": True})
+        print(resultado)
+
+        if not resultado:
+            raise HTTPException(
+                status_code=404, detail="No se encontraron datos para el período."
+            )
+
+        # 2. Cargar la data en un DataFrame de Polars
+        df = pl.DataFrame(resultado)
+
+        # 3. Crear un buffer en memoria para guardar el Excel
+        buffer = io.BytesIO()
+        df.write_excel(buffer)
+        buffer.seek(0)  # Regresar el puntero al inicio del archivo
+
+        # 4. Retornar el archivo virtual como StreamingResponse
+        # Set los headers para que el navegador lo entienda como una descarga
+        headers = {
+            "Content-Disposition": 'attachment; filename="escuelas_bloqueadas.xlsx"'
+        }
+
+        return StreamingResponse(
+            buffer,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers=headers,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"ERROR: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error al generar el excel del PARTE_POLICIA_IMPONIBLE",
         )
