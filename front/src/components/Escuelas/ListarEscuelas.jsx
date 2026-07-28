@@ -3,24 +3,63 @@ import { usePostEscuelasByFieldMutation } from "../../store/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { setModuloState, resetModulo, setFiltroListado } from "../../store/appSlice";
 import FiltroEscuelas from "./FiltroEscuelas";
-import { convertirMesANumero } from "../../common/meses";
+import { convertirMesANumero } from "../../common/meses"; 
 import { WS_BASE_URL } from "../../config/api";
 import '../../common/tables.css';
 import { formularioCampos } from './FormularioListar';
 import Pagination from "../Pagination/Pagination";
+
 
 const ListarEscuelas = () => {
   const dispatch = useDispatch();
   const filtroListado = useSelector((state) => state.listado.filtro);
   const [postEscuelas] = usePostEscuelasByFieldMutation();
   const [datos, setDatos] = useState([]);
-  const user = useSelector((state) => state.acceso.user);
+  const [paginacion, setPaginacion] = useState({
+        total: 0,
+        page: 1,
+        page_size: 10,
+        total_pages: 0,
+    });
   const [isLoading, setIsLoading] = useState(true);
   // Definir el filtro inicial
   const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
-  const filtroInicial = { "activo": true };
-  const postFijo = { "empresa": user.empresa };
+  const filtroInicial = {};
+  const postFijo = {};
+
+
   // Cargar datos iniciales
+
+const buscarEscuelas = async (
+        filtro,
+        page = 1,
+        page_size = paginacion.page_size,
+    ) => {
+        setIsLoading(true);
+        try {
+      const result = await postEscuelas({
+                filter: filtro,
+                page,
+                page_size,
+            }).unwrap();
+            setDatos(result?.data || []);
+            setPaginacion({
+                total: result?.total || 0,
+                page: result?.page || 1,
+                page_size: result?.page_size || page_size,
+                total_pages: result?.total_pages || 0,
+            });
+            setMostrarFiltroInicial((result?.data || []).length === 0);
+        } catch (err) {
+            console.error("Error fetching datos:", err);
+            setDatos([]);
+            setMostrarFiltroInicial(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
   useEffect(() => {
     const cargarDatosIniciales = async () => {
       setIsLoading(true);
@@ -28,9 +67,19 @@ const ListarEscuelas = () => {
         const filtroActual = { ...filtroInicial, ...postFijo };
         console.log("Cargando datos con filtro:", filtroActual);
         dispatch(setFiltroListado(filtroActual));
-        const result = await postEscuelas(filtroActual).unwrap();
-        setDatos(result || []);
-        setMostrarFiltroInicial(result?.length === 0);
+        const result = await postEscuelas({
+          filter: filtroActual,
+          page: 1,
+          page_size: paginacion.page_size,
+        }).unwrap();
+        setDatos(result?.data || []);
+        setPaginacion({
+          total: result?.total || 0,
+          page: result?.page || 1,
+          page_size: result?.page_size || paginacion.page_size,
+          total_pages: result?.total_pages || 0,
+        });
+        setMostrarFiltroInicial((result?.data || []).length === 0);
       } catch (err) {
         console.error("Error fetching datos iniciales:", err);
         setDatos([]);
@@ -46,18 +95,33 @@ const ListarEscuelas = () => {
     if (filtroListado && Object.keys(filtroListado).length > 0) {
       const aplicarFiltro = async () => {
         setIsLoading(true);
-        dispatch(resetModulo({ modulo: 'empleado' }));
+        dispatch(resetModulo({ modulo: 'escuelas' }));
         const filtroTransformado = { ...filtroListado };
         if (filtroTransformado.mes && typeof filtroTransformado.mes === "string") {
           const numeroMes = convertirMesANumero(filtroTransformado.mes);
           if (numeroMes) {
             filtroTransformado.mes = numeroMes;
           }
+          await buscarEscuelas(
+                    filtroTransformado,
+                    1,
+                    paginacion.page_size,
+                );
         }
         try {
-          const result = await postEscuelas(filtroTransformado).unwrap();
-          setDatos(result || []);
-          setMostrarFiltroInicial(result?.length === 0);
+          const result = await postEscuelas({
+            filter: filtroTransformado,
+            page: 1,
+            page_size: paginacion.page_size,
+          }).unwrap();
+          setDatos(result?.data || []);
+          setPaginacion({
+            total: result?.total || 0,
+            page: result?.page || 1,
+            page_size: result?.page_size || paginacion.page_size,
+            total_pages: result?.total_pages || 0,
+          });
+          setMostrarFiltroInicial((result?.data || []).length === 0);
         } catch (err) {
           console.error("Error fetching datos con filtro:", err);
           setDatos([]);
@@ -68,15 +132,27 @@ const ListarEscuelas = () => {
       };
       aplicarFiltro();
     }
-  }, [filtroListado, dispatch, postEscuelas]);
+  }, [filtroListado]);
   const refetch = useCallback(() => {
     if (filtroListado && Object.keys(filtroListado).length > 0) {
-      return postEscuelas(filtroListado).unwrap()
-        .then(result => setDatos(result || []))
+      return postEscuelas({
+        filter: filtroListado,
+        page: paginacion.page,
+        page_size: paginacion.page_size,
+      }).unwrap()
+        .then(result => {
+          setDatos(result?.data || []);
+          setPaginacion({
+            total: result?.total || 0,
+            page: result?.page || paginacion.page,
+            page_size: result?.page_size || paginacion.page_size,
+            total_pages: result?.total_pages || 0,
+          });
+        })
         .catch(err => console.error("Error recargando datos:", err));
     }
     return Promise.resolve();
-  }, [filtroListado, postEscuelas]);
+  }, [filtroListado, paginacion.page, paginacion.page_size, postEscuelas]);
   // WebSocket
   useEffect(() => {
     const websocket = new WebSocket(`${WS_BASE_URL}ws/escuelas`);
@@ -91,7 +167,7 @@ const ListarEscuelas = () => {
       websocket.close();
     };
   }, [refetch]);
-  const handleRowClick = (dato) => {
+   const handleRowClick = (dato) => {
     dispatch(setModuloState({
       modulo: 'escuelas',
       nuevosDatos: {
@@ -103,13 +179,32 @@ const ListarEscuelas = () => {
   const handleResetFilter = () => {
     const filtroReset = { ...filtroInicial, ...postFijo };
     dispatch(setFiltroListado(filtroReset));
-    postEscuelas(filtroReset).unwrap()
+    postEscuelas({
+      filter: filtroReset,
+      page: 1,
+      page_size: paginacion.page_size,
+    }).unwrap()
       .then(result => {
-        setDatos(result || []);
-        setMostrarFiltroInicial(result?.length === 0);
+        setDatos(result?.data || []);
+        setPaginacion({
+          total: result?.total || 0,
+          page: result?.page || 1,
+          page_size: result?.page_size || paginacion.page_size,
+          total_pages: result?.total_pages || 0,
+        });
+        setMostrarFiltroInicial((result?.data || []).length === 0);
       })
       .catch(err => console.error("Error recargando datos reset:", err));
   };
+
+  const handlePageChange = (newPage) => {
+        buscarEscuelas(filtroListado, newPage, paginacion.page_size);
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+        buscarEscuelas(filtroListado, 1, newPageSize);
+  };
+
   if (isLoading) {
     return (
       <div className="text-center my-4">
@@ -135,48 +230,48 @@ const ListarEscuelas = () => {
       )}
       {datos.length > 0 ? (
         <div className="table-container-wrapper">
-            <div className="table-container" data-pagination>
-              <table className="sticky-table">
-                <thead>
-                  <tr className="sticky-header">
-                    {camposVisibles.map((field) => (
-                      <th key={field.name}>{field.label}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {datos.map((item, index) => (
-                    <tr key={index} onClick={() => handleRowClick(item)}>
-                      {camposVisibles.map((field) => {
-                        const valor = item[field.name];
-                        if (field.type === "date" && valor) {
-                          return <td key={field.name}>{new Date(valor).toLocaleDateString('es-ES')}</td>;
-                        }
-                        if (typeof valor === "boolean") {
-                          return <td key={field.name}>{valor ? "SI" : "NO"}</td>;
-                        }
-                        if (field.name === "nota") {
-                          return <td key={field.name}>{valor && valor.trim() !== "" ? "SI" : "NO"}</td>;
-                        }
-                        return <td key={field.name}>{valor || "-"}</td>;
-                      })}
-                    </tr>
+          <div className="table-container" data-pagination>
+            <table className="sticky-table">
+              <thead>
+                <tr className="sticky-header">
+                  {camposVisibles.map((field) => (
+                    <th key={field.name}>{field.label}</th>
                   ))}
-                </tbody>
-              </table>
-            </div>
-            <Pagination
-              currentPage={paginacion.page}
-              totalItems={paginacion.total}
-              pageSize={paginacion.page_size}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-            />
+                </tr>
+              </thead>
+              <tbody>
+                {datos.map((item, index) => (
+                  <tr key={index} onClick={() => handleRowClick(item)}>
+                    {camposVisibles.map((field) => {
+                      const valor = item[field.name];
+                      if (field.type === "date" && valor) {
+                        return <td key={field.name}>{new Date(valor).toLocaleDateString('es-ES')}</td>;
+                      }
+                      if (typeof valor === "boolean") {
+                        return <td key={field.name}>{valor ? "SI" : "NO"}</td>;
+                      }
+                      if (field.name === "nota") {
+                        return <td key={field.name}>{valor && valor.trim() !== "" ? "SI" : "NO"}</td>;
+                      }
+                      return <td key={field.name}>{valor || "-"}</td>;
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          ) : (
-          !mostrarFiltroInicial && <p>No hay datos disponibles</p>
-      )}
+          <Pagination
+                        currentPage={paginacion.page}
+                        totalItems={paginacion.total}
+                        pageSize={paginacion.page_size}
+                        onPageChange={handlePageChange}
+                        onPageSizeChange={handlePageSizeChange}
+                    />
         </div>
-      );
+      ) : (
+        !mostrarFiltroInicial && <p>No hay datos disponibles</p>
+      )}
+    </div>
+  );
 };
-      export default ListarEscuelas;
+export default ListarEscuelas;

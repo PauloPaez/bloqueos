@@ -47,10 +47,10 @@ def parsear_registro(linea: str) -> dict:
     for campo, inicio, fin in LAYOUT:
         valor = linea[inicio - 1:fin]
 
-        if campo == "IMPORTE_ACREDITADO":
+        if campo == "importe_acreditado":
             valor = Decimal(valor) / Decimal("100")
 
-        elif campo in ("BENEFICIARIO_NOMBRE", "RESERVADO"):
+        elif campo in ("beneficiario_nombre", "reservado"):
             valor = valor.rstrip()
 
         else:

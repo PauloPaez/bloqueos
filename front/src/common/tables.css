@@ -10,12 +10,14 @@
 .table-container {
   max-height: 500px;
   overflow-y: auto;
+  overflow-x: auto;
   position: relative;
 }
 
 /* Estilos de la tabla */
 .sticky-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -35,6 +37,7 @@
   background-color: inherit;
   border-bottom: 2px solid #dee2e6;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 /* Celdas del cuerpo */
@@ -42,6 +45,9 @@
   padding: 10px 15px;
   border-bottom: 1px solid #ddd;
   vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Efecto hover para filas */
@@ -54,16 +60,3 @@
 .sticky-table {
   table-layout: fixed;
 }
-
-/* Opcional: Definir anchos específicos para columnas */
-.sticky-table th:nth-child(1),
-.sticky-table td:nth-child(1) {
-  width: 10%;
-}
-
-.sticky-table th:nth-child(2),
-.sticky-table td:nth-child(2) {
-  width: 15%;
-}
-
-/* ... continuar con los anchos para las demás columnas según necesidad */

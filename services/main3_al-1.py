@@ -4,7 +4,10 @@ from pathlib import Path
 
 from parsear import parsear_registro
 
-for archivo in Path("../fuente_de_verdad").rglob("*.*"):
+raiz_repositorio = Path(__file__).resolve().parents[1]
+directorio_fuentes = raiz_repositorio / "fuente_de_verdad"
+
+for archivo in directorio_fuentes.rglob("*.*"):
 
     if not archivo.is_file():
         continue
