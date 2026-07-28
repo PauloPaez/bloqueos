@@ -1,12 +1,13 @@
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 
 
 class Escuelas(BaseModel):
-    id: Optional[str] = Field(default=None)
+    id: Optional[str] = Field(default=None)  # ID del documento
     bloqueo: Optional[bool] = Field(default=False)
     tipo_reg: Optional[str] = Field(default=None)
-    codigo_liquidacion: Optional[str] = Field(default=None)
+    cod_liquidacion: Optional[str] = Field(default=None)
     centro_pago: Optional[str] = Field(default=None)
     pago_anio: Optional[str] = Field(default=None)
     pago_mes: Optional[str] = Field(default=None)
@@ -31,8 +32,8 @@ class Escuelas(BaseModel):
     padron_dv: Optional[str] = Field(default=None)
     reservado: Optional[str] = Field(default=None)
     cod_banco: Optional[str] = Field(default=None)
-    fecha_pago: Optional[str] = Field(default=None)
-    fuente: Optional[str] = Field(default=None)
+    tipo_archivo: Optional[str] = Field(default=None)
+    periodo: Optional[str] = Field(default=None)
     motivo: Optional[str] = Field(default=None)
     login: Optional[str] = Field(default=None)
     empresa: Optional[str] = Field(default=None)

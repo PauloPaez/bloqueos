@@ -1,22 +1,17 @@
 # routers/escuelas.py
-from typing import Any, Dict, List
-
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, HTTPException
+from typing import List, Dict, Any
+from pydantic import BaseModel
+# ----------------------------------------------------
 from scripts.models.escuelas import Escuelas
-from scripts.querys.escuelas import (
-    add_escuelas,
-    get_escuelas,
-    get_escuelas_by_id,
-    get_escuelas_distinct,
-    patch_escuelas,
-    put_escuelas,
-    search_escuelas_in_db,
-    search_escuelas_paginado
-)
+# ----------------------------------------------------
+from scripts.querys.escuelas import get_escuelas, add_escuelas, \
+    put_escuelas, get_escuelas_by_id, search_escuelas_in_db,\
+    patch_escuelas, get_escuelas_distinct
+# ----------------------------------------------------
+# Importa desde el módulo externo
 from utils.websockets_manager import notify_clients
-
 escuelas = APIRouter()
-
 @escuelas.get("/escuelas/", response_model=List[Escuelas])
 async def fetch_escuelas():
     try:
@@ -37,15 +32,15 @@ async def fetch_m_entrada_by_id(id: str):
         raise HTTPException(
             status_code =500, detail=f"Error al obtener el documento: {e}"
         )
-# @escuelas.post("/escuelas/search/", response_model=List[Escuelas])
-# async def search_escuelas(filter: Dict[str, Any]):
-#     try:
-#         documentos= await search_escuelas_in_db(filter)
-#         return documentos
-#     except Exception as e:
-#         raise HTTPException(
-#         status_code =500, detail=f"Error al realizar la búsqueda: {e}"
-#         )
+@escuelas.post("/escuelas/search/", response_model=List[Escuelas])
+async def search_escuelas(filter: Dict[str, Any]):
+    try:
+        documentos= await search_escuelas_in_db(filter)
+        return documentos
+    except Exception as e:
+        raise HTTPException(
+        status_code =500, detail=f"Error al realizar la búsqueda: {e}"
+        )
 @escuelas.post("/escuelas/", status_code=201)
 async def post_escuelas(escuelas: Escuelas):
     try:
@@ -90,18 +85,4 @@ async def get_TN_distinct(campo: str):
     except Exception as e:
         raise HTTPException(
             status_code =500, detail=f"Error al obtener el documento: {e}"
-        )
-
-@escuelas.post("/escuelas/search/")
-async def search_escuelas(
-    filter: Dict[str, Any] = Body(default={}),
-    page: int = 1,
-    page_size: int = 10
-):
-    try:
-        documentos = await search_escuelas_paginado(filter, page, page_size)
-        return documentos
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error al realizar la búsqueda: {e}"
         )

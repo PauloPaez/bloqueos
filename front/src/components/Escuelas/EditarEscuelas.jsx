@@ -84,7 +84,7 @@ const datosSelect = {
         ...escuelas,
         empresa: user.empresa,
         login: user.login,
-        activo: true,
+        ...(filaSeleccionada?.id ? {} : { activo: true })
       };
 
       if (filaSeleccionada?.id) {
