@@ -7,9 +7,9 @@ const ActualizarEscuelas = () => {
     <LayoutActualizar
       editar={<EditarEscuelas />}
       listar={<ListarEscuelas />}
-      ratioEditar={25}
-      ratioListar={75}
-      tituloEditar="Editar Escuelas"
+      // ratioEditar={25}
+      ratioListar={100}
+      // tituloEditar="Editar Escuelas"
       tituloListar="Listado de Escuelas"
     />
   );

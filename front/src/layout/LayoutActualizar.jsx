@@ -4,8 +4,8 @@ import React from "react";
 const LayoutActualizar = ({
   editar,
   listar,
-  ratioEditar = 20,
-  ratioListar = 80,
+  ratioEditar = 0,
+  ratioListar = 100,
   ocultarEditar = false,
   tituloEditar,
   tituloListar,

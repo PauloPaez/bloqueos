@@ -172,7 +172,8 @@ const buscarEscuelas = async (
       modulo: 'escuelas',
       nuevosDatos: {
         datos: dato,
-        estadoEdicion: true
+        estadoEdicion: true,
+        mostrarModal: true,
       }
     }));
   };

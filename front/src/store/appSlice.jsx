@@ -84,11 +84,13 @@ export const modulosSlice = createSlice({
             datos: null,
             filtros: {},
             estadoEdicion: false,
+            mostrarModal: false,
         },
         personas: {
             datos: null,
             filtros: {},
             estadoEdicion: false,
+            mostrarModal: false,
         },
     },
     reducers: {
@@ -103,7 +105,8 @@ export const modulosSlice = createSlice({
             state[modulo] = {
                 datos: null,
                 filtros: {},
-                estadoEdicion: false
+                estadoEdicion: false,
+                mostrarModal: false,
             };
             // Puedes añadir propiedades específicas para cada módulo en el reset si es necesario
         }
