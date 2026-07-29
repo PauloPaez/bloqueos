@@ -3,11 +3,6 @@ import GenericFilter from '../../common/GenericFilter';
 
 const FiltroEscuelas = ({ filtroInicial }) => {
   const configuracionFiltro = [
-    {   'clave': 'bloqueo',
-    'etiqueta': 'Bloqueo',
-    'placeholder': 'Bloqueo',
-    'tipo': 'checkbox',
-    'valor': ''},
     // {   'clave': 'tipo_reg',
     // 'etiqueta': 'Tipo Reg',
     // 'placeholder': 'Tipo Reg',
@@ -98,11 +93,11 @@ const FiltroEscuelas = ({ filtroInicial }) => {
     // 'placeholder': 'DV Cuenta Débito',
     // 'tipo': 'str',
     // 'valor': ''},
-    // {   'clave': 'cuil',
-    // 'etiqueta': 'CUIL',
-    // 'placeholder': 'CUIL',
-    // 'tipo': 'str',
-    // 'valor': ''},
+    {   'clave': 'cuil',
+    'etiqueta': 'CUIL',
+    'placeholder': 'CUIL',
+    'tipo': 'str',
+    'valor': ''},
     // {   'clave': 'zona',
     // 'etiqueta': 'Zona',
     // 'placeholder': 'Zona',
@@ -153,11 +148,17 @@ const FiltroEscuelas = ({ filtroInicial }) => {
     'placeholder': 'Motivo',
     'tipo': 'select',
     'valor': ''},
+    {   'clave': 'bloqueo',
+    'etiqueta': 'Bloqueo',
+    'placeholder': 'Bloqueo',
+    'tipo': 'checkbox',
+    'valor': ''},
     {   'clave': 'activo',
     'etiqueta': 'Activo',
     'placeholder': 'Activo',
     'tipo': 'checkbox',
     'valor': ''},
+
 ];
   
   return (

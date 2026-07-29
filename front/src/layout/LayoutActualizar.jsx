@@ -21,7 +21,11 @@ const LayoutActualizar = ({
           className="editar-modelo"
           style={{ flexBasis: `${ratioEditar}%` }}
         >
-          {tituloEditar && <h5 className="layout-titulo">{tituloEditar}</h5>}
+          {tituloEditar && (
+            <div className="listado-header">
+              <h5 className="listado-titulo">{tituloEditar}</h5>
+            </div>
+          )}
           {editar}
         </div>
       )}
@@ -30,7 +34,11 @@ const LayoutActualizar = ({
         className="listar-modelo"
         style={{ flexBasis: `${ratioListar}%` }}
       >
-        {tituloListar && <h5 className="layout-titulo">{tituloListar}</h5>}
+        {tituloListar && (
+          <div className="listado-header">
+            <h5 className="listado-titulo">{tituloListar}</h5>
+          </div>
+        )}
         {listar}
       </div>
     </div>

@@ -42,7 +42,15 @@ const ProtectedRoutes = () => {
       <Routes>
         {accesos.opciones.map((opcion) => {
           const Component = componentMap[opcion.path] || (() => <div>Página no encontrada</div>);
-          return <Route key={opcion.path} path={opcion.path} element={<Component />} />;
+          const esListado = opcion.path.includes("/Listar");
+          const element = esListado ? (
+            <main className="listado-pagina">
+              <Component />
+            </main>
+          ) : (
+            <Component />
+          );
+          return <Route key={opcion.path} path={opcion.path} element={element} />;
         })}
         {/* Redirige a la primera ruta disponible si no se encuentra la ruta */}
         <Route

@@ -8,7 +8,6 @@ const ActualizarEscuelas = () => {
       <LayoutActualizar
         ocultarEditar={true}
         listar={<ListarEscuelas />}
-        tituloListar="Listado de Escuelas"
       />
 
       <EditarEscuelas />
