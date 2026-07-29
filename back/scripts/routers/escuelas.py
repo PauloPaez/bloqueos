@@ -1,16 +1,12 @@
 # routers/escuelas.py
+import io
 from typing import Any, Dict, List
 
+import polars as pl
 from fastapi import APIRouter, Body, HTTPException, Request
 from fastapi.responses import StreamingResponse
-import polars as pl
-import io
 from pydantic import BaseModel
-
-# ----------------------------------------------------
 from scripts.models.escuelas import Escuelas
-
-# ----------------------------------------------------
 from scripts.querys.escuelas import (
     add_escuelas,
     get_escuelas,
@@ -22,9 +18,9 @@ from scripts.querys.escuelas import (
     search_escuelas_paginado,
 )
 
-# ----------------------------------------------------
 # Importa desde el módulo externo
 from utils.websockets_manager import notify_clients
+from xlsxwriter import Workbook
 
 escuelas = APIRouter()
 
@@ -127,7 +123,7 @@ async def get_TN_distinct(campo: str):
 @escuelas.post(
     "/generar-excel-bloqueados"
 )  # Este endpoint lo hice en un momento cuando pidieron trabajar con excel, pero luego dijeron que se iba a trabajar desde frontend
-async def obtenerPartePoliciaImponibleExcel():
+async def generarExcelBloqueados():
     """Este endpoint por el momento no recibe nada pero genera un excel unicamente con las escuelas bloqueadas."""
     try:
         # 1. Obtener la data (lista de diccionarios)
