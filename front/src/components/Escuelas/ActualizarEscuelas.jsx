@@ -1,17 +1,18 @@
 import LayoutActualizar from "../../layout/LayoutActualizar";
-import EditarEscuelas from './EditarEscuelas';
-import ListarEscuelas from './ListarEscuelas';
+import EditarEscuelas from "./EditarEscuelas";
+import ListarEscuelas from "./ListarEscuelas";
 
 const ActualizarEscuelas = () => {
   return (
-    <LayoutActualizar
-      editar={<EditarEscuelas />}
-      listar={<ListarEscuelas />}
-      // ratioEditar={25}
-      ratioListar={100}
-      // tituloEditar="Editar Escuelas"
-      tituloListar="Listado de Escuelas"
-    />
+    <>
+      <LayoutActualizar
+        ocultarEditar={true}
+        listar={<ListarEscuelas />}
+        tituloListar="Listado de Escuelas"
+      />
+
+      <EditarEscuelas />
+    </>
   );
 };
 
