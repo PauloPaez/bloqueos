@@ -1,7 +1,7 @@
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .pantalla-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   padding: 1rem 2rem;
   gap: 2rem;
   background: linear-gradient(135deg, #f7f9fc 0%, #e8ecf3 100%);
