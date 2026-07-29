@@ -17,6 +17,7 @@ from scripts.querys.escuelas import (
     search_escuelas_in_db,
     search_escuelas_paginado,
 )
+from utils.generacionExcel import generarExcel
 
 # Importa desde el módulo externo
 from utils.websockets_manager import notify_clients
@@ -128,32 +129,15 @@ async def generarExcelBloqueados():
     try:
         # 1. Obtener la data (lista de diccionarios)
         resultado = await search_escuelas_in_db({"bloqueo": True})
-        print(resultado)
 
         if not resultado:
             raise HTTPException(
                 status_code=404, detail="No se encontraron datos para el período."
             )
 
-        # 2. Cargar la data en un DataFrame de Polars
-        df = pl.DataFrame(resultado)
+        excelGenerado = await generarExcel(resultado)
 
-        # 3. Crear un buffer en memoria para guardar el Excel
-        buffer = io.BytesIO()
-        df.write_excel(buffer)
-        buffer.seek(0)  # Regresar el puntero al inicio del archivo
-
-        # 4. Retornar el archivo virtual como StreamingResponse
-        # Set los headers para que el navegador lo entienda como una descarga
-        headers = {
-            "Content-Disposition": 'attachment; filename="escuelas_bloqueadas.xlsx"'
-        }
-
-        return StreamingResponse(
-            buffer,
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers=headers,
-        )
+        return excelGenerado
 
     except HTTPException:
         raise
