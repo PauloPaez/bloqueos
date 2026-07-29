@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setFiltroListado, resetFiltroListado } from '../store/appSlice';
+import { Search } from 'lucide-react';
+import { setFiltroListado } from '../store/appSlice';
+import './GenericFilter.css';
 
 const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}) => {
   const dispatch = useDispatch();
@@ -10,9 +12,7 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
   useEffect(() => {
     const valoresIniciales = {};
     configuracion.forEach(item => {
-      valoresIniciales[item.clave] = item.tipo === 'checkbox' ? false : 
-                                    item.tipo === 'list' ? '' : 
-                                    item.valor || '';
+      valoresIniciales[item.clave] = item.tipo === 'checkbox' ? false : '';
     });
     setValoresTemporales(valoresIniciales);
   }, [configuracion]);
@@ -36,7 +36,7 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
       const shouldInclude = (
         valor !== undefined &&
         valor !== null &&
-        !(item.tipo === 'list' && valor === '') &&
+        !(['list', 'select'].includes(item.tipo) && valor === '') &&
         !(item.tipo === 'checkbox' && valor === false) &&
         valor !== ''
       );
@@ -61,16 +61,6 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
     }
   };
 
-  // Resetear filtros
-  const resetearFiltros = () => {
-    const valoresReset = {};
-    configuracion.forEach(item => {
-      valoresReset[item.clave] = item.tipo === 'checkbox' ? false : '';
-    });
-    setValoresTemporales(valoresReset);
-    dispatch(resetFiltroListado());
-  };
-
   // Manejar tecla Enter
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -92,30 +82,47 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
               item.clave,
               item.tipo === 'number' ? parseInt(e.target.value) || 0 : e.target.value
             )}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder={item.placeholder || item.etiqueta}
           />
         );
-        case 'list':
+      case 'list':
+      case 'select': {
+        const opciones = item.opciones || (Array.isArray(item.valor) ? item.valor : []);
+
+        if (opciones.length === 0) {
           return (
-            <select
-              className="form-select"
+            <input
+              type="text"
+              className="form-control generic-filter-control"
               value={valoresTemporales[item.clave] || ''}
               onChange={(e) => handleChange(item.clave, e.target.value)}
-            >
-              <option value="">{item.placeholder || `Elija ${item.etiqueta.toLowerCase()}`}</option>
-              {item.valor.map((opcion, index) => (
-                <option key={index} value={opcion}>
-                  {opcion}
-                </option>
-              ))}
-            </select>
+              onKeyDown={handleKeyPress}
+              placeholder={item.placeholder || item.etiqueta}
+            />
           );
+        }
+
+        return (
+          <select
+            className="form-select generic-filter-control"
+            value={valoresTemporales[item.clave] || ''}
+            onChange={(e) => handleChange(item.clave, e.target.value)}
+          >
+            <option value="">{item.placeholder || `Elija ${item.etiqueta.toLowerCase()}`}</option>
+            {opciones.map((opcion, index) => {
+              const value = typeof opcion === 'object' ? opcion.value : opcion;
+              const label = typeof opcion === 'object' ? opcion.label : opcion;
+              return <option key={index} value={value}>{label}</option>;
+            })}
+          </select>
+        );
+      }
       case 'checkbox':
         return (
-          <div className="form-check form-switch d-flex align-items-center">
+          <div className="generic-filter-switch">
             <input
-              className="form-check-input"
+              className="generic-filter-switch-input"
               type="checkbox"
               checked={valoresTemporales[item.clave] || false}
               onChange={(e) => handleChange(item.clave, e.target.checked)}
@@ -139,30 +146,21 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
   };
 
   return (
-    <div className="card mb-4 shadow-sm">
-      <div className="card-body p-2">
-        <div className="input-group">
-          {configuracion.map((item, index) => (
-            <React.Fragment key={index}>
-              <span className="input-group-text">{item.etiqueta}</span>
-              {item.tipo === 'checkbox' ? (
-                <div className="card d-flex align-items-center justify-content-center p-2" 
-                     style={{ width: "38px", height: "39px" }}>
-                  {renderInput(item)}
-                </div>
-              ) : (
-                renderInput(item)
-              )}
-            </React.Fragment>
+    <div className="generic-filter card mb-4">
+      <div className="generic-filter-body card-body">
+        <div className="generic-filter-grid">
+          {configuracion.map((item) => (
+            <div key={item.clave} className={item.tipo === 'checkbox' ? 'generic-filter-field generic-filter-field-switch' : 'generic-filter-field'}>
+              <label className="generic-filter-label" htmlFor={`filter-${item.clave}`}>
+                {item.etiqueta}
+              </label>
+              {renderInput(item)}
+            </div>
           ))}
-          
-          {/* <span className="input-group-text" style={{ cursor: 'pointer' }}
-                onClick={resetearFiltros}>
-            Reset
-          </span> */}
-          <button className="btn btn-primary" 
-                  onClick={aplicarFiltros}
-                  style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}>
+        </div>
+        <div className="generic-filter-actions">
+          <button type="button" className="btn btn-primary generic-filter-apply" onClick={aplicarFiltros}>
+            <Search size={16} aria-hidden="true" />
             Aplicar
           </button>
         </div>
