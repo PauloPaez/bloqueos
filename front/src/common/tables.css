@@ -73,13 +73,13 @@
   table-layout: fixed;
 }
 
-.table-results-summary {
+/* .table-results-summary {
   padding: 0.75rem 1rem;
   border-top: 1px solid #e9ecef;
   background-color: #f8f9fa;
   color: #6c757d;
   font-size: 0.875rem;
-}
+} */
 
 @media (max-width: 576px) {
   .listado-header {

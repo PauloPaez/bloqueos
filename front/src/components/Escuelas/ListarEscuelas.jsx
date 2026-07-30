@@ -311,9 +311,9 @@ const buscarEscuelas = async (
               </tbody>
             </table>
           </div>
-          <div className="table-results-summary">
+          {/* <div className="table-results-summary">
             Mostrando {datos.length} de {paginacion.total} registros
-          </div>
+          </div> */}
           <Pagination
                         currentPage={paginacion.page}
                         totalItems={paginacion.total}
