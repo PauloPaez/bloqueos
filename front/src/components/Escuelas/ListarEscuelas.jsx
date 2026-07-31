@@ -4,10 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setModuloState, resetModulo, setFiltroListado } from "../../store/appSlice";
 import FiltroEscuelas from "./FiltroEscuelas";
 import { convertirMesANumero } from "../../common/meses"; 
-import { WS_BASE_URL } from "../../config/api";
+import { API_BASE_URL, WS_BASE_URL } from "../../config/api";
 import '../../common/tables.css';
 import { formularioCampos } from './FormularioListar';
 import Pagination from "../Pagination/Pagination";
+import { Download } from "lucide-react";
 
 
 const ListarEscuelas = () => {
@@ -22,6 +23,7 @@ const ListarEscuelas = () => {
         total_pages: 0,
     });
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
   // Definir el filtro inicial
   const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
   const filtroInicial = {};
@@ -206,6 +208,41 @@ const buscarEscuelas = async (
         buscarEscuelas(filtroListado, 1, newPageSize);
   };
 
+  const handleDescargarExcel = async () => {
+    setIsDownloadingExcel(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}generar-excel-bloqueados`, {
+        method: "POST",
+        headers: {
+          Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "No se pudo generar el Excel");
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition") || "";
+      const match = contentDisposition.match(/filename="([^"]+)"/i);
+      const filename = match?.[1] || "escuelas_bloqueadas.xlsx";
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error generando Excel:", err);
+      window.alert(err.message || "Error al generar el Excel");
+    } finally {
+      setIsDownloadingExcel(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="text-center my-4">
@@ -219,7 +256,20 @@ const buscarEscuelas = async (
   // Filtrar campos visibles
   const camposVisibles = formularioCampos.filter(field => field.placeholder !== "no_visible");
   return (
-    <div>
+    <div className="schools-list">
+      <header className="listado-header">
+        <h1 className="listado-titulo">Listado de Escuelas</h1>
+        <button
+          type="button"
+          className="btn btn-outline-dark schools-list-download"
+          onClick={handleDescargarExcel}
+          disabled={isDownloadingExcel}
+        >
+          <Download size={16} aria-hidden="true" />
+          {isDownloadingExcel ? "Generando..." : "Descargar Excel"}
+        </button>
+      </header>
+
       <FiltroEscuelas filtroInicial={filtroInicial} postFijo={postFijo} />
       {mostrarFiltroInicial && (
         <div className="alert alert-info">
@@ -261,6 +311,9 @@ const buscarEscuelas = async (
               </tbody>
             </table>
           </div>
+          {/* <div className="table-results-summary">
+            Mostrando {datos.length} de {paginacion.total} registros
+          </div> */}
           <Pagination
                         currentPage={paginacion.page}
                         totalItems={paginacion.total}

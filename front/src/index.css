@@ -1,4 +1,10 @@
 /* ===== CONTENEDOR PRINCIPAL ===== */
+.listado-pagina {
+  min-height: calc(100vh - 74px);
+  box-sizing: border-box;
+  padding: 1.5rem 2rem 2rem;
+}
+
 .pantalla-container {
   display: flex;
   min-height: 100vh;
@@ -20,13 +26,23 @@
   flex-direction: column;
 }
 
-/* ===== TITULOS ===== */
-.layout-titulo {
-  font-size: 1.1rem;
+/* ===== CABECERA DE LISTADOS ===== */
+.listado-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: -0.25rem 0 1.5rem;
+  padding: 0 0 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.listado-titulo {
+  margin: 0;
+  color: #212529;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 0.5rem;
+  line-height: 1.5;
 }
 
 /* ===== SOLO LISTAR ===== */
@@ -36,6 +52,10 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
+  .listado-pagina {
+    padding: 1.25rem 1rem 1.5rem;
+  }
+
   .pantalla-container {
     flex-direction: column;
     height: auto;
@@ -45,6 +65,13 @@
   .listar-modelo {
     flex-basis: 100% !important;
     max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .listado-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
