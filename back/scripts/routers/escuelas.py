@@ -121,9 +121,7 @@ async def get_TN_distinct(campo: str):
         )
 
 
-@escuelas.post(
-    "/generar-excel-bloqueados"
-)  # Este endpoint lo hice en un momento cuando pidieron trabajar con excel, pero luego dijeron que se iba a trabajar desde frontend
+@escuelas.post("/generar-excel-bloqueados")
 async def generarExcelBloqueados():
     """Este endpoint por el momento no recibe nada pero genera un excel unicamente con las escuelas bloqueadas."""
     try:
@@ -145,5 +143,5 @@ async def generarExcelBloqueados():
         print(f"ERROR: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Error al generar el excel del PARTE_POLICIA_IMPONIBLE",
+            detail="Error al generar el excel de escuelas",
         )

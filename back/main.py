@@ -1,26 +1,29 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from scripts.routers.usuarios import usuarios
-from scripts.routers.roles import roles
-from scripts.routers.login import login
-from scripts.routers.rutas import rutas
-from scripts.routers.personas import personas
-from scripts.routers.notificaciones import notificaciones
-from scripts.routers.escuelas import escuelas
-from utils.websockets_manager import (
-    add_connection, 
-    remove_connection, 
-    notify_clients,
-    # redis_manager,
-    start_redis_listener
-)
 import asyncio
 import logging
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from scripts.routers.escuelas import escuelas
+from scripts.routers.login import login
+from scripts.routers.notificaciones import notificaciones
+from scripts.routers.personas import personas
+from scripts.routers.roles import roles
+from scripts.routers.rutas import rutas
+from scripts.routers.usuarios import usuarios
+from utils.websockets_manager import (
+    add_connection,
+    notify_clients,
+    remove_connection,
+    # redis_manager,
+    start_redis_listener,
+)
+
 logger = logging.getLogger(__name__)
 app = FastAPI()
 # AGREGAR ESTOS LOGS PARA DEBUG:
 try:
     from scripts.routers.usuarios import usuarios
+
     logger.info("✅ Router usuarios importado correctamente")
 except Exception as e:
     logger.error(f"❌ Error importando usuarios: {e}")
@@ -28,7 +31,7 @@ origins = [
     "http://localhost",
     "http://localhost:5173",
     "https://lab.techiar.cloud",
-    "https://subasta.techiar.cloud"
+    "https://subasta.techiar.cloud",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +40,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 @app.on_event("startup")
 async def startup_event():
     """Inicializar Redis y el listener al arrancar la aplicación"""
@@ -47,10 +52,16 @@ async def startup_event():
         logger.info("Aplicación iniciada con Redis para WebSockets")
     except Exception as e:
         logger.error(f"Error en startup: {e}")
+
+
 @app.websocket("/ws/{entity}")
 async def websocket_endpoint(websocket: WebSocket, entity: str):
     valid_entities = [
-        "usuarios", "roles", "login", "rutas", "personas",
+        "usuarios",
+        "roles",
+        "login",
+        "rutas",
+        "personas",
         "escuelas",
     ]
     if entity not in valid_entities:
@@ -69,6 +80,8 @@ async def websocket_endpoint(websocket: WebSocket, entity: str):
     except Exception as e:
         logger.error(f"Error en WebSocket {entity}: {e}")
         await remove_connection(entity, websocket)
+
+
 app.include_router(usuarios, tags=["Usuarios"])
 app.include_router(roles, tags=["Roles"])
 app.include_router(login, tags=["Login"])
