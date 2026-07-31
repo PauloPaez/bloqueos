@@ -14,7 +14,7 @@ from utils.websockets_manager import (
     add_connection,
     notify_clients,
     remove_connection,
-    # redis_manager,
+    redis_manager,
     start_redis_listener,
 )
 
