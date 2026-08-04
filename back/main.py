@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from scripts.routers.escuelas import escuelas
+from scripts.routers.generacionDocs import routerDocs
 from scripts.routers.login import login
 from scripts.routers.notificaciones import notificaciones
 from scripts.routers.personas import personas
@@ -13,8 +14,8 @@ from scripts.routers.usuarios import usuarios
 from utils.websockets_manager import (
     add_connection,
     notify_clients,
-    remove_connection,
     redis_manager,
+    remove_connection,
     start_redis_listener,
 )
 
@@ -90,3 +91,4 @@ app.include_router(personas, tags=["Personas"])
 app.include_router(notificaciones, tags=["Notificaciones"])
 logger.info("✅ Router notificaciones incluido en la aplicación")
 app.include_router(escuelas, tags=["Escuelas"])
+app.include_router(routerDocs)

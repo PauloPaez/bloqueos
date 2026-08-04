@@ -17,7 +17,7 @@ from typing import Any
 import polars as pl
 import xlsxwriter
 from fastapi.responses import StreamingResponse
-from utils.formateoDatos import formatear_cuil, formatear_importe
+from utils.formateoDatos import preparar_fila_baja
 
 HEADERS = (
     "Nro. de\nPadrón",
@@ -38,33 +38,6 @@ COLUMN_WIDTHS = (12, 27, 14, 17, 15, 8, 9, 9, 18, 35)
 def _text(value: Any) -> str:
     """Convierte valores nulos a texto vacío sin mostrar ``None``."""
     return "" if value is None else str(value)
-
-
-def _with_check_digit(value: Any, check_digit: Any) -> str:
-    base = _text(value)
-    digit = _text(check_digit)
-    if not base:
-        return digit
-    return f"{base}/{digit}" if digit else base
-
-
-# def _amount(value: Any) -> float | None:
-#     """Convierte el importe conservando valores que ya están en unidades.
-
-#     El archivo de origen utiliza 15 dígitos y expresa centavos. Los valores
-#     recibidos directamente (por ejemplo, ``1``) se consideran pesos.
-#     """
-#     if value is None or value == "":
-#         return None
-#     try:
-#         raw = str(value).strip()
-#         importe = Decimal(raw)
-#         if raw.isdigit() and len(raw) == 15:
-#             importe /= Decimal("100")
-#         print(importe)
-#         return float(importe)
-#     except (InvalidOperation, ValueError):
-#         return None
 
 
 def _format_date(value: Any) -> str:
@@ -234,25 +207,8 @@ def generar_excel_bajas(
 
         for offset, row in enumerate(rows):
             excel_row = data_row + offset
-            cuil = _text(row.get("cuil")).strip()
-            values = (
-                _with_check_digit(row.get("padron"), row.get("padron_dv")),
-                _text(row.get("beneficiario_nombre")),
-                formatear_importe(row.get("importe_acreditado")),
-                _with_check_digit(
-                    row.get("cuenta_debito"), row.get("cuenta_debito_dv")
-                ),
-                _with_check_digit(
-                    row.get("cuenta_acreditacion"), row.get("cuenta_acreditacion_dv")
-                ),
-                _text(row.get("zona")),
-                _text(row.get("centro")),
-                _text(row.get("sector")),
-                formatear_cuil(cuil)
-                if len(cuil) == 11
-                else cuil,  # verificar, pero si un cuil no tiene de entrada 11 caracteres, simplemente pone lo que llega
-                _text(row.get("motivo")),
-            )
+            prepared = preparar_fila_baja(row)
+            values = tuple(prepared.values())
             for column, value in enumerate(values):
                 if column == 2 and value is not None:
                     # TODO: Verificar esto, quiza sea mejor agregarlo al conjunto de abajo. Ademas, falta verificar que pasa si recibe como importe 300 o 1, porque si recibe un numero <1000, lo convierte a decimal moviendo el 0 a la izquierda

@@ -1,15 +1,12 @@
 # querys/escuelas.py
 import json
+from datetime import datetime
+from typing import Any, Dict
+
 from bson.objectid import ObjectId
-from datetime import datetime
-from typing import Dict, Any
-from datetime import datetime
-
-# ----------------------------------------------------
-from scripts.schemas.escuelas import escuelasSh
 from scripts.conf.engine import database
+from scripts.schemas.escuelas import escuelasSh
 
-# -----------------------------------------------------
 coleccion = database.Escuelas
 
 
