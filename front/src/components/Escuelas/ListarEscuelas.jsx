@@ -211,10 +211,10 @@ const buscarEscuelas = async (
   const handleDescargarExcel = async () => {
     setIsDownloadingExcel(true);
     try {
-      const response = await fetch(`${API_BASE_URL}generar-excel-bloqueados`, {
+      const response = await fetch(`${API_BASE_URL}generardoc/`, {
         method: "POST",
         headers: {
-          Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          Accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         },
       });
 
@@ -226,7 +226,7 @@ const buscarEscuelas = async (
       const blob = await response.blob();
       const contentDisposition = response.headers.get("Content-Disposition") || "";
       const match = contentDisposition.match(/filename="([^"]+)"/i);
-      const filename = match?.[1] || "escuelas_bloqueadas.xlsx";
+      const filename = match?.[1] || "escuelas_bloqueadas.docx";
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -254,6 +254,7 @@ const buscarEscuelas = async (
     );
   }
   // Filtrar campos visibles
+  // TODO: Deberia cambiar los nombres de las variables que dicen Excel a algo mas general.
   const camposVisibles = formularioCampos.filter(field => field.placeholder !== "no_visible");
   return (
     <div className="schools-list">
@@ -266,7 +267,7 @@ const buscarEscuelas = async (
           disabled={isDownloadingExcel}
         >
           <Download size={16} aria-hidden="true" />
-          {isDownloadingExcel ? "Generando..." : "Descargar Excel"}
+          {isDownloadingExcel ? "Generando..." : "Descargar DOCX"}
         </button>
       </header>
 

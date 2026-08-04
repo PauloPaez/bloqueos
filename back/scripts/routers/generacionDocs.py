@@ -38,7 +38,7 @@ def crearDocumento(escuelas: list[Escuelas]):
 
 
 # TODO: Falta ver que es Concepto, Disco, Fecha de Pago en el word
-@routerDocs.get("/")
+@routerDocs.post("/")
 async def generarDocumento():
     resultado = await search_escuelas_in_db({"bloqueo": True})
 
