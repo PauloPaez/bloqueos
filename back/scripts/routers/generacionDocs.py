@@ -21,7 +21,7 @@ def crearDocumento(escuelas: list[Escuelas]):
     # Construye la ruta absoluta hacia el archivo de la plantilla
     template_path = BASE_DIR / "templates" / "templateDocs.docx"
 
-    # Tienes que convertirlo a string con str(template_path)
+    # hay que convertir a str el path
     doc = DocxTemplate(
         str(template_path)
     )  # En el word si pongo {% tr}, espacio entre % y tr da error, tiene que ir juntos

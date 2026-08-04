@@ -5,6 +5,7 @@ recibe un DataFrame (o datos compatibles con Polars) y devuelve el archivo en
 memoria listo para ser enviado por FastAPI.
 """
 
+# ESTE ARCHIVO QUEDO VIEJO, SU IDEA PRINCIPAL LA CAMBIE POR generacionDocs.py CON UN ENFOQUE MUCHO MAS SIMPLE
 from __future__ import annotations
 
 import io
