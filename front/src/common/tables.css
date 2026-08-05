@@ -49,7 +49,7 @@
   border-bottom: 1px solid #dee2e6;
   color: #212529;
   font-weight: 600;
-  white-space: nowrap;
+  /* white-space: nowrap; */
 }
 
 /* Celdas del cuerpo */
@@ -71,7 +71,7 @@
 
 /* Asegurar que las columnas mantengan su ancho */
 .sticky-table {
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 /* .table-results-summary {
