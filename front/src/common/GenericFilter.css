@@ -33,12 +33,13 @@
 
 .generic-filter-control {
   min-height: 38px;
-  border-color: #ced4da;
-  background-color: #fff;
+  border-color: #e9ecef;
+  background-color: #f3f3f5;
 }
 
 .generic-filter-control:focus {
   border-color: #86b7fe;
+  background-color: #f3f3f5;
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
 

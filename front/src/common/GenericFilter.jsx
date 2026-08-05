@@ -76,7 +76,7 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
         return (
           <input
             type={item.tipo === 'number' ? 'number' : 'text'}
-            className="form-control"
+            className="form-control generic-filter-control"
             value={valoresTemporales[item.clave] || ''}
             onChange={(e) => handleChange(
               item.clave,
