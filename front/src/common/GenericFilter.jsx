@@ -159,7 +159,7 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
           ))}
         </div>
         <div className="generic-filter-actions">
-          <button type="button" className="btn btn-primary generic-filter-apply" onClick={aplicarFiltros}>
+          <button type="button" className="btn btn-dark generic-filter-apply" onClick={aplicarFiltros}>
             <Search size={16} aria-hidden="true" />
             Aplicar
           </button>

@@ -64,7 +64,11 @@
 .generic-filter-apply {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
+  background-color: black;
   gap: 0.5rem;
+  white-space: nowrap;
+  border-color: #dee2e6;
 }
 
 @media (min-width: 576px) {

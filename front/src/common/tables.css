@@ -1,6 +1,7 @@
 .schools-list-download {
   display: inline-flex;
   align-items: center;
+  color: black;
   flex-shrink: 0;
   gap: 0.5rem;
   white-space: nowrap;
