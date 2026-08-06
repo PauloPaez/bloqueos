@@ -117,7 +117,7 @@ async def get_TN_distinct(campo: str):
         )
 
 
-@escuelas.post("/generar-excel-bloqueados")
+@escuelas.post("/escuelas/generar-excel-bloqueados")
 async def generarExcelBloqueados(
     periodo: str | None = None, fecha_pago: str | None = None
 ):

@@ -40,6 +40,9 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=[
+        "Content-Disposition"
+    ],  # si hay problemas en prod por archivos, podria ser por esto, pero muy dificil que sea esa la causa. Ya que solo le muestra el nombre del archivo generado por el backend. Ya que si no esta esto, el nombre va a ser el de la variable nombrePorDefecto definida al llamar al helper de descargarArchivo en javascrpit
 )
 
 

@@ -9,6 +9,7 @@ import '../../common/tables.css';
 import { formularioCampos } from './FormularioListar';
 import Pagination from "../Pagination/Pagination";
 import { Download } from "lucide-react";
+import { descargarArchivo } from "../../common/descargarArchivo";
 
 
 const ListarEscuelas = () => {
@@ -23,6 +24,7 @@ const ListarEscuelas = () => {
         total_pages: 0,
     });
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloadingDocx, setIsDownloadingDocx] = useState(false);
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
   // Definir el filtro inicial
   const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
@@ -208,33 +210,32 @@ const buscarEscuelas = async (
         buscarEscuelas(filtroListado, 1, newPageSize);
   };
 
+  const handleDescargarDocx = async () => {
+    setIsDownloadingDocx(true);
+    try {
+      await descargarArchivo({
+        url: `${API_BASE_URL}generardoc/`,
+        accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        nombrePorDefecto: "escuelas_bloqueadas.docx",
+        mensajeError: "No se pudo generar el DOCX",
+      });
+    } catch (err) {
+      console.error("Error generando DOCX:", err);
+      window.alert(err.message || "Error al generar el DOCX");
+    } finally {
+      setIsDownloadingDocx(false);
+    }
+  };
+
   const handleDescargarExcel = async () => {
     setIsDownloadingExcel(true);
     try {
-      const response = await fetch(`${API_BASE_URL}generardoc/`, {
-        method: "POST",
-        headers: {
-          Accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        },
+      await descargarArchivo({
+        url: `${API_BASE_URL}escuelas/generar-excel-bloqueados`,
+        accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        nombrePorDefecto: "escuelas_bloqueadas.xlsx",
+        mensajeError: "No se pudo generar el Excel",
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || "No se pudo generar el Excel");
-      }
-
-      const blob = await response.blob();
-      const contentDisposition = response.headers.get("Content-Disposition") || "";
-      const match = contentDisposition.match(/filename="([^"]+)"/i);
-      const filename = match?.[1] || "escuelas_bloqueadas.docx";
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error generando Excel:", err);
       window.alert(err.message || "Error al generar el Excel");
@@ -254,12 +255,21 @@ const buscarEscuelas = async (
     );
   }
   // Filtrar campos visibles
-  // TODO: Deberia cambiar los nombres de las variables que dicen Excel a algo mas general.
   const camposVisibles = formularioCampos.filter(field => field.placeholder !== "no_visible");
   return (
     <div className="schools-list">
       <header className="listado-header">
         <h1 className="listado-titulo">Listado de Escuelas</h1>
+        <div className="conjunto-botones">
+        <button
+          type="button"
+          className="btn btn-outline-dark schools-list-download"
+          onClick={handleDescargarDocx}
+          disabled={isDownloadingDocx}
+        >
+          <Download size={16} aria-hidden="true" />
+          {isDownloadingDocx ? "Generando..." : "Descargar DOCX"}
+        </button>
         <button
           type="button"
           className="btn btn-outline-dark schools-list-download"
@@ -267,8 +277,9 @@ const buscarEscuelas = async (
           disabled={isDownloadingExcel}
         >
           <Download size={16} aria-hidden="true" />
-          {isDownloadingExcel ? "Generando..." : "Descargar DOCX"}
+          {isDownloadingExcel ? "Generando..." : "Descargar Excel"}
         </button>
+        </div>
       </header>
 
       <FiltroEscuelas filtroInicial={filtroInicial} postFijo={postFijo} />
