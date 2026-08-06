@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Navbar from "./Navbar";
 // Importar todos los componentes
+import ActualizarMotivos from "../Motivos/ActualizarMotivos";
+import ListarMotivos from "../Motivos/ListarMotivos";
 import ActualizarEscuelas from "../Escuelas/ActualizarEscuelas";
 import ListarEscuelas from "../Escuelas/ListarEscuelas";
 import ActualizarUsuarios from "./Usuarios/ActualizarUsuarios";
@@ -23,6 +25,8 @@ const ProtectedRoutes = () => {
 
   // Mapa de rutas a componentes
   const componentMap = {
+    "/Motivos/ActualizarMotivos": ActualizarMotivos,
+    "/Motivos/ListarMotivos": ListarMotivos,
     "/Escuelas/ActualizarEscuelas": ActualizarEscuelas,
     "/Escuelas/ListarEscuelas": ListarEscuelas,
     "/Usuarios/ActualizarUsuarios": ActualizarUsuarios,

@@ -5,11 +5,11 @@ from typing import Dict, Any
 from datetime import datetime
 # ----------------------------------------------------
 from scripts.schemas.personas import personasSh
-from scripts.conf.engine import database
+from scripts.conf.engine import get_collection
 # -----------------------------------------------------
-coleccion = database.Personas
 
 async def get_personas():
+    coleccion = get_collection("Personas")
     cursor = coleccion.find()
     data = []
     async for document in cursor:
@@ -17,6 +17,7 @@ async def get_personas():
     return data
   
 async def get_personas_by_id(id: str):
+    coleccion = get_collection("Personas")
     try:
         document = await coleccion.find_one({"_id": ObjectId(id)})
         if document:
@@ -26,6 +27,7 @@ async def get_personas_by_id(id: str):
         raise Exception(f"Error al buscar documento: {e}")
     
 async def search_personas_in_db(filter: Dict[str, Any]):
+    coleccion = get_collection("Personas")
     try:
         # Filtrar eliminando valores nulos o vacíos
         query = {k: v for k, v in filter.items() if v is not None}
@@ -40,11 +42,13 @@ async def search_personas_in_db(filter: Dict[str, Any]):
         raise Exception(f"Error al buscar documentos: {e}")    
  
 async def add_personas(document: dict) -> ObjectId:
+    coleccion = get_collection("Personas")
     # Inserta el documento en la colección y devuelve el ID generado
     result = await coleccion.insert_one(document)
     return result.inserted_id
 
 async def put_personas(document):
+    coleccion = get_collection("Personas")
     filtro = {"_id": ObjectId(document['id'])}
     document.pop('id')
 
@@ -59,6 +63,7 @@ async def put_personas(document):
     return {"status": "success", "message": "Documento sin cambios"}
 
 async def patch_personas(document: dict):
+    coleccion = get_collection("Personas")
     try:
         # Se espera que el diccionario incluya la clave "id" para identificar el documento
         doc_id = document.get("id")

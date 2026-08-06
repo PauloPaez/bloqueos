@@ -7,13 +7,11 @@ from datetime import datetime
 
 # ----------------------------------------------------
 from scripts.schemas.escuelas import escuelasSh
-from scripts.conf.engine import database
-
+from scripts.conf.engine import get_collection
 # -----------------------------------------------------
-coleccion = database.Escuelas
-
 
 async def get_escuelas():
+    coleccion = get_collection("Escuelas")
     cursor = coleccion.find()
     data = []
     async for document in cursor:
@@ -22,6 +20,7 @@ async def get_escuelas():
 
 
 async def get_escuelas_by_id(id: str):
+    coleccion = get_collection("Escuelas")
     try:
         document = await coleccion.find_one({"_id": ObjectId(id)})
         if document:
@@ -32,6 +31,7 @@ async def get_escuelas_by_id(id: str):
 
 
 async def search_escuelas_in_db(filter: Dict[str, Any]):
+    coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
         query = {k: v for k, v in filter.items() if v is not None}
@@ -56,11 +56,13 @@ async def search_escuelas_in_db(filter: Dict[str, Any]):
 
 async def add_escuelas(document: dict) -> ObjectId:
     # Inserta el documento en la colección y devuelve el ID generado
+    coleccion = get_collection("Escuelas")
     result = await coleccion.insert_one(document)
     return result.inserted_id
 
 
 async def put_escuelas(document):
+    coleccion = get_collection("Escuelas")
     filtro = {"_id": ObjectId(document["id"])}
     document.pop("id")
 
@@ -75,6 +77,7 @@ async def put_escuelas(document):
 
 
 async def patch_escuelas(document: dict):
+    coleccion = get_collection("Escuelas")
     try:
         # Se espera que el diccionario incluya la clave "id" para identificar el documento
         doc_id = document.get("id")
@@ -99,6 +102,7 @@ async def patch_escuelas(document: dict):
 
 
 async def get_escuelas_distinct(campo) -> list:
+    coleccion = get_collection("Escuelas")
     try:
         document = await coleccion.distinct(campo, {"activo": True})
         return sorted(document)
@@ -108,6 +112,7 @@ async def get_escuelas_distinct(campo) -> list:
 
 
 async def search_escuelas_paginado(filter: dict, page: int = 1, page_size: int = 10):
+    coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
         query = {k: v for k, v in filter.items() if v is not None}

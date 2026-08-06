@@ -33,7 +33,7 @@ class RedisManager:
             self._pubsub = self._redis_client.pubsub()
             
             # Suscribirse a todos los canales de entidades
-            entities = ["usuarios", "roles", "login", "rutas","personas","pedidos","ofertas","escuelas", ]
+            entities = ["usuarios", "roles", "login", "rutas","personas","pedidos","ofertas","escuelas", "motivos", ]
             for entity in entities:
                 await self._pubsub.subscribe(f"ws_{entity}")
                 
@@ -62,6 +62,7 @@ active_connections: Dict[str, List[WebSocket]] = {
     "ofertas": [],
     "personas": [],
     "escuelas": [],
+    "motivos": [],
 }
 
 async def start_redis_listener():

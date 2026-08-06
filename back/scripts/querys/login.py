@@ -1,13 +1,13 @@
 from bson.objectid import ObjectId
 from typing import Dict, Any
 # ----------------------------------------------------
-from scripts.conf.engine import database
+from scripts.conf.engine import get_collection
 # -----------------------------------------------------
-coleccionUsr = database.Usuarios
-coleccionRutas = database.Rutas
 
 async def get_login(filter: Dict[str, Any]):
     try:
+        coleccionUsr = get_collection("Usuarios")
+        coleccionRutas = get_collection("Rutas") 
         app = filter["app"]
         del filter["app"]
         # Buscar el usuario

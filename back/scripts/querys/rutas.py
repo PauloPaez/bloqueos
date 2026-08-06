@@ -5,11 +5,13 @@ from datetime import datetime
 from typing import Dict, Any 
 # ----------------------------------------------------
 from scripts.schemas.rutas import rutasSh
-from scripts.conf.engine import database
+# from scripts.conf.engine import database
+from scripts.conf.engine import get_collection
 # -----------------------------------------------------
-coleccion = database.Rutas
+# coleccion = database.Rutas
 
 async def get_rutas():
+    coleccion = get_collection("Rutas")
     cursor = coleccion.find()
     data = []
     async for document in cursor:
@@ -18,6 +20,7 @@ async def get_rutas():
     
   
 async def get_rutas_by_id(id: str):
+    coleccion = get_collection("Rutas")
     try:
         document = await coleccion.find_one({"_id": ObjectId(id)})
         if document:
@@ -27,6 +30,7 @@ async def get_rutas_by_id(id: str):
         raise Exception(f"Error al buscar documento: {e}")
     
 async def search_rutas_in_db(filter: Dict[str, Any]):
+    coleccion = get_collection("Rutas")
     try:
         # Filtrar eliminando valores nulos o vacíos
         query = {k: v for k, v in filter.items() if v is not None}
@@ -41,11 +45,13 @@ async def search_rutas_in_db(filter: Dict[str, Any]):
         raise Exception(f"Error al buscar documentos: {e}")    
  
 async def add_rutas(document: dict) -> ObjectId:
+    coleccion = get_collection("Rutas")
     # Inserta el documento en la colección y devuelve el ID generado
     result = await coleccion.insert_one(document)
     return result.inserted_id
 
 async def put_rutas(document):
+    coleccion = get_collection("Rutas")
     filtro = {"_id": ObjectId(document['id'])}
     document.pop('id')
 
