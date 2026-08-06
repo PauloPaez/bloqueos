@@ -117,31 +117,31 @@ async def get_TN_distinct(campo: str):
         )
 
 
-# @escuelas.post("/generar-excel-bloqueados")
-# async def generarExcelBloqueados(
-#     periodo: str | None = None, fecha_pago: str | None = None
-# ):
-#     """Genera la planilla de bajas para el período y fecha indicados. Los parametros de entrada son opcionales"""
-#     try:
-#         # 1. Obtener la data (lista de diccionarios)
-#         resultado = await search_escuelas_in_db({"bloqueo": True})
+@escuelas.post("/generar-excel-bloqueados")
+async def generarExcelBloqueados(
+    periodo: str | None = None, fecha_pago: str | None = None
+):
+    """Genera la planilla de bajas para el período y fecha indicados. Los parametros de entrada son opcionales"""
+    try:
+        # 1. Obtener la data (lista de diccionarios)
+        resultado = await search_escuelas_in_db({"bloqueo": True})
 
-#         if not resultado:
-#             raise HTTPException(
-#                 status_code=404, detail="No se encontraron datos para el período."
-#             )
+        if not resultado:
+            raise HTTPException(
+                status_code=404, detail="No se encontraron datos para el período."
+            )
 
-#         excelGenerado = await generarExcel(
-#             resultado, periodo=periodo, fecha_pago=fecha_pago
-#         )
+        excelGenerado = await generarExcel(
+            resultado, periodo=periodo, fecha_pago=fecha_pago
+        )
 
-#         return excelGenerado
+        return excelGenerado
 
-#     except HTTPException:
-#         raise
-#     except Exception as e:
-#         print(f"ERROR: {e}")
-#         raise HTTPException(
-#             status_code=500,
-#             detail="Error al generar el excel de escuelas",
-#         )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"ERROR: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error al generar el excel de escuelas",
+        )
