@@ -84,7 +84,7 @@
 
 .conjunto-botones {
   display: flex;
-  gap:8px
+  gap: 8px;
 }
 
 @media (max-width: 576px) {
@@ -96,5 +96,10 @@
   .schools-list-download {
     width: 100%;
     justify-content: center;
+  }
+
+  .conjunto-botones {
+    width: 100%;
+    flex-direction: column;
   }
 }

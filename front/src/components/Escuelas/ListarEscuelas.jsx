@@ -277,7 +277,7 @@ const buscarEscuelas = async (
           disabled={isDownloadingExcel}
         >
           <Download size={16} aria-hidden="true" />
-          {isDownloadingExcel ? "Generando..." : "Descargar Excel"}
+          {isDownloadingExcel ? "Generando..." : "Descargar EXCEL"}
         </button>
         </div>
       </header>
