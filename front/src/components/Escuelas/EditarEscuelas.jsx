@@ -7,6 +7,8 @@ import { formularioCampos } from './FormularioEditar';
 import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
 import { Modal } from "react-bootstrap";
+import { Save } from "lucide-react";
+import './EditarEscuelas.css';
 
 const EditarEscuelas = () => {
   const dispatch = useDispatch();
@@ -68,9 +70,9 @@ const EditarEscuelas = () => {
     });
   };
 
-const datosSelect = {
-  "motivos": [],
-};
+  const datosSelect = {
+    motivos: [],
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -112,20 +114,20 @@ const datosSelect = {
 
 
 
-return (
+  return (
   <Modal
     show={!!filaSeleccionada?.id}
     onHide={handleReset}
     backdrop="static"
     centered
-    size="xl"
+    dialogClassName="edit-school-dialog"
   >
-    <Modal.Header closeButton>
-      <Modal.Title>Editar Escuela</Modal.Title>
+    <Modal.Header closeButton className="edit-school-header">
+      <Modal.Title className="edit-school-title">Editar Escuela</Modal.Title>
     </Modal.Header>
 
-    <Modal.Body>
-      <form>
+    <Modal.Body className="edit-school-body">
+      <form className="edit-school-form" onSubmit={handleSubmit(onSubmit)}>
         {camposVisibles.map((field) => {
           const separador = separadoresFormulario.find(
             (s) => s.before === field.name
@@ -143,58 +145,41 @@ return (
           return (
             <React.Fragment key={field.name}>
               {separador && (
-                <div className="my-4">
-                  <hr className="border border-warning opacity-100" />
-                  {separador.label && (
-                    <div
-                      style={{
-                        fontWeight: "bold",
-                        color: "#0d6efd",
-                        textAlign: "center",
-                        marginTop: "0.5rem",
-                      }}
-                    >
-                      {separador.label}
-                    </div>
-                  )}
+                <div className="edit-school-section">
+                  <hr />
+                  {separador.label && <div className="edit-school-section-label">{separador.label}</div>}
                 </div>
               )}
 
               <div
-                className={`mb-3 ${
-                  field.type === "checkbox" ? "form-check" : ""
-                }`}
+                className={field.type === "checkbox" ? "edit-school-field edit-school-switch-row" : "edit-school-field"}
               >
                 {field.type !== "checkbox" && (
-                  <label className="form-label">{field.label}</label>
+                  <label className="edit-school-label" htmlFor={`edit-${field.name}`}>{field.label}</label>
                 )}
 
                 {field.type === "select" ? (
-                  <select className="form-control" {...fieldProps}>
+                  <select id={`edit-${field.name}`} className="form-select edit-school-control" {...fieldProps}>
                     <option value="">
                       Seleccione {field.label.toLowerCase()}
                     </option>
                     {(datosSelect[field.optionsKey] || []).map((op, i) => (
-                      <option key={i} value={op}>
-                        {op}
+                      <option key={i} value={typeof op === 'object' ? op.value : op}>
+                        {typeof op === 'object' ? op.label : op}
                       </option>
                     ))}
                   </select>
                 ) : field.type === "checkbox" ? (
                   <>
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      {...fieldProps}
-                    />
-                    <label className="form-check-label">
-                      {field.label}
-                    </label>
+                    <label className="edit-school-label" htmlFor={`edit-${field.name}`}>{field.label}</label>
+                    <input id={`edit-${field.name}`} type="checkbox" className="form-check-input edit-school-switch" {...fieldProps} />
                   </>
                 ) : (
                   <input
-                    type={field.type}
-                    className="form-control"
+                    id={`edit-${field.name}`}
+                    type={field.type === "float" ? "number" : field.type}
+                    step={field.type === "float" ? "any" : undefined}
+                    className="form-control edit-school-control"
                     {...fieldProps}
                   />
                 )}
@@ -203,25 +188,22 @@ return (
           );
         })}
 
-        <div className="d-flex justify-content-between mt-4">
+        <hr className="edit-school-footer-separator" />
+        <div className="edit-school-footer">
           <button
             type="button"
-            className={`btn ${
-              filaSeleccionada?.id
-                ? "btn-outline-warning"
-                : "btn-outline-primary"
-            }`}
-            onClick={handleSubmit(onSubmit)}
-          >
-            {filaSeleccionada?.id ? "Actualizar" : "Grabar"}
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-outline-danger"
+            className="btn btn-outline-dark cerrar-btn"
             onClick={handleReset}
           >
             Cerrar
+          </button>
+
+          <button
+            type="submit"
+            className="btn btn-primary edit-school-submit"
+          >
+            <Save size={16} aria-hidden="true" />
+            {filaSeleccionada?.id ? "Actualizar" : "Grabar"}
           </button>
         </div>
       </form>
@@ -232,4 +214,3 @@ return (
 };
 
 export default EditarEscuelas;
-

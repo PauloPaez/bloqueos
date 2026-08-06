@@ -1,5 +1,4 @@
 export const formularioCampos = [
-  {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "tipo_reg", label: "Tipo Reg", placeholder: "no_visible", type: "text"},
   {name: "cod_liquidacion", label: "Código Liquidación", placeholder: "no_visible", type: "text"},
   {name: "centro_pago", label: "Centro Pago", placeholder: "no_visible", type: "text"},
@@ -31,5 +30,6 @@ export const formularioCampos = [
   {name: "motivo", label: "Motivo", placeholder: "Motivo", type: "select", optionsKey: "motivos"},
   {name: "login", label: "Login", placeholder: "no_visible", type: "text"},
   {name: "empresa", label: "Empresa", placeholder: "no_visible", type: "text"},
+  {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "activo", label: "Activo", placeholder: "Activo", type: "checkbox"},
 ];

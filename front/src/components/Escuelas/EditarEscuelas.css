@@ -1,0 +1,127 @@
+.edit-school-dialog {
+  max-width: 32rem;
+}
+
+.edit-school-dialog .modal-content {
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+  border-radius: 0.75rem;
+  box-shadow: 0 1rem 3rem rgba(33, 37, 41, 0.2);
+}
+
+.edit-school-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 0;
+}
+
+.edit-school-title {
+  color: black;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.edit-school-body {
+  padding: 0 1.5rem 1.25rem;
+}
+
+.edit-school-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.edit-school-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.edit-school-label {
+  margin: 0;
+  color: black;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.edit-school-control {
+  min-height: 38px;
+  background-color: #f3f3f5;
+  border-color: #e9ecef;
+  /* border-color: #ced4da; */
+}
+
+.edit-school-control:focus {
+  border-color: #86b7fe;
+  background-color: #f3f3f5;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.edit-school-switch-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 38px;
+}
+
+.edit-school-switch {
+  width: 2.5rem;
+  height: 1.25rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.edit-school-section {
+  margin: 0.25rem 0 -0.25rem;
+}
+
+.edit-school-section hr,
+.edit-school-footer-separator {
+  margin: 0;
+  border-color: #e9ecef;
+  opacity: 1;
+}
+
+.edit-school-section-label {
+  margin-top: 0.75rem;
+  color: #6c757d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.edit-school-footer-separator {
+  margin-top: 0.25rem;
+}
+
+.edit-school-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.edit-school-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cerrar-btn {
+  color:black;
+  border-color: #dee2e6;
+}
+
+@media (max-width: 576px) {
+  .edit-school-dialog {
+    margin: 0.75rem;
+  }
+
+  .edit-school-header,
+  .edit-school-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
