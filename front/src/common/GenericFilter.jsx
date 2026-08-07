@@ -80,7 +80,7 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
             value={valoresTemporales[item.clave] || ''}
             onChange={(e) => handleChange(
               item.clave,
-              item.tipo === 'number' ? parseInt(e.target.value) || 0 : e.target.value
+              item.tipo === 'number' ? parseInt(e.target.value) || '' : e.target.value
             )}
             onKeyDown={handleKeyPress}
             placeholder={item.placeholder || item.etiqueta}
