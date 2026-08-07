@@ -14,7 +14,7 @@ def crearDocumento(escuelas: list[Escuelas]):
     print(BASE_DIR)
 
     # Construye la ruta absoluta hacia el archivo de la plantilla
-    template_path = BASE_DIR / "templates" / "templateDocs.docx"
+    template_path = BASE_DIR / "templates" / "templateDocsV2.docx"
 
     # hay que convertir a str el path
     doc = DocxTemplate(
