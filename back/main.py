@@ -1,4 +1,16 @@
-# Desarrollo
+import asyncio
+import logging
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from scripts.routers.escuelas import escuelas
+from scripts.routers.generacionDocs import routerDocs
+from scripts.routers.login import login
+from scripts.routers.notificaciones import notificaciones
+from scripts.routers.personas import personas
+from scripts.routers.roles import roles
+from scripts.routers.rutas import rutas
+from scripts.routers.usuarios import usuarios
 from utils.websockets_manager import (
     add_connection,
     notify_clients,
@@ -6,24 +18,6 @@ from utils.websockets_manager import (
     remove_connection,
     start_redis_listener,
 )
-from scripts.routers.usuarios import usuarios
-from scripts.routers.rutas import rutas
-from scripts.routers.roles import roles
-from scripts.routers.personas import personas
-from scripts.routers.notificaciones import notificaciones
-from scripts.routers.login import login
-from scripts.routers.generacionDocs import routerDocs
-from scripts.routers.escuelas import escuelas
-from scripts.conf.engine import init_db, close_db
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-import logging
-import asyncio
-from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv(Path(__file__).parent / ".env")
-# Fin Bloque Desarrollo
-
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
@@ -54,10 +48,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    """Inicializar Redis, MongoDB y el listener al arrancar la aplicación"""
-    init_db()
-    logger.info("✅ MongoDB inicializado")
-
+    """Inicializar Redis y el listener al arrancar la aplicación"""
     try:
         await redis_manager.initialize()
         # Iniciar listener de Redis en segundo plano
@@ -93,15 +84,6 @@ async def websocket_endpoint(websocket: WebSocket, entity: str):
     except Exception as e:
         logger.error(f"Error en WebSocket {entity}: {e}")
         await remove_connection(entity, websocket)
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    close_db()
-    logger.info("🔌 Conexión MongoDB cerrada")
-    # Si redis_manager tiene close, también llamarlo
-    if hasattr(redis_manager, "close"):
-        await redis_manager.close()
 
 
 app.include_router(usuarios, tags=["Usuarios"])
