@@ -80,11 +80,6 @@ export const modulosSlice = createSlice({
     name: 'modulos',
     initialState: {
         // Estructura de datos para cada módulo
-        motivos: {
-            datos: null,
-            filtros: {},
-            estadoEdicion: false,
-        },
         escuelas: {
             datos: null,
             filtros: {},

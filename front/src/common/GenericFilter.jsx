@@ -76,11 +76,11 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
         return (
           <input
             type={item.tipo === 'number' ? 'number' : 'text'}
-            className="form-control"
+            className="form-control generic-filter-control"
             value={valoresTemporales[item.clave] || ''}
             onChange={(e) => handleChange(
               item.clave,
-              item.tipo === 'number' ? parseInt(e.target.value) || 0 : e.target.value
+              item.tipo === 'number' ? parseInt(e.target.value) || '' : e.target.value
             )}
             onKeyDown={handleKeyPress}
             placeholder={item.placeholder || item.etiqueta}
@@ -159,7 +159,7 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
           ))}
         </div>
         <div className="generic-filter-actions">
-          <button type="button" className="btn btn-primary generic-filter-apply" onClick={aplicarFiltros}>
+          <button type="button" className="btn btn-dark generic-filter-apply" onClick={aplicarFiltros}>
             <Search size={16} aria-hidden="true" />
             Aplicar
           </button>

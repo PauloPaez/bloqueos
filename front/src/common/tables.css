@@ -1,6 +1,7 @@
 .schools-list-download {
   display: inline-flex;
   align-items: center;
+  color: black;
   flex-shrink: 0;
   gap: 0.5rem;
   white-space: nowrap;
@@ -48,7 +49,7 @@
   border-bottom: 1px solid #dee2e6;
   color: #212529;
   font-weight: 600;
-  white-space: nowrap;
+  /* white-space: nowrap; */
 }
 
 /* Celdas del cuerpo */
@@ -70,16 +71,21 @@
 
 /* Asegurar que las columnas mantengan su ancho */
 .sticky-table {
-  table-layout: fixed;
+  table-layout: auto;
 }
 
-/* .table-results-summary {
+/* .table-results-summary { Esto es la cantidad de registros, etc que tenia la tabla, pero como se repetia con lo de paginado, lo comente
   padding: 0.75rem 1rem;
   border-top: 1px solid #e9ecef;
   background-color: #f8f9fa;
   color: #6c757d;
   font-size: 0.875rem;
 } */
+
+.conjunto-botones {
+  display: flex;
+  gap: 8px;
+}
 
 @media (max-width: 576px) {
   .listado-header {
@@ -90,5 +96,10 @@
   .schools-list-download {
     width: 100%;
     justify-content: center;
+  }
+
+  .conjunto-botones {
+    width: 100%;
+    flex-direction: column;
   }
 }

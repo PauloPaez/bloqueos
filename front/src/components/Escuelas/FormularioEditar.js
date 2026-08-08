@@ -1,5 +1,4 @@
 export const formularioCampos = [
-  {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "tipo_reg", label: "Tipo Reg", placeholder: "no_visible", type: "text"},
   {name: "cod_liquidacion", label: "Código Liquidación", placeholder: "no_visible", type: "text"},
   {name: "centro_pago", label: "Centro Pago", placeholder: "no_visible", type: "text"},
@@ -11,7 +10,7 @@ export const formularioCampos = [
   {name: "cuenta_acreditacion", label: "Cuenta Acreditación", placeholder: "no_visible", type: "text"},
   {name: "cuenta_acreditacion_dv", label: "DV Cuenta Acreditación", placeholder: "no_visible", type: "text"},
   {name: "importe_acreditado", label: "Importe Acreditado", placeholder: "no_visible", type: "float"},
-  {name: "beneficiario_nombre", label: "Beneficiario", placeholder: "no_visible", type: "text"},
+  {name: "beneficiario_nombre", label: "Beneficiario", placeholder: "Beneficiario", type: "text"},
   {name: "documento_tipo", label: "Tipo Documento", placeholder: "no_visible", type: "text"},
   {name: "documento_nro", label: "Número Documento", placeholder: "no_visible", type: "text"},
   {name: "suc_debito", label: "Sucursal Débito", placeholder: "no_visible", type: "text"},
@@ -23,7 +22,7 @@ export const formularioCampos = [
   {name: "centro", label: "Centro", placeholder: "no_visible", type: "text"},
   {name: "sector", label: "Sector", placeholder: "no_visible", type: "text"},
   {name: "padron", label: "Padrón", placeholder: "Padrón", type: "text"},
-  {name: "padron_dv", label: "DV Padrón", placeholder: "DV Padrón", type: "text"},
+  {name: "padron_dv", label: "DV Padrón", placeholder: "no_visible", type: "text"},
   {name: "reservado", label: "Reservado", placeholder: "no_visible", type: "text"},
   {name: "cod_banco", label: "Código Banco", placeholder: "no_visible", type: "text"},
   {name: "tipo_archivo", label: "Tipo Archivo", placeholder: "no_visible", type: "text"},
@@ -31,5 +30,6 @@ export const formularioCampos = [
   {name: "motivo", label: "Motivo", placeholder: "Motivo", type: "select", optionsKey: "motivos"},
   {name: "login", label: "Login", placeholder: "no_visible", type: "text"},
   {name: "empresa", label: "Empresa", placeholder: "no_visible", type: "text"},
+  {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "activo", label: "Activo", placeholder: "Activo", type: "checkbox"},
 ];

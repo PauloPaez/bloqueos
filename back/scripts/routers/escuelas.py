@@ -1,10 +1,7 @@
 # routers/escuelas.py
-import io
 from typing import Any, Dict, List
 
-import polars as pl
-from fastapi import APIRouter, Body, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel
 from scripts.models.escuelas import Escuelas
 from scripts.querys.escuelas import (
@@ -21,7 +18,6 @@ from utils.generacionExcel import generarExcel
 
 # Importa desde el módulo externo
 from utils.websockets_manager import notify_clients
-from xlsxwriter import Workbook
 
 escuelas = APIRouter()
 
@@ -121,9 +117,11 @@ async def get_TN_distinct(campo: str):
         )
 
 
-@escuelas.post("/generar-excel-bloqueados")
-async def generarExcelBloqueados():
-    """Este endpoint por el momento no recibe nada pero genera un excel unicamente con las escuelas bloqueadas."""
+@escuelas.post("/escuelas/generar-excel-bloqueados")
+async def generarExcelBloqueados(
+    periodo: str | None = None, fecha_pago: str | None = None
+):
+    """Genera la planilla de bajas para el período y fecha indicados. Los parametros de entrada son opcionales"""
     try:
         # 1. Obtener la data (lista de diccionarios)
         resultado = await search_escuelas_in_db({"bloqueo": True})
@@ -133,7 +131,9 @@ async def generarExcelBloqueados():
                 status_code=404, detail="No se encontraron datos para el período."
             )
 
-        excelGenerado = await generarExcel(resultado)
+        excelGenerado = await generarExcel(
+            resultado, periodo=periodo, fecha_pago=fecha_pago
+        )
 
         return excelGenerado
 

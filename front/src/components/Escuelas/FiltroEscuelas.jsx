@@ -53,10 +53,11 @@ const FiltroEscuelas = ({ filtroInicial }) => {
     // 'placeholder': 'DV Cuenta Acreditación',
     // 'tipo': 'str',
     // 'valor': ''},
+    // TODO: si activo importe_acreditado, da un problema y es que al tener 0 al a izquierda, los elimina, haciendo que no coincida el numero con el que se guardo en la base de datos. Pero viendo el tipo de dato en la DB, es str, no float
     // {   'clave': 'importe_acreditado',
     // 'etiqueta': 'Importe Acreditado',
     // 'placeholder': 'Importe Acreditado',
-    // 'tipo': 'float',
+    // 'tipo': 'str',
     // 'valor': ''},
     // {   'clave': 'beneficiario_nombre',
     // 'etiqueta': 'Beneficiario',

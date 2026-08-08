@@ -5,56 +5,8 @@ export const objetosApi = createApi({
     reducerPath: "objetosApi",
  //   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/" }),
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
-    tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Escuelas","Motivos",],
+    tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Escuelas",],
     endpoints: (builder) => ({
-	getMotivos: builder.query({ 
-    		query: () => "motivos/",
-    		providesTags: ["Motivos"],
-		}),
-	getMotivosById: builder.query({
-		query: (id) => `motivos/${id}/`, // Ruta con el parámetro dinámico `id`
-		providesTags: (result, error, id) => [{ type: "Motivos", id }],
-	}),
-	postMotivosByField: builder.mutation({
-		query: (filter) => ({
-			url: "motivos/search/",
-			method: "POST",
-			body: filter, // Enviar el filtro como un objeto
-		}),
-		providesTags: (result, error, filter) => [{ type: "Motivos", filter }],
-		}),		
-    postMotivos: builder.mutation({ 
-        	query: (nuevoDatos) => ({
-        	    url: "motivos/",
-        	    method: "POST",
-        	    body: nuevoDatos,
-			}),
-    	    invalidatesTags: ["Motivos"],
-		}),
-	putMotivos: builder.mutation({ 
-    		query: (datos) => ({
-        		url: "motivos/",
-        		method: "PUT",
-        		body: datos,
-			}),
-    		invalidatesTags: ["Motivos"],
-		}),
-	patchMotivos: builder.mutation({ 
-    		query: (datos) => ({
-        		url: "motivos/",
-        		method: "PATCH",
-        		body: datos,
-			}),
-    		invalidatesTags: ["Motivos"],
-		}),
-    getDistinctMotivos: builder.query({
-            query: (campo) => {
-                const url = `motivos/distinct/${campo}/`;
-                console.log('URL generada:', url); // Verifica que sea correcta
-                return url;
-                },
-                providesTags: ["Motivos"],
-            }),
 	getEscuelas: builder.query({ 
     		query: () => "escuelas/",
     		providesTags: ["Escuelas"],
@@ -268,12 +220,6 @@ export const objetosApi = createApi({
 
 });
 export const {
-	useGetMotivosQuery,
-	usePostMotivosMutation,
-	usePutMotivosMutation,
-	usePatchMotivosMutation,
-	usePostMotivosByFieldMutation,
-	useGetDistinctMotivosQuery,
 	useGetEscuelasQuery,
 	usePostEscuelasMutation,
 	usePutEscuelasMutation,
