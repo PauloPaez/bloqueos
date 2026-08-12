@@ -28,7 +28,7 @@ const ListarEscuelas = () => {
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
   // Definir el filtro inicial
   const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
-  const filtroInicial = {};
+  const filtroInicial = {"activo": true};
   const postFijo = {};
 
 
