@@ -27,9 +27,9 @@ export const formularioCampos = [
   {name: "cod_banco", label: "Código Banco", placeholder: "no_visible", type: "text"},
   {name: "tipo_archivo", label: "Tipo Archivo", placeholder: "no_visible", type: "text"},
   {name: "periodo", label: "Período", placeholder: "no_visible", type: "text"},
+  {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "motivo", label: "Motivo", placeholder: "Motivo", type: "select", optionsKey: "motivos"},
   {name: "login", label: "Login", placeholder: "no_visible", type: "text"},
   {name: "empresa", label: "Empresa", placeholder: "no_visible", type: "text"},
-  {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "activo", label: "Activo", placeholder: "Activo", type: "checkbox"},
 ];

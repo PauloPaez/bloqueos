@@ -20,11 +20,13 @@ const EditarEscuelas = () => {
   const [postEscuelas] = usePostEscuelasMutation();
   const [patchEscuelas] = usePatchEscuelasMutation();
 
-  const { register, handleSubmit, setValue, reset } = useForm({
+  const { register, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       escuelas: [{}],
     },
   });
+
+  const bloqueoSeleccionado = watch('escuelas.0.bloqueo', false);
 
   useEffect(() => {
     dispatch(resetModulo({ modulo: 'escuelas' }));
@@ -135,7 +137,9 @@ const EditarEscuelas = () => {
 
           const fieldProps = {
             ...register(`escuelas.0.${field.name}`),
-            disabled: field.disabled,
+            disabled:
+              field.disabled ||
+              (field.name === 'motivo' && !bloqueoSeleccionado),
             placeholder:
               field.placeholder !== "no_visible"
                 ? field.placeholder
