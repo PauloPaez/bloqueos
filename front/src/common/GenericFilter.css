@@ -1,26 +1,30 @@
 .generic-filter {
   border: 1px solid #dee2e6;
-  border-radius: 0.75rem;
-  background: #fff;
-  box-shadow: none;
+  border-radius: 0.5rem;
+  background: rgba(248, 249, 250, 0.75);
 }
 
-.generic-filter-body {
+/* .generic-filter-body {
   padding: 1rem;
-}
+} */
 
 .generic-filter-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid #e9ecef;
-  border-radius: 0.5rem;
-  background: rgba(248, 249, 250, 0.75);
 }
 
 .generic-filter-field {
   min-width: 0;
+}
+
+.generic-filter-switches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.5rem;
+  grid-column: 1 / -1;
 }
 
 .generic-filter-label {
@@ -46,7 +50,7 @@
 .generic-filter-switch {
   display: flex;
   align-items: center;
-  min-height: 38px;
+  min-height: 20px;
 }
 
 .generic-filter-switch-input {
@@ -59,7 +63,9 @@
 .generic-filter-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1rem;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  /* margin-top: 1rem; */
 }
 
 .generic-filter-apply {
@@ -69,7 +75,7 @@
   background-color: black;
   gap: 0.5rem;
   white-space: nowrap;
-  border-color: #dee2e6;
+  /* border-color: #dee2e6; */
 }
 
 @media (min-width: 576px) {
@@ -87,5 +93,9 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .generic-filter-switches {
+    grid-column: auto;
   }
 }

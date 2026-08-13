@@ -147,16 +147,29 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
 
   return (
     <div className="generic-filter card mb-4">
-      <div className="generic-filter-body card-body">
+      <div className="generic-filter-body"> 
         <div className="generic-filter-grid">
-          {configuracion.map((item) => (
-            <div key={item.clave} className={item.tipo === 'checkbox' ? 'generic-filter-field generic-filter-field-switch' : 'generic-filter-field'}>
+          {configuracion.filter((item) => item.tipo !== 'checkbox').map((item) => (
+            <div key={item.clave} className="generic-filter-field">
               <label className="generic-filter-label" htmlFor={`filter-${item.clave}`}>
                 {item.etiqueta}
               </label>
               {renderInput(item)}
             </div>
           ))}
+
+          {configuracion.some((item) => item.tipo === 'checkbox') && (
+            <div className="generic-filter-switches">
+              {configuracion.filter((item) => item.tipo === 'checkbox').map((item) => (
+                <div key={item.clave} className="generic-filter-field generic-filter-field-switch">
+                  <label className="generic-filter-label" htmlFor={`filter-${item.clave}`}>
+                    {item.etiqueta}
+                  </label>
+                  {renderInput(item)}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="generic-filter-actions">
           <button type="button" className="btn btn-dark generic-filter-apply" onClick={aplicarFiltros}>
