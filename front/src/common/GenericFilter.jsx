@@ -4,6 +4,8 @@ import { Search } from 'lucide-react';
 import { setFiltroListado } from '../store/appSlice';
 import './GenericFilter.css';
 
+const INLINE_APPLY_THRESHOLD = 3;
+
 const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}) => {
   const dispatch = useDispatch();
   const [valoresTemporales, setValoresTemporales] = useState({});
@@ -148,7 +150,7 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
   return (
     <div className="generic-filter card mb-4">
       <div className="generic-filter-body"> 
-        <div className="generic-filter-grid">
+        <div className={`generic-filter-grid ${configuracion.length <= INLINE_APPLY_THRESHOLD ? 'generic-filter-grid-compact' : ''}`}>
           {configuracion.filter((item) => item.tipo !== 'checkbox').map((item) => (
             <div key={item.clave} className="generic-filter-field">
               <label className="generic-filter-label" htmlFor={`filter-${item.clave}`}>
@@ -170,12 +172,12 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
               ))}
             </div>
           )}
-        </div>
-        <div className="generic-filter-actions">
-          <button type="button" className="btn btn-dark generic-filter-apply" onClick={aplicarFiltros}>
-            <Search size={16} aria-hidden="true" />
-            Aplicar
-          </button>
+          <div className="generic-filter-actions">
+            <button type="button" className="btn btn-dark generic-filter-apply" onClick={aplicarFiltros}>
+              <Search size={16} aria-hidden="true" />
+              Aplicar
+            </button>
+          </div>
         </div>
       </div>
     </div>

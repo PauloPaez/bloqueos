@@ -63,9 +63,9 @@
 .generic-filter-actions {
   display: flex;
   justify-content: flex-end;
-  padding-right: 15px;
-  padding-bottom: 15px;
-  /* margin-top: 1rem; */
+  /* padding-right: 15px;
+  padding-bottom: 15px; */
+  grid-column: 1 / -1;
 }
 
 .generic-filter-apply {
@@ -76,6 +76,14 @@
   gap: 0.5rem;
   white-space: nowrap;
   /* border-color: #dee2e6; */
+}
+
+@media (min-width: 992px) {
+  .generic-filter-grid-compact .generic-filter-actions {
+    grid-column: -2 / -1;
+    align-self: end;
+    padding-bottom: 0;
+  }
 }
 
 @media (min-width: 576px) {
