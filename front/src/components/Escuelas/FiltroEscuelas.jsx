@@ -154,11 +154,11 @@ const FiltroEscuelas = ({ filtroInicial }) => {
     'placeholder': 'Bloqueo',
     'tipo': 'checkbox',
     'valor': ''},
-    {   'clave': 'activo',
-    'etiqueta': 'Activo',
-    'placeholder': 'Activo',
-    'tipo': 'checkbox',
-    'valor': ''},
+    // {   'clave': 'activo',
+    // 'etiqueta': 'Activo',
+    // 'placeholder': 'Activo',
+    // 'tipo': 'checkbox',
+    // 'valor': ''},
 
 ];
   

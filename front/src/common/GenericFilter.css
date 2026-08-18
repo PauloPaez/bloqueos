@@ -23,14 +23,15 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
+  margin-bottom: auto;
   gap: 1.5rem;
   grid-column: 1 / -1;
 }
 
 .generic-filter-label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: #212529;
+  margin-bottom: 0.4rem;
+  color: black;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -50,7 +51,7 @@
 .generic-filter-switch {
   display: flex;
   align-items: center;
-  min-height: 20px;
+  min-height: 38px;
 }
 
 .generic-filter-switch-input {
