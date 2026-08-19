@@ -1,57 +1,93 @@
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, LogOut, Menu, MoreHorizontal, User, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { resetAcceso, resetFila } from '../../store/appSlice';
+import { useDispatch, useSelector } from "react-redux";
+import { resetAcceso, resetFila } from "../../store/appSlice";
+import "./Navbar.css";
 
-const SubMenu = ({ title, links, isOpen, onToggle, onClose }) => (
-  <div style={{ display: "inline-block", position: "relative" }}>
-    <button
-      onClick={onToggle}
-      style={{ color: "#fff", background: "none", border: "none", cursor: "pointer" }}
-    >
-      {title}
-    </button>
-    {isOpen && (
-      <div
-        style={{
-          position: "absolute",
-          top: "100%",
-          left: 0,
-          backgroundColor: "#555",
-          color: "#fff",
-          padding: "0.5rem",
-          borderRadius: "5px",
-          zIndex: 100,
-          minWidth: "200px", // Aumenta el ancho del submenu
-        }}
+const MAX_VISIBLE_ITEMS = 4;
+
+const SubMenu = ({ menu, open, onToggle, onClose }) => {
+  const hasLinks = menu.links.length > 0;
+
+  return (
+    <div className="navbar-menu-item">
+      <button
+        type="button"
+        className="navbar-menu-trigger"
+        aria-expanded={open}
+        onClick={onToggle}
       >
-        {links.map((link) => (
-          <Link
-            key={link.to}
-            to={link.to}
-            onClick={onClose}
-            style={{ display: "block", color: "#fff", textDecoration: "none", padding: "0.5rem 0" }}
-          >
+        {menu.title}
+        {hasLinks && <ChevronDown size={15} aria-hidden="true" />}
+      </button>
+      {open && hasLinks && (
+        <div className="navbar-dropdown">
+          {menu.links.map((link) => (
+            <Link key={link.to} to={link.to} className="navbar-dropdown-link" onClick={onClose}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MobileMenu = ({ menus, onClose }) => (
+  <div className="navbar-mobile-menu">
+    <div className="navbar-mobile-menu-title">Menú</div>
+    {menus.map((menu) => (
+      <div className="navbar-mobile-group" key={menu.title}>
+        <div className="navbar-mobile-group-title">{menu.title}</div>
+        {menu.links.map((link) => (
+          <Link key={link.to} to={link.to} className="navbar-mobile-link" onClick={onClose}>
             {link.label}
           </Link>
         ))}
       </div>
-    )}
+    ))}
   </div>
 );
 
 const Navbar = () => {
   const dispatch = useDispatch();
-  const [subMenus, setSubMenus] = useState({});
-  const navRef = useRef(null);
   const navigate = useNavigate();
-  const user = useSelector((state) => state.acceso.user); // Recuperar el usuario desde Redux
+  const navRef = useRef(null);
+  const user = useSelector((state) => state.acceso.user);
+  const [openMenu, setOpenMenu] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const toggleSubMenu = (menuName) => {
-    setSubMenus((prev) => ({ ...prev, [menuName]: !prev[menuName] }));
-  };
+  const dynamicMenus = (() => {
+    if (!user?.opciones?.length) return [];
 
-  const closeAllSubMenus = () => setSubMenus({});
+    const groupedMenus = user.opciones.reduce((acc, opcion) => {
+      const category = opcion.path.split("/")[1];
+      if (!acc[category]) acc[category] = [];
+      acc[category].push({
+        label: opcion.componente.replace(/([A-Z])/g, " $1").trim(),
+        to: opcion.path,
+      });
+      return acc;
+    }, {});
+
+    return Object.entries(groupedMenus).map(([title, links]) => ({ title, links }));
+  })();
+
+  const visibleMenus = dynamicMenus.slice(0, MAX_VISIBLE_ITEMS);
+  const overflowMenus = dynamicMenus.slice(MAX_VISIBLE_ITEMS);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const closeMenus = () => setOpenMenu(null);
 
   const handleLogout = () => {
     dispatch(resetFila());
@@ -59,77 +95,95 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (navRef.current && !navRef.current.contains(event.target)) {
-        closeAllSubMenus();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Función para generar los menús dinámicamente basados en los permisos del usuario
-  const generateDynamicMenus = () => {
-    if (!user || !user.opciones || user.opciones.length === 0) return [];
-
-    // Agrupar los permisos por categoría (primer segmento del path)
-    const groupedMenus = user.opciones.reduce((acc, opcion) => {
-      const category = opcion.path.split("/")[1]; // Ej: "Usuarios" o "Roles"
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push({
-        label: opcion.componente.replace(/([A-Z])/g, " $1").trim(), // Formatea el nombre del componente
-        to: opcion.path,
-      });
-      return acc;
-    }, {});
-
-    // Convertir el objeto agrupado en un array de menús
-    return Object.entries(groupedMenus).map(([category, links]) => ({
-      title: category,
-      links,
-    }));
+  const toggleMenu = (menuName) => {
+    setOpenMenu((current) => (current === menuName ? null : menuName));
   };
 
-  const dynamicMenus = generateDynamicMenus();
-
   return (
-    <nav
-      ref={navRef}
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "1rem",
-        backgroundColor: "#333",
-        color: "#fff",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-evenly",
-          flexGrow: 1,
-        }}
-      >
-        {dynamicMenus.map((menu) => (
-          <SubMenu
-            key={menu.title}
-            title={menu.title}
-            links={menu.links}
-            isOpen={subMenus[menu.title]}
-            onToggle={() => toggleSubMenu(menu.title)}
-            onClose={closeAllSubMenus}
-          />
-        ))}
+    <nav ref={navRef} className="app-navbar">
+      <div className="navbar-inner">
+        <button
+          type="button"
+          className="navbar-mobile-trigger"
+          aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((current) => !current)}
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+
+        <div className="navbar-desktop-menus">
+          {visibleMenus.map((menu) => (
+            <SubMenu
+              key={menu.title}
+              menu={menu}
+              open={openMenu === menu.title}
+              onToggle={() => toggleMenu(menu.title)}
+              onClose={closeMenus}
+            />
+          ))}
+          {overflowMenus.length > 0 && (
+            <div className="navbar-menu-item">
+              <button
+                type="button"
+                className="navbar-menu-trigger"
+                aria-expanded={openMenu === "__more__"}
+                onClick={() => toggleMenu("__more__")}
+              >
+                <MoreHorizontal size={16} aria-hidden="true" />
+                Más
+                <ChevronDown size={15} aria-hidden="true" />
+              </button>
+              {openMenu === "__more__" && (
+                <div className="navbar-dropdown navbar-more-dropdown">
+                  {overflowMenus.map((menu) => (
+                    <div className="navbar-more-group" key={menu.title}>
+                      <div className="navbar-more-title">{menu.title}</div>
+                      {menu.links.map((link) => (
+                        <Link key={link.to} to={link.to} className="navbar-dropdown-link" onClick={closeMenus}>
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="navbar-account">
+          <div className="navbar-area">
+            {/* <span>Área</span> */}
+            <span className="navbar-area-value">{user?.empresa || "Desconocido"}</span>
+          </div>
+          <span className="navbar-separator" aria-hidden="true" />
+          <button
+            type="button"
+            className="navbar-user-trigger"
+            aria-expanded={openMenu === "__user__"}
+            onClick={() => toggleMenu("__user__")}
+          >
+            <span className="navbar-user-avatar"><User size={14} aria-hidden="true" /></span>
+            <span className="navbar-username">{user?.login || "Desconocido"}</span>
+            <ChevronDown size={14} aria-hidden="true" />
+          </button>
+          {openMenu === "__user__" && (
+            <div className="navbar-dropdown navbar-user-dropdown">
+              <div className="navbar-user-details">
+                <strong>{user?.login || "Desconocido"}</strong>
+                <span>Área {user?.empresa || "Desconocido"}</span>
+              </div>
+              <button type="button" className="navbar-logout" onClick={handleLogout}>
+                <LogOut size={16} aria-hidden="true" />
+                Cerrar sesión
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <span style={{ marginRight: "1rem", color: "yellow" }}>{user ? user.empresa : "Desconocido"}</span>
-        <span onClick={handleLogout} style={{ cursor: "pointer", textDecoration: "underline" }}>
-          {user ? user.login : "Desconocido"}
-        </span>
-      </div>
+
+      {mobileOpen && <MobileMenu menus={dynamicMenus} onClose={() => setMobileOpen(false)} />}
     </nav>
   );
 };
