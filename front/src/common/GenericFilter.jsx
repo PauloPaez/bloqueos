@@ -1,23 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { Search } from 'lucide-react';
-import { setFiltroListado } from '../store/appSlice';
+import useFiltroListado from '../hooks/useFiltroListado';
 import './GenericFilter.css';
 
 const INLINE_APPLY_THRESHOLD = 3;
 
-const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}) => {
-  const dispatch = useDispatch();
+const GenericFilter = ({
+  configuracion = [],
+  filtroInicial = {},
+  postFijo = {},
+  claveFiltro,
+  modulo,
+}) => {
+  const clave = claveFiltro || modulo || 'default';
+  const { valores: valoresPersistidos, guardarFiltro } = useFiltroListado(clave);
   const [valoresTemporales, setValoresTemporales] = useState({});
+  // La configuración suele crearse como un nuevo arreglo en cada render.
+  // Usamos una firma estable para no borrar los valores que el usuario ya
+  // escribió cada vez que el componente vuelve a renderizarse.
+  const configuracionKey = configuracion
+    .map(item => `${item.clave}:${item.tipo}`)
+    .join('|');
 
   // Inicializar valores
   useEffect(() => {
     const valoresIniciales = {};
     configuracion.forEach(item => {
-      valoresIniciales[item.clave] = item.tipo === 'checkbox' ? false : '';
+      const tieneValorPersistido = Object.prototype.hasOwnProperty.call(
+        valoresPersistidos || {},
+        item.clave
+      );
+
+      valoresIniciales[item.clave] = tieneValorPersistido
+        ? valoresPersistidos[item.clave]
+        : item.tipo === 'checkbox' ? false : '';
     });
     setValoresTemporales(valoresIniciales);
-  }, [configuracion]);
+  }, [configuracionKey, clave, valoresPersistidos]);
 
   // Manejar cambios en los inputs
   const handleChange = (clave, valor) => {
@@ -52,15 +71,14 @@ const GenericFilter = ({ configuracion = [], filtroInicial = {} , postFijo = {}}
         // Incluir postFijo si tiene valores
      if (Object.keys(postFijo).length > 0) {
       Object.assign(nuevosFiltros, postFijo);
-      todosVacios = false; 
     }
   
-    // Si todos los campos están vacíos, usar el filtro inicial
-    if (todosVacios && Object.keys(filtroInicial).length > 0) {
-      dispatch(setFiltroListado(filtroInicial));
-    } else {
-      dispatch(setFiltroListado(nuevosFiltros));
-    }
+    // Si todos los campos están vacíos, usar el filtro inicial.
+    const filtro = todosVacios && Object.keys(filtroInicial).length > 0
+      ? { ...filtroInicial, ...nuevosFiltros }
+      : nuevosFiltros;
+
+    guardarFiltro(filtro, valoresTemporales);
   };
 
   // Manejar tecla Enter

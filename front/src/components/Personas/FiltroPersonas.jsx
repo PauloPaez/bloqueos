@@ -1,7 +1,7 @@
 import React from 'react';
 import GenericFilter from '../../common/GenericFilter';
 
-const FiltroPersonas = ({ filtroInicial }) => {
+const FiltroPersonas = ({ filtroInicial, postFijo }) => {
   const configuracionFiltro = [
     // {   'clave': 'cuit',
     // 'etiqueta': 'CUIT',
@@ -64,6 +64,8 @@ const FiltroPersonas = ({ filtroInicial }) => {
     <GenericFilter
       configuracion={configuracionFiltro}
       filtroInicial={filtroInicial}
+      postFijo={postFijo}
+      claveFiltro="personas"
     />
   );
 };

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { usePostPersonasByFieldMutation } from "../../store/apiSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { setModuloState, resetModulo, setFiltroListado } from "../../store/appSlice";
+import { useDispatch } from "react-redux";
+import {
+  setModuloState,
+  resetModulo,
+} from "../../store/appSlice";
+import useFiltroListado from "../../hooks/useFiltroListado";
 import FiltroPersonas from "./FiltroPersonas";
 import { convertirMesANumero } from "../../common/meses";
 import { WS_BASE_URL } from "../../config/api";
@@ -12,7 +16,12 @@ import { formularioCampos } from './FormularioListar';
 const ListarPersonas = () => {
 
   const dispatch = useDispatch();
-  const filtroListado = useSelector((state) => state.listado.filtro);
+  const {
+    filtro: filtroListado,
+    filtroGuardado,
+    guardarFiltro,
+    resetearFiltro,
+  } = useFiltroListado("personas", { limpiarAlDesmontar: true });
 
   const [postPersonas] = usePostPersonasByFieldMutation();
   const [datos, setDatos] = useState([]);
@@ -63,8 +72,8 @@ const ListarPersonas = () => {
     const cargarDatos = async () => {
       setIsLoading(true);
       try {
-        const filtroActual = { ...filtroInicial, ...postFijo };
-        dispatch(setFiltroListado(filtroActual));
+        const filtroActual = filtroGuardado ?? { ...filtroInicial, ...postFijo };
+        guardarFiltro(filtroActual);
 
         const result = await postPersonas(filtroActual).unwrap();
         setDatos(result || []);
@@ -146,7 +155,7 @@ const ListarPersonas = () => {
   const handleResetFilter = () => {
     const filtroReset = { ...filtroInicial, ...postFijo };
 
-    dispatch(setFiltroListado(filtroReset));
+    resetearFiltro(filtroReset);
 
     postPersonas(filtroReset).unwrap()
       .then(result => {

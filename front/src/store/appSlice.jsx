@@ -64,18 +64,50 @@ export const filtroListadoSlice = createSlice({
     name: "listado", // Nombre del slice
     initialState: {
         filtro: {},
+        filtrosPorClave: {},
+        valoresFiltrosPorClave: {},
     },
     reducers: {
         // Reducer para actualizar el estado `filtro`
         setFiltroListado: (state, action) => {
             state.filtro = { ...action.payload };
         },
+        setFiltroListadoPorClave: (state, action) => {
+            const { clave, filtro = {}, valores } = action.payload;
+            if (!clave) return;
+
+            state.filtrosPorClave[clave] = { ...filtro };
+
+            if (valores !== undefined) {
+                state.valoresFiltrosPorClave[clave] = { ...valores };
+            }
+        },
+        resetFiltroListadoPorClave: (state, action) => {
+            const { clave, filtro = {} } = action.payload;
+            if (!clave) return;
+
+            state.filtrosPorClave[clave] = { ...filtro };
+            state.valoresFiltrosPorClave[clave] = {};
+        },
+        limpiarFiltroListadoPorClave: (state, action) => {
+            const { clave } = action.payload;
+            if (!clave) return;
+
+            delete state.filtrosPorClave[clave];
+            delete state.valoresFiltrosPorClave[clave];
+        },
         resetFiltroListado: (state) => {
             state.filtro = {};
         },
     },
 });
-export const { setFiltroListado, resetFiltroListado } = filtroListadoSlice.actions;
+export const {
+    setFiltroListado,
+    setFiltroListadoPorClave,
+    resetFiltroListadoPorClave,
+    limpiarFiltroListadoPorClave,
+    resetFiltroListado,
+} = filtroListadoSlice.actions;
 export const modulosSlice = createSlice({
     name: 'modulos',
     initialState: {

@@ -1,15 +1,25 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePostMotivosByFieldMutation } from "../../store/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setModuloState, resetModulo, setFiltroListado } from "../../store/appSlice";
+import {
+  setModuloState,
+  resetModulo,
+} from "../../store/appSlice";
+import useFiltroListado from "../../hooks/useFiltroListado";
 import FiltroMotivos from "./FiltroMotivos";
 import { convertirMesANumero } from "../../common/meses"; 
 import { WS_BASE_URL } from "../../config/api";
 import '../../common/tables.css';
 import { formularioCampos } from './FormularioListar';
+
 const ListarMotivos = () => {
   const dispatch = useDispatch();
-  const filtroListado = useSelector((state) => state.listado.filtro);
+  const {
+    filtro: filtroListado,
+    filtroGuardado,
+    guardarFiltro,
+    resetearFiltro,
+  } = useFiltroListado("motivos", { limpiarAlDesmontar: true });
   const [postMotivos] = usePostMotivosByFieldMutation();
   const [datos, setDatos] = useState([]);
   const user = useSelector((state) => state.acceso.user);
@@ -23,9 +33,9 @@ const ListarMotivos = () => {
     const cargarDatosIniciales = async () => {
       setIsLoading(true);
       try {
-        const filtroActual = { ...filtroInicial, ...postFijo };
+        const filtroActual = filtroGuardado ?? { ...filtroInicial, ...postFijo };
         console.log("Cargando datos con filtro:", filtroActual);
-        dispatch(setFiltroListado(filtroActual));
+        guardarFiltro(filtroActual);
         const result = await postMotivos(filtroActual).unwrap();
         setDatos(result || []);
         setMostrarFiltroInicial(result?.length === 0);
@@ -100,7 +110,7 @@ const ListarMotivos = () => {
   };
   const handleResetFilter = () => {
     const filtroReset = { ...filtroInicial, ...postFijo };
-    dispatch(setFiltroListado(filtroReset));
+    resetearFiltro(filtroReset);
     postMotivos(filtroReset).unwrap()
       .then(result => {
         setDatos(result || []);

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePostEscuelasByFieldMutation } from "../../store/apiSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { setModuloState, resetModulo, setFiltroListado } from "../../store/appSlice";
+import { useDispatch } from "react-redux";
+import {
+  setModuloState,
+  resetModulo,
+} from "../../store/appSlice";
+import useFiltroListado from "../../hooks/useFiltroListado";
 import FiltroEscuelas from "./FiltroEscuelas";
 import { convertirMesANumero } from "../../common/meses"; 
 import { API_BASE_URL, WS_BASE_URL } from "../../config/api";
@@ -11,10 +15,15 @@ import Pagination from "../Pagination/Pagination";
 import { Download } from "lucide-react";
 import { descargarArchivo } from "../../common/descargarArchivo";
 
-
 const ListarEscuelas = () => {
   const dispatch = useDispatch();
-  const filtroListado = useSelector((state) => state.listado.filtro);
+  const {
+    filtro: filtroListado,
+    filtroGuardado,
+    guardarFiltro,
+    resetearFiltro,
+    // useFiltroListado envia una clave unica, que es la que va a usar para el genericFilter
+  } = useFiltroListado("escuelas", { limpiarAlDesmontar: true });
   const [postEscuelas] = usePostEscuelasByFieldMutation();
   const [datos, setDatos] = useState([]);
   const [paginacion, setPaginacion] = useState({
@@ -68,9 +77,9 @@ const buscarEscuelas = async (
     const cargarDatosIniciales = async () => {
       setIsLoading(true);
       try {
-        const filtroActual = { ...filtroInicial, ...postFijo };
+        const filtroActual = filtroGuardado ?? { ...filtroInicial, ...postFijo };
         console.log("Cargando datos con filtro:", filtroActual);
-        dispatch(setFiltroListado(filtroActual));
+        guardarFiltro(filtroActual);
         const result = await postEscuelas({
           filter: filtroActual,
           page: 1,
@@ -183,7 +192,7 @@ const buscarEscuelas = async (
   };
   const handleResetFilter = () => {
     const filtroReset = { ...filtroInicial, ...postFijo };
-    dispatch(setFiltroListado(filtroReset));
+    resetearFiltro(filtroReset);
     postEscuelas({
       filter: filtroReset,
       page: 1,
