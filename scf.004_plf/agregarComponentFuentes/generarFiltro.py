@@ -42,7 +42,7 @@ for field in arreglo_campos:
 component_content = f"""import React from 'react';
 import GenericFilter from '../../common/GenericFilter';
 
-const Filtro{model_capitalized} = ({{ filtroInicial }}) => {{
+const Filtro{model_capitalized} = ({{ filtroInicial, postFijo }}) => {{
   const configuracionFiltro = [
 """
 
@@ -58,6 +58,8 @@ component_content += f"""];
     <GenericFilter
       configuracion={{configuracionFiltro}}
       filtroInicial={{filtroInicial}}
+      postFijo={{postFijo}}
+      claveFiltro="{model_lower}"
     />
   );
 }};

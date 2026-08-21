@@ -10,7 +10,8 @@ const Filtro!model! = ({ filtroInicial, postFijo }) => {
         <GenericFilter
           configuracion={configuracionFiltro}
           filtroInicial={filtroInicial} 
-          postFijo = {postFijo}
+          postFijo={postFijo}
+          claveFiltro="!model!"
         />
       );
 };

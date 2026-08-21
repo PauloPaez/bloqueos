@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePost!Model!ByFieldMutation } from "../../store/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setModuloState, resetModulo, setFiltroListado } from "../../store/appSlice";
+import { setModuloState, resetModulo } from "../../store/appSlice";
+import useFiltroListado from "../../hooks/useFiltroListado";
 import Filtro!Model! from "./Filtro!Model!";
 import { convertirMesANumero } from "../../common/meses"; 
 import { WS_BASE_URL } from "../../config/api";
@@ -10,7 +11,12 @@ import { formularioCampos } from './FormularioListar';
 
 const Listar!Model! = () => {
   const dispatch = useDispatch();
-  const filtroListado = useSelector((state) => state.listado.filtro);
+  const {
+    filtro: filtroListado,
+    filtroGuardado,
+    guardarFiltro,
+    resetearFiltro,
+  } = useFiltroListado("!model!", { limpiarAlDesmontar: true });
   const [post!Model!] = usePost!Model!ByFieldMutation();
   const [datos, setDatos] = useState([]);
   const user = useSelector((state) => state.acceso.user);
@@ -26,10 +32,10 @@ const Listar!Model! = () => {
     const cargarDatosIniciales = async () => {
       setIsLoading(true);
       try {
-        const filtroActual = { ...filtroInicial, ...postFijo };
+        const filtroActual = filtroGuardado ?? { ...filtroInicial, ...postFijo };
         console.log("Cargando datos con filtro:", filtroActual);
         
-        dispatch(setFiltroListado(filtroActual));
+        guardarFiltro(filtroActual);
         const result = await post!Model!(filtroActual).unwrap();
         setDatos(result || []);
         setMostrarFiltroInicial(result?.length === 0);
@@ -118,7 +124,7 @@ const Listar!Model! = () => {
 
   const handleResetFilter = () => {
     const filtroReset = { ...filtroInicial, ...postFijo };
-    dispatch(setFiltroListado(filtroReset));
+    resetearFiltro(filtroReset);
     
     post!Model!(filtroReset).unwrap()
       .then(result => {
