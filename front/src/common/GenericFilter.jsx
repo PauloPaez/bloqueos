@@ -3,7 +3,7 @@ import { RotateCcw, Search } from 'lucide-react';
 import useFiltroListado from '../hooks/useFiltroListado';
 import './GenericFilter.css';
 
-const INLINE_APPLY_THRESHOLD = 3;
+const INLINE_APPLY_THRESHOLD = 7;
 
 const GenericFilter = ({
   configuracion = [],

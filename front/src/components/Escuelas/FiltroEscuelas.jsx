@@ -1,7 +1,7 @@
 import React from 'react';
 import GenericFilter from '../../common/GenericFilter';
 
-const FiltroEscuelas = ({ filtroInicial, postFijo }) => {
+const FiltroEscuelas = ({ filtroInicial }) => {
   const configuracionFiltro = [
     // {   'clave': 'tipo_reg',
     // 'etiqueta': 'Tipo Reg',
@@ -70,8 +70,8 @@ const FiltroEscuelas = ({ filtroInicial, postFijo }) => {
     // 'tipo': 'str',
     // 'valor': ''},
     {   'clave': 'documento_nro',
-    'etiqueta': 'DNI',
-    'placeholder': 'DNI',
+    'etiqueta': 'Número Documento',
+    'placeholder': 'Número Documento',
     'tipo': 'str',
     'valor': ''},
     // {   'clave': 'suc_debito',
@@ -166,8 +166,6 @@ const FiltroEscuelas = ({ filtroInicial, postFijo }) => {
     <GenericFilter
       configuracion={configuracionFiltro}
       filtroInicial={filtroInicial}
-      postFijo={postFijo}
-      claveFiltro="escuelas"
     />
   );
 };
