@@ -8,11 +8,11 @@ const FiltroMotivos = ({ filtroInicial, postFijo }) => {
     'placeholder': 'Motivo',
     'tipo': 'str',
     'valor': ''},
-    {   'clave': 'activo',
-    'etiqueta': 'Activo',
-    'placeholder': 'Activo',
-    'tipo': 'checkbox',
-    'valor': ''},
+    // {   'clave': 'activo',
+    // 'etiqueta': 'Activo',
+    // 'placeholder': 'Activo',
+    // 'tipo': 'checkbox',
+    // 'valor': ''},
 ];
   
   return (

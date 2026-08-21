@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { RotateCcw, Search } from 'lucide-react';
 import useFiltroListado from '../hooks/useFiltroListado';
 import './GenericFilter.css';
 
@@ -79,6 +79,19 @@ const GenericFilter = ({
       : nuevosFiltros;
 
     guardarFiltro(filtro, valoresTemporales);
+  };
+
+  // Limpia los campos visibles y aplica nuevamente solo las condiciones
+  // iniciales/fijas del listado.
+  const limpiarFiltros = () => {
+    const valoresReset = {};
+    configuracion.forEach(item => {
+      valoresReset[item.clave] = item.tipo === 'checkbox' ? false : '';
+    });
+
+    const filtroReset = { ...filtroInicial, ...postFijo };
+    setValoresTemporales(valoresReset);
+    guardarFiltro(filtroReset, valoresReset);
   };
 
   // Manejar tecla Enter
@@ -191,6 +204,14 @@ const GenericFilter = ({
             </div>
           )}
           <div className="generic-filter-actions">
+            <button
+              type="button"
+              className="btn generic-filter-clear"
+              onClick={limpiarFiltros}
+            >
+              <RotateCcw size={16} aria-hidden="true" />
+              Limpiar
+            </button>
             <button type="button" className="btn btn-dark generic-filter-apply" onClick={aplicarFiltros}>
               <Search size={16} aria-hidden="true" />
               Aplicar
