@@ -2,7 +2,6 @@
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Body, HTTPException
-from pydantic import BaseModel
 from scripts.models.escuelas import Escuelas
 from scripts.querys.escuelas import (
     add_escuelas,
@@ -14,6 +13,7 @@ from scripts.querys.escuelas import (
     search_escuelas_in_db,
     search_escuelas_paginado,
 )
+from scripts.schemas.escuelas import EscuelasPatch
 from utils.generacionExcel import generarExcel
 
 # Importa desde el módulo externo
@@ -92,7 +92,7 @@ async def update_escuelas(item: Escuelas):
 
 
 @escuelas.patch("/escuelas/")
-async def partial_update_escuelas(document: dict):
+async def partial_update_escuelas(document: EscuelasPatch):
     try:
         result = await patch_escuelas(document)
         await notify_clients("escuelas", "Documento actualizado parcialmente")

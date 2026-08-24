@@ -1,5 +1,12 @@
 import os
+from pathlib import Path
+
 from motor.motor_asyncio import AsyncIOMotorClient
+from dotenv import load_dotenv
+
+
+# Carga el .env del backend independientemente de desde dónde se ejecute uvicorn.
+load_dotenv()
 
 _client = None
 database = None
@@ -14,8 +21,6 @@ def init_db():
 
     uri = os.getenv("MONGO_URI")
     db_name = os.getenv("MONGO_DB")
-    
-    print('ENGINE: ', uri,' : ', db_name)    
     
     if not uri:
         raise RuntimeError("No está definida la variable de entorno MONGO_URI")

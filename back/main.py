@@ -3,9 +3,11 @@ import logging
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from scripts.conf.engine import close_db, init_db
 from scripts.routers.escuelas import escuelas
 from scripts.routers.generacionDocs import routerDocs
 from scripts.routers.login import login
+from scripts.routers.motivos import motivos
 from scripts.routers.notificaciones import notificaciones
 from scripts.routers.personas import personas
 from scripts.routers.roles import roles
@@ -48,14 +50,22 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    """Inicializar Redis y el listener al arrancar la aplicación"""
+    """Inicializar MongoDB, Redis y sus listeners al arrancar la aplicación."""
     try:
+        init_db()
+        logger.info("Conexión con MongoDB inicializada")
         await redis_manager.initialize()
         # Iniciar listener de Redis en segundo plano
         asyncio.create_task(start_redis_listener())
         logger.info("Aplicación iniciada con Redis para WebSockets")
     except Exception as e:
         logger.error(f"Error en startup: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    close_db()
+    logger.info("Conexión con MongoDB cerrada")
 
 
 @app.websocket("/ws/{entity}")
@@ -95,3 +105,4 @@ app.include_router(notificaciones, tags=["Notificaciones"])
 logger.info("✅ Router notificaciones incluido en la aplicación")
 app.include_router(escuelas, tags=["Escuelas"])
 app.include_router(routerDocs)
+app.include_router(motivos, tags=["Motivos"])

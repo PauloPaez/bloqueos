@@ -1,16 +1,14 @@
 # querys/escuelas.py
-import json
 from datetime import datetime
 from typing import Any, Dict
 
 from bson.objectid import ObjectId
-from scripts.conf.engine import database
-from scripts.schemas.escuelas import escuelasSh
-
-coleccion = database.Escuelas
+from scripts.conf.engine import get_collection
+from scripts.schemas.escuelas import EscuelasPatch, escuelasSh
 
 
 async def get_escuelas():
+    coleccion = get_collection("Escuelas")
     cursor = coleccion.find()
     data = []
     async for document in cursor:
@@ -19,6 +17,7 @@ async def get_escuelas():
 
 
 async def get_escuelas_by_id(id: str):
+    coleccion = get_collection("Escuelas")
     try:
         document = await coleccion.find_one({"_id": ObjectId(id)})
         if document:
@@ -29,6 +28,7 @@ async def get_escuelas_by_id(id: str):
 
 
 async def search_escuelas_in_db(filter: Dict[str, Any]):
+    coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
         query = {k: v for k, v in filter.items() if v is not None}
@@ -52,12 +52,14 @@ async def search_escuelas_in_db(filter: Dict[str, Any]):
 
 
 async def add_escuelas(document: dict) -> ObjectId:
+    coleccion = get_collection("Escuelas")
     # Inserta el documento en la colección y devuelve el ID generado
     result = await coleccion.insert_one(document)
     return result.inserted_id
 
 
 async def put_escuelas(document):
+    coleccion = get_collection("Escuelas")
     filtro = {"_id": ObjectId(document["id"])}
     document.pop("id")
 
@@ -71,17 +73,43 @@ async def put_escuelas(document):
         return {"status": "failed", "message": "No se actualizó el documento"}
 
 
-async def patch_escuelas(document: dict):
+async def patch_escuelas(document: EscuelasPatch):
+    coleccion = get_collection("Escuelas")
     try:
-        # Se espera que el diccionario incluya la clave "id" para identificar el documento
-        doc_id = document.get("id")
-        if not doc_id:
+        doc_id = document.id
+        if not doc_id or not doc_id.strip():
             raise Exception("El documento debe incluir la clave 'id'")
 
         filtro = {"_id": ObjectId(doc_id)}
-        document.pop("id")
 
-        patch_query = {"$set": document}
+        # Solo se incluyen los campos enviados en el PATCH.
+        datos = document.model_dump(exclude={"id"}, exclude_unset=True)
+
+        if not datos:
+            raise Exception("No hay campos para actualizar")
+
+        actual = await coleccion.find_one(filtro)
+        if actual is None:
+            raise Exception("Documento no encontrado")
+
+        bloqueo = datos.get("bloqueo", actual.get("bloqueo"))
+        motivo = datos.get("motivo", actual.get("motivo"))
+
+        if bloqueo is True:
+            if motivo is None or not isinstance(motivo, str) or not motivo.strip():
+                raise Exception("El motivo es obligatorio cuando bloqueo esta activo")
+
+            # La fecha se agrega solo si el motivo "baja" fue enviado en este PATCH.
+            if "motivo" in datos and motivo.casefold() == "baja":
+                datos["motivo"] = f"{motivo}({datetime.now().date()})"
+
+        elif bloqueo is False:
+            datos["motivo"] = None
+
+        else:
+            raise Exception("Bloqueo debe ser verdadero o falso")
+
+        patch_query = {"$set": datos}
         respuesta = await coleccion.update_one(filtro, patch_query)
 
         if respuesta.modified_count == 1:
@@ -96,6 +124,7 @@ async def patch_escuelas(document: dict):
 
 
 async def get_escuelas_distinct(campo) -> list:
+    coleccion = get_collection("Escuelas")
     try:
         document = await coleccion.distinct(campo, {"activo": True})
         return sorted(document)
@@ -105,6 +134,7 @@ async def get_escuelas_distinct(campo) -> list:
 
 
 async def search_escuelas_paginado(filter: dict, page: int = 1, page_size: int = 10):
+    coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
         query = {k: v for k, v in filter.items() if v is not None}
