@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { usePostEscuelasMutation, usePatchEscuelasMutation } from '../../store/apiSlice';
+import {
+  usePostEscuelasMutation,
+  usePatchEscuelasMutation,
+  useGetDistinctMotivosQuery,
+} from '../../store/apiSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { resetModulo } from '../../store/appSlice';
 import { formularioCampos } from './FormularioEditar';
@@ -19,6 +23,11 @@ const EditarEscuelas = () => {
 
   const [postEscuelas] = usePostEscuelasMutation();
   const [patchEscuelas] = usePatchEscuelasMutation();
+  const {
+    data: motivos = [],
+    isLoading: motivosLoading,
+    isError: motivosError,
+  } = useGetDistinctMotivosQuery('motivo');
 
   const { register, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
@@ -70,10 +79,6 @@ const EditarEscuelas = () => {
       const value = escuelas[fieldName];
       return value === undefined || value === null || value === '';
     });
-  };
-
-  const datosSelect = {
-    motivos: [],
   };
 
   const onSubmit = async (data) => {
@@ -165,11 +170,15 @@ const EditarEscuelas = () => {
                 {field.type === "select" ? (
                   <select id={`edit-${field.name}`} className="form-select edit-school-control" {...fieldProps}>
                     <option value="">
-                      Seleccione {field.label.toLowerCase()}
+                      {motivosLoading
+                        ? 'Cargando motivos...'
+                        : motivosError
+                          ? 'No se pudieron cargar los motivos'
+                          : `Seleccione ${field.label.toLowerCase()}`}
                     </option>
-                    {(datosSelect[field.optionsKey] || []).map((op, i) => (
-                      <option key={i} value={typeof op === 'object' ? op.value : op}>
-                        {typeof op === 'object' ? op.label : op}
+                    {field.optionsKey === 'motivos' && motivos.map((motivo) => (
+                      <option key={motivo} value={motivo}>
+                        {motivo}
                       </option>
                     ))}
                   </select>
