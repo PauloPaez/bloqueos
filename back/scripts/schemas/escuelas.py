@@ -1,6 +1,8 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
+
 
 def escuelasSh(item):
     return {
@@ -35,6 +37,7 @@ def escuelasSh(item):
         "tipo_archivo": item.get("tipo_archivo"),
         "periodo": item.get("periodo"),
         "motivo": item.get("motivo"),
+        "fecha_baja": item.get("fecha_baja"),
         "login": item.get("login"),
         "empresa": item.get("empresa"),
         "activo": item.get("activo"),
@@ -73,6 +76,7 @@ class EscuelasPatch(BaseModel):
     tipo_archivo: Optional[str] = Field(default=None)
     periodo: Optional[str] = Field(default=None)
     motivo: Optional[str] = Field(default=None)
+    fecha_baja: datetime | None = Field(default=None)
     login: Optional[str] = Field(default=None)
     empresa: Optional[str] = Field(default=None)
     activo: Optional[bool] = Field(default=None)
@@ -82,4 +86,14 @@ class EscuelasPatch(BaseModel):
     def empty_string_to_none(cls, value):
         if value == "":
             return None
+        return value
+    @field_validator("fecha_baja", mode="before")
+    @classmethod
+    def convertir_fecha_baja(cls, value):
+        if value in ("", None):
+            return None
+
+        if isinstance(value, str):
+            return datetime.strptime(value, "%Y-%m-%d")
+
         return value

@@ -99,12 +99,14 @@ async def patch_escuelas(document: EscuelasPatch):
             if motivo is None or not isinstance(motivo, str) or not motivo.strip():
                 raise Exception("El motivo es obligatorio cuando bloqueo esta activo")
 
-            # La fecha se agrega solo si el motivo "baja" fue enviado en este PATCH.
-            if "motivo" in datos and motivo.casefold() == "baja":
-                datos["motivo"] = f"{motivo}({datetime.now().date()})"
+            # Todo bloqueo debe tener una fecha de baja. Se conserva la fecha
+            # existente y se genera una nueva solo si todavía no existe.
+            if datos.get("fecha_baja") is None:
+                datos["fecha_baja"] = actual.get("fecha_baja") or datetime.now()
 
         elif bloqueo is False:
             datos["motivo"] = None
+            datos["fecha_baja"] = None
 
         else:
             raise Exception("Bloqueo debe ser verdadero o falso")

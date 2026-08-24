@@ -35,6 +35,7 @@ class Escuelas(BaseModel):
     tipo_archivo: Optional[str] = Field(default=None)
     periodo: Optional[str] = Field(default=None)
     motivo: Optional[str] = Field(default=None)
+    fecha_baja: datetime | None = Field(default=None)
     login: Optional[str] = Field(default=None)
     empresa: Optional[str] = Field(default=None)
     activo: Optional[bool] = Field(default=False)
