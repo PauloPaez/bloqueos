@@ -9,14 +9,14 @@ import { WS_BASE_URL } from "../../config/api";
 import '../../common/tables.css';
 import { formularioCampos } from './FormularioListar';
 
-const Listar!Model! = () => {
+const Listar!Model! = ({ claveFiltro = "!model!:listar" }) => {
   const dispatch = useDispatch();
   const {
     filtro: filtroListado,
     filtroGuardado,
     guardarFiltro,
     resetearFiltro,
-  } = useFiltroListado("!model!", { limpiarAlDesmontar: true });
+  } = useFiltroListado(claveFiltro, { limpiarAlDesmontar: true });
   const [post!Model!] = usePost!Model!ByFieldMutation();
   const [datos, setDatos] = useState([]);
   const user = useSelector((state) => state.acceso.user);
@@ -150,7 +150,11 @@ const Listar!Model! = () => {
 
   return (
     <div>
-      <Filtro!Model! filtroInicial={filtroInicial} postFijo={postFijo} />
+      <Filtro!Model!
+        filtroInicial={filtroInicial}
+        postFijo={postFijo}
+        claveFiltro={claveFiltro}
+      />
       
       {mostrarFiltroInicial && (
         <div className="alert alert-info">

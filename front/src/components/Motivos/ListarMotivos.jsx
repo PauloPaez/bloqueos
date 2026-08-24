@@ -12,14 +12,14 @@ import { WS_BASE_URL } from "../../config/api";
 import '../../common/tables.css';
 import { formularioCampos } from './FormularioListar';
 
-const ListarMotivos = () => {
+const ListarMotivos = ({ claveFiltro = "motivos:listar" }) => {
   const dispatch = useDispatch();
   const {
     filtro: filtroListado,
     filtroGuardado,
     guardarFiltro,
     resetearFiltro,
-  } = useFiltroListado("motivos", { limpiarAlDesmontar: true });
+  } = useFiltroListado(claveFiltro, { limpiarAlDesmontar: true });
   const [postMotivos] = usePostMotivosByFieldMutation();
   const [datos, setDatos] = useState([]);
   const user = useSelector((state) => state.acceso.user);
@@ -132,7 +132,11 @@ const ListarMotivos = () => {
   const camposVisibles = formularioCampos.filter(field => field.placeholder !== "no_visible");
   return (
     <div>
-      <FiltroMotivos filtroInicial={filtroInicial} postFijo={postFijo} />
+      <FiltroMotivos
+        filtroInicial={filtroInicial}
+        postFijo={postFijo}
+        claveFiltro={claveFiltro}
+      />
       {mostrarFiltroInicial && (
         <div className="alert alert-info">
           No hay datos disponibles con los filtros actuales.

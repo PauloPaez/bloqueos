@@ -1,7 +1,11 @@
 import React from 'react';
 import GenericFilter from '../../common/GenericFilter';
 
-const FiltroMotivos = ({ filtroInicial, postFijo }) => {
+const FiltroMotivos = ({
+  filtroInicial,
+  postFijo,
+  claveFiltro = "motivos:listar",
+}) => {
   const configuracionFiltro = [
     {   'clave': 'motivo',
     'etiqueta': 'Motivo',
@@ -20,7 +24,7 @@ const FiltroMotivos = ({ filtroInicial, postFijo }) => {
       configuracion={configuracionFiltro}
       filtroInicial={filtroInicial}
       postFijo={postFijo}
-      claveFiltro="motivos"
+      claveFiltro={claveFiltro}
     />
   );
 };

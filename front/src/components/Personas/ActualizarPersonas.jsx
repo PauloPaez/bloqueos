@@ -7,7 +7,7 @@ const ActualizarPersonas = () => {
   return (
     <LayoutActualizar
       editar={<EditarPersonas />}
-      listar={<ListarPersonas />}
+      listar={<ListarPersonas claveFiltro="personas:actualizar" />}
       ratioEditar={25}
       ratioListar={75}
       tituloEditar="Editar Personas"

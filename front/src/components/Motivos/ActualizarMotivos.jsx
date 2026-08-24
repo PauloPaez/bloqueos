@@ -6,7 +6,7 @@ const ActualizarMotivos = () => {
   return (
     <LayoutActualizar
       editar={<EditarMotivos />}
-      listar={<ListarMotivos />}
+      listar={<ListarMotivos claveFiltro="motivos:actualizar" />}
       ratioEditar={25}
       ratioListar={75}
       tituloEditar="Editar Motivos"

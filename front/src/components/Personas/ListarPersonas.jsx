@@ -13,7 +13,7 @@ import '../../common/tables.css';
 
 import { formularioCampos } from './FormularioListar';
 
-const ListarPersonas = () => {
+const ListarPersonas = ({ claveFiltro = "personas:listar" }) => {
 
   const dispatch = useDispatch();
   const {
@@ -21,7 +21,7 @@ const ListarPersonas = () => {
     filtroGuardado,
     guardarFiltro,
     resetearFiltro,
-  } = useFiltroListado("personas", { limpiarAlDesmontar: true });
+  } = useFiltroListado(claveFiltro, { limpiarAlDesmontar: true });
 
   const [postPersonas] = usePostPersonasByFieldMutation();
   const [datos, setDatos] = useState([]);
@@ -182,7 +182,11 @@ const ListarPersonas = () => {
   return (
     <div>
 
-      <FiltroPersonas filtroInicial={filtroInicial} postFijo={postFijo} />
+      <FiltroPersonas
+        filtroInicial={filtroInicial}
+        postFijo={postFijo}
+        claveFiltro={claveFiltro}
+      />
 
       {mostrarFiltroInicial && (
         <div className="alert alert-info">

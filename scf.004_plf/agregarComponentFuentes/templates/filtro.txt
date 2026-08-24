@@ -1,7 +1,11 @@
 import React from 'react';
 import GenericFilter from '../../common/GenericFilter';
 
-const Filtro!model! = ({ filtroInicial, postFijo }) => {
+const Filtro!model! = ({
+    filtroInicial,
+    postFijo,
+    claveFiltro = "!model!:listar",
+}) => {
     // console.log("Filtro!model!", filtroInicial);
     const configuracionFiltro = [
 
@@ -11,7 +15,7 @@ const Filtro!model! = ({ filtroInicial, postFijo }) => {
           configuracion={configuracionFiltro}
           filtroInicial={filtroInicial} 
           postFijo={postFijo}
-          claveFiltro="!model!"
+          claveFiltro={claveFiltro}
         />
       );
 };

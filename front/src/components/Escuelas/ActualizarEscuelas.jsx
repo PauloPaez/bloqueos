@@ -7,7 +7,7 @@ const ActualizarEscuelas = () => {
     <>
       <LayoutActualizar
         ocultarEditar={true}
-        listar={<ListarEscuelas />}
+        listar={<ListarEscuelas claveFiltro="escuelas:actualizar" />}
       />
 
       <EditarEscuelas />

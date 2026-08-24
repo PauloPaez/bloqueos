@@ -6,7 +6,7 @@ const Actualizar!Model! = () => {
   return (
     <LayoutActualizar
       editar={<Editar!Model! />}
-      listar={<Listar!Model! />}
+      listar={<Listar!Model! claveFiltro="!model!:actualizar" />}
       ratioEditar={25}
       ratioListar={75}
       tituloEditar="Editar !Model!"

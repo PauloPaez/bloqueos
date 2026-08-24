@@ -15,7 +15,7 @@ import Pagination from "../Pagination/Pagination";
 import { Download } from "lucide-react";
 import { descargarArchivo } from "../../common/descargarArchivo";
 
-const ListarEscuelas = () => {
+const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
   const dispatch = useDispatch();
   const {
     filtro: filtroListado,
@@ -23,7 +23,7 @@ const ListarEscuelas = () => {
     guardarFiltro,
     resetearFiltro,
     // useFiltroListado envia una clave unica, que es la que va a usar para el genericFilter
-  } = useFiltroListado("escuelas", { limpiarAlDesmontar: true });
+  } = useFiltroListado(claveFiltro, { limpiarAlDesmontar: true });
   const [postEscuelas] = usePostEscuelasByFieldMutation();
   const [datos, setDatos] = useState([]);
   const [paginacion, setPaginacion] = useState({
@@ -291,7 +291,11 @@ const buscarEscuelas = async (
         </div>
       </header>
 
-      <FiltroEscuelas filtroInicial={filtroInicial} postFijo={postFijo} />
+      <FiltroEscuelas
+        filtroInicial={filtroInicial}
+        postFijo={postFijo}
+        claveFiltro={claveFiltro}
+      />
       {mostrarFiltroInicial && (
         <div className="alert alert-info">
           No hay datos disponibles con los filtros actuales.
