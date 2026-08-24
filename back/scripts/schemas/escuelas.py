@@ -2,9 +2,12 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
+from utils.formateoDatos import formatear_importe
 
 
 def escuelasSh(item):
+    importe_acreditado = item.get("importe_acreditado")
+
     return {
         "id": str(item.get("_id")),
         "bloqueo": item.get("bloqueo"),
@@ -18,7 +21,8 @@ def escuelasSh(item):
         "tipo_acreditacion": item.get("tipo_acreditacion"),
         "cuenta_acreditacion": item.get("cuenta_acreditacion"),
         "cuenta_acreditacion_dv": item.get("cuenta_acreditacion_dv"),
-        "importe_acreditado": item.get("importe_acreditado"),
+        "importe_acreditado": importe_acreditado,
+        "importe_acreditado_formateado": formatear_importe(importe_acreditado),
         "beneficiario_nombre": item.get("beneficiario_nombre"),
         "documento_tipo": item.get("documento_tipo"),
         "documento_nro": item.get("documento_nro"),

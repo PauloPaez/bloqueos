@@ -2,7 +2,11 @@
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Body, HTTPException
-from scripts.models.escuelas import Escuelas
+from scripts.models.escuelas import (
+    Escuelas,
+    EscuelasResponse,
+    EscuelasSearchResponse,
+)
 from scripts.querys.escuelas import (
     add_escuelas,
     get_escuelas,
@@ -22,7 +26,7 @@ from utils.websockets_manager import notify_clients
 escuelas = APIRouter()
 
 
-@escuelas.get("/escuelas/", response_model=List[Escuelas])
+@escuelas.get("/escuelas/", response_model=List[EscuelasResponse])
 async def fetch_escuelas():
     try:
         return await get_escuelas()
@@ -30,7 +34,7 @@ async def fetch_escuelas():
         raise HTTPException(status_code=500, detail=f"Error al obtener los datos: {e}")
 
 
-@escuelas.get("/escuelas/{id}/", response_model=Escuelas)
+@escuelas.get("/escuelas/{id}/", response_model=EscuelasResponse)
 async def fetch_m_entrada_by_id(id: str):
     try:
         documento = await get_escuelas_by_id(id)
@@ -54,7 +58,7 @@ async def fetch_m_entrada_by_id(id: str):
 #         )
 
 
-@escuelas.post("/escuelas/search/")
+@escuelas.post("/escuelas/search/", response_model=EscuelasSearchResponse)
 async def search_escuelas(
     filter: Dict[str, Any] = Body(default={}), page: int = 1, page_size: int = 10
 ):
@@ -124,7 +128,7 @@ async def generarExcelBloqueados(
     """Genera la planilla de bajas para el período y fecha indicados. Los parametros de entrada son opcionales"""
     try:
         # 1. Obtener la data (lista de diccionarios)
-        resultado = await search_escuelas_in_db({"bloqueo": True})
+        resultado = await search_escuelas_in_db({"bloqueo": True, "activo": True})
 
         if not resultado:
             raise HTTPException(

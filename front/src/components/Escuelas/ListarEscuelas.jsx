@@ -319,7 +319,9 @@ const buscarEscuelas = async (
                 {datos.map((item, index) => (
                   <tr key={index} onClick={() => handleRowClick(item)}>
                     {camposVisibles.map((field) => {
-                      const valor = item[field.name];
+                      const valor = field.name === "importe_acreditado"
+                        ? (item.importe_acreditado_formateado ?? item[field.name])
+                        : item[field.name];
                       if (field.type === "date" && valor) {
                         return <td key={field.name}>{new Date(valor).toLocaleDateString('es-ES')}</td>;
                       }

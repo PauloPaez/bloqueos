@@ -46,3 +46,18 @@ class Escuelas(BaseModel):
         if v == "":
             return None
         return v
+
+
+#funciona como schema de salida al hacer el search paginado. De esa forma se obtiene importe formateado
+class EscuelasResponse(Escuelas):
+    """Representación de salida, incluyendo valores preparados para mostrar."""
+
+    importe_acreditado_formateado: Optional[str] = Field(default=None)
+
+
+class EscuelasSearchResponse(BaseModel):
+    data: List[EscuelasResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

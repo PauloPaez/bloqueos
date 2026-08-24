@@ -9,7 +9,7 @@ export const formularioCampos = [
   {name: "tipo_acreditacion", label: "Tipo Acreditación", placeholder: "no_visible", type: "text"},
   {name: "cuenta_acreditacion", label: "Cuenta Acreditación", placeholder: "no_visible", type: "text"},
   {name: "cuenta_acreditacion_dv", label: "DV Cuenta Acreditación", placeholder: "no_visible", type: "text"},
-  {name: "importe_acreditado", label: "Importe Acreditado", placeholder: "no_visible", type: "float"},
+  {name: "importe_acreditado", label: "Importe Acreditado", placeholder: "no_visible", type: "text"},
   {name: "beneficiario_nombre", label: "Beneficiario", placeholder: "Beneficiario", type: "text"},
   {name: "documento_tipo", label: "Tipo Documento", placeholder: "no_visible", type: "text"},
   {name: "documento_nro", label: "Número Documento", placeholder: "no_visible", type: "text"},

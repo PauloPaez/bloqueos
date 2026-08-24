@@ -8,7 +8,8 @@ export const formularioCampos = [
   {name: "cuil", label: "CUIL", placeholder: "CUIL", type: "text"},
   {name: "documento_nro", label: "Número Documento", placeholder: "DNI", type: "text"},
   {name: "beneficiario_nombre", label: "Beneficiario", placeholder: "Beneficiario", type: "text"},
-  {name: "importe_acreditado", label: "Importe Acreditado", placeholder: "Importe Acreditado", type: "float"},
+  // importe puede ser de tipo text, float, etc, no cambia mucho que ahora este en currency
+  {name: "importe_acreditado", label: "Importe Acreditado", placeholder: "Importe Acreditado", type: "currency"},
   {name: "centro_pago", label: "Centro Pago", placeholder: "Centro Pago", type: "text"},
   {name: "pago_anio", label: "Año Pago", placeholder: "no_visible", type: "text"},
   {name: "pago_mes", label: "Mes Pago", placeholder: "no_visible", type: "text"},
