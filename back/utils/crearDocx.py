@@ -1,10 +1,22 @@
 import io
+from decimal import Decimal
 from pathlib import Path
 
 from docxtpl import DocxTemplate
 from scripts.models.escuelas import Escuelas
-from utils.formateoDatos import preparar_fila_baja
+from utils.formateoDatos import formatear_importe, preparar_fila_baja
 
+
+def calcular_importe_total(escuelas:dict):
+    importe_total = sum(
+            (
+                Decimal(str(escuela.get("importe_acreditado") or "0"))
+                for escuela in escuelas
+            ),
+            Decimal("0"),
+        )
+
+    return importe_total
 
 # TODO: Hay un tema, que se manda a descargar desde el front y automaticamente sale para descargar el zip. Pero que pasa si cancela la ventana por error? ya no tiene forma de volver a obtener ese examen y tendria que generar uno nuevo. Hay que ver si es mejor tener la posibilidad de volver a descargar un examen o generar uno nuevo en caso de ese error
 def crearDocumento(escuelas: list[Escuelas]):
@@ -21,7 +33,10 @@ def crearDocumento(escuelas: list[Escuelas]):
         str(template_path)
     )  # En el word si pongo {% tr}, espacio entre % y tr da error, tiene que ir juntos
 
-    context = {"lista": [preparar_fila_baja(escuela) for escuela in escuelas]}
+    importe_total = calcular_importe_total(escuelas)
+
+    context = {"lista": [preparar_fila_baja(escuela) for escuela in escuelas], "importe_total" : formatear_importe(importe_total)}
+
 
     doc.render(context)
 
