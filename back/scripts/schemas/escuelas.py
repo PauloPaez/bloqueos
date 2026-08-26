@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
-from utils.formateoDatos import formatear_importe
+from utils.formateoDatos import formatear_concepto, formatear_importe
 
 
 def escuelasSh(item):
@@ -10,6 +10,9 @@ def escuelasSh(item):
 
     return {
         "id": str(item.get("_id")),
+        "concepto": formatear_concepto(
+            item.get("tipo_archivo"), item.get("periodo")
+        ),
         "bloqueo": item.get("bloqueo"),
         "tipo_reg": item.get("tipo_reg"),
         "cod_liquidacion": item.get("cod_liquidacion"),

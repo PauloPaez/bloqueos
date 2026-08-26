@@ -2,6 +2,7 @@
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Body, HTTPException
+from fastapi.responses import StreamingResponse
 from scripts.models.escuelas import (
     Escuelas,
     EscuelasResponse,
@@ -18,7 +19,9 @@ from scripts.querys.escuelas import (
     search_escuelas_paginado,
 )
 from scripts.schemas.escuelas import EscuelasPatch
-from utils.generacionExcel import generarExcel
+from utils.clasificacionBancos import agrupar_por_tipo_banco
+from utils.generacionExcel import generar_excel_bajas
+from utils.generacionZip import crear_zip
 
 # Importa desde el módulo externo
 from utils.websockets_manager import notify_clients
@@ -135,11 +138,25 @@ async def generarExcelBloqueados(
                 status_code=404, detail="No se encontraron datos para el período."
             )
 
-        excelGenerado = await generarExcel(
-            resultado, periodo=periodo, fecha_pago=fecha_pago
-        )
+        grupos = agrupar_por_tipo_banco(resultado)
+        archivos = []
+        for tipo_banco, escuelas_tipo in grupos.items():
+            contenido, _ = generar_excel_bajas(
+                escuelas_tipo, periodo=periodo, fecha_pago=fecha_pago
+            )
+            archivos.append(
+                (f"bajas_escuelas_{tipo_banco}.xlsx", contenido)
+            )
 
-        return excelGenerado
+        zip_generado = crear_zip(archivos)
+
+        return StreamingResponse(
+            zip_generado,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": 'attachment; filename="bajas_escuelas_excel.zip"'
+            },
+        )
 
     except HTTPException:
         raise

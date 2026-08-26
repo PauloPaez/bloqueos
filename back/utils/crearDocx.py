@@ -35,7 +35,13 @@ def crearDocumento(escuelas: list[Escuelas]):
 
     importe_total = calcular_importe_total(escuelas)
 
-    context = {"lista": [preparar_fila_baja(escuela) for escuela in escuelas], "importe_total" : formatear_importe(importe_total)}
+    filas = [preparar_fila_baja(escuela) for escuela in escuelas]
+    concepto = filas[0]["concepto"] if filas else ""
+    context = {
+        "lista": filas,
+        "concepto": concepto,
+        "importe_total": formatear_importe(importe_total),
+    }
 
 
     doc.render(context)

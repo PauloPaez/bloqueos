@@ -52,6 +52,7 @@ class Escuelas(BaseModel):
 class EscuelasResponse(Escuelas):
     """Representación de salida, incluyendo valores preparados para mostrar."""
 
+    concepto: Optional[str] = Field(default=None)
     importe_acreditado_formateado: Optional[str] = Field(default=None)
 
 

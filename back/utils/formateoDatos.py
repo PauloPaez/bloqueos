@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from decimal import Decimal
+import re
 from typing import Any
 
 
@@ -16,6 +17,60 @@ def formatear_importe(valor: str | int | float | Decimal | None) -> str:
 
 def formatear_cuil(cuil: str) -> str:
     return f"{cuil[:2]}-{cuil[2:10]}-{cuil[10]}"
+
+
+_MESES = {
+    "ENERO": "01",
+    "FEBRERO": "02",
+    "MARZO": "03",
+    "ABRIL": "04",
+    "MAYO": "05",
+    "JUNIO": "06",
+    "JULIO": "07",
+    "AGOSTO": "08",
+    "SEPTIEMBRE": "09",
+    "SETIEMBRE": "09",
+    "OCTUBRE": "10",
+    "NOVIEMBRE": "11",
+    "DICIEMBRE": "12",
+}
+
+
+def formatear_periodo(periodo: Any) -> str:
+    """Convierte periodos como JUNIO26 en 06-2026."""
+    valor = _texto(periodo).strip().upper()
+    if not valor:
+        return ""
+
+    periodo_numerico = re.fullmatch(r"(\d{1,2})[-/]?(20\d{2})", valor)
+    if periodo_numerico:
+        mes, anio = periodo_numerico.groups()
+        return f"{mes.zfill(2)}-{anio}"
+
+    periodo_nombre = re.fullmatch(r"([A-ZÁÉÍÓÚ]+)(\d{2})", valor)
+    if periodo_nombre:
+        nombre_mes, anio = periodo_nombre.groups()
+        mes = _MESES.get(nombre_mes)
+        if mes:
+            return f"{mes}-20{anio}"
+
+    return valor
+
+#TODO: Falta agregar logica al tipo de banco
+def formatear_concepto(
+    tipo_archivo: Any,
+    periodo: Any,
+    tipo_banco: str = "tipo_banco",
+) -> str:
+    """Construye el concepto visible para tablas y documentos."""
+    archivo = _texto(tipo_archivo).strip()
+    periodo_formateado = formatear_periodo(periodo)
+    banco = _texto(tipo_banco).strip()
+
+    if not archivo or not periodo_formateado or not banco:
+        return ""
+
+    return f"{archivo}.{periodo_formateado}.{banco}"
 
 
 def _texto(valor: Any) -> str:
@@ -49,6 +104,9 @@ def preparar_fila_baja(escuela: Any) -> dict[str, str]:
     cuil = _texto(row.get("cuil")).strip()
 
     return {
+        "concepto": formatear_concepto(
+            row.get("tipo_archivo"), row.get("periodo")
+        ),
         "padron": _con_digito_verificador(row.get("padron"), row.get("padron_dv")),
         "beneficiario_nombre": _texto(row.get("beneficiario_nombre")),
         "importe": formatear_importe(row.get("importe_acreditado")),

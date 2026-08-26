@@ -1,4 +1,5 @@
 export const formularioCampos = [
+  {name: "concepto", label: "Concepto", placeholder: "no_visible", type: "text"},
   {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "tipo_reg", label: "Tipo Reg", placeholder: "no_visible", type: "text"},
   {name: "cod_liquidacion", label: "Código Liquidación", placeholder: "no_visible", type: "text"},
@@ -6,7 +7,7 @@ export const formularioCampos = [
   {name: "centro", label: "Centro", placeholder: "Centro", type: "text"},
   {name: "sector", label: "Sector", placeholder: "Sector", type: "text"},
   {name: "cuil", label: "CUIL", placeholder: "CUIL", type: "text"},
-  {name: "documento_nro", label: "Número Documento", placeholder: "DNI", type: "text"},
+  {name: "documento_nro", label: "DNI", placeholder: "DNI", type: "text"},
   {name: "beneficiario_nombre", label: "Beneficiario", placeholder: "Beneficiario", type: "text"},
   // importe puede ser de tipo text, float, etc, no cambia mucho que ahora este en currency
   {name: "importe_acreditado", label: "Importe Acreditado", placeholder: "Importe Acreditado", type: "currency"},

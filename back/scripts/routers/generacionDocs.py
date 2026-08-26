@@ -1,12 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from scripts.querys.escuelas import search_escuelas_in_db
+from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.crearDocx import crearDocumento
+from utils.generacionZip import crear_zip
 
 routerDocs = APIRouter(prefix="/generardoc", tags=["Generacion de documentos"])
 
 
-# TODO: Falta ver que es Concepto, Disco, Fecha de Pago en el word
 @routerDocs.post("/")
 async def generarDocumento():
     resultado = await search_escuelas_in_db({"bloqueo": True, "activo": True})
@@ -16,9 +17,15 @@ async def generarDocumento():
             status_code=404, detail="No se encontraron datos para el período."
         )
 
-    doc = crearDocumento(resultado)
+    grupos = agrupar_por_tipo_banco(resultado)
+    archivos = (
+        (f"bajas_escuelas_{tipo_banco}.docx", crearDocumento(escuelas))
+        for tipo_banco, escuelas in grupos.items()
+    )
+    zip_generado = crear_zip(archivos)
+
     return StreamingResponse(
-        doc,
-        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": 'attachment; filename="bajasescuelas.docx"'},
+        zip_generado,
+        media_type="application/zip",
+        headers={"Content-Disposition": 'attachment; filename="bajas_escuelas_docx.zip"'},
     )

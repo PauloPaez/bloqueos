@@ -38,7 +38,7 @@ const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
   // Definir el filtro inicial
   const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
   const filtroInicial = {"activo": true};
-  const postFijo = {};
+  const postFijo = {"activo": true};
 
 
   // Cargar datos iniciales
@@ -224,8 +224,8 @@ const buscarEscuelas = async (
     try {
       await descargarArchivo({
         url: `${API_BASE_URL}generardoc/`,
-        accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        nombrePorDefecto: "escuelas_bloqueadas.docx",
+        accept: "application/zip",
+        nombrePorDefecto: "bajas_escuelas_docx.zip",
         mensajeError: "No se pudo generar el DOCX",
       });
     } catch (err) {
@@ -241,8 +241,8 @@ const buscarEscuelas = async (
     try {
       await descargarArchivo({
         url: `${API_BASE_URL}escuelas/generar-excel-bloqueados`,
-        accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        nombrePorDefecto: "escuelas_bloqueadas.xlsx",
+        accept: "application/zip",
+        nombrePorDefecto: "bajas_escuelas_excel.zip",
         mensajeError: "No se pudo generar el Excel",
       });
     } catch (err) {
