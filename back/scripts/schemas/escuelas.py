@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
-from utils.formateoDatos import formatear_concepto, formatear_importe
+from utils.formateoDatos import formatear_concepto, formatear_importe, _con_digito_verificador
 
 
 def escuelasSh(item):
@@ -39,6 +39,7 @@ def escuelasSh(item):
         "sector": item.get("sector"),
         "padron": item.get("padron"),
         "padron_dv": item.get("padron_dv"),
+        "padron_formateado": _con_digito_verificador(item.get("padron"), item.get("padron_dv")),
         "reservado": item.get("reservado"),
         "cod_banco": item.get("cod_banco"),
         "tipo_archivo": item.get("tipo_archivo"),

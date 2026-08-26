@@ -77,7 +77,7 @@ def _texto(valor: Any) -> str:
     return "" if valor is None else str(valor)
 
 
-def _con_digito_verificador(valor: Any, digito: Any) -> str:
+def _con_digito_verificador(valor: Any, digito: Any) -> str: #formatear padron
     base = _texto(valor)
     dv = _texto(digito)
     if not base:
