@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   usePostEscuelasMutation,
@@ -11,8 +11,32 @@ import { formularioCampos } from './FormularioEditar';
 import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
 import { Modal } from "react-bootstrap";
-import { Save } from "lucide-react";
+import { Calendar, Save } from "lucide-react";
 import './EditarEscuelas.css';
+
+const formatearFecha = (fecha) => {
+  if (!fecha) return '';
+
+  const [anio, mes, dia] = fecha.split('T')[0].split('-');
+  return anio && mes && dia ? `${dia}/${mes}/${anio}` : '';
+};
+
+const convertirFecha = (fecha) => {
+  const coincidencia = fecha.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!coincidencia) return '';
+
+  const [, dia, mes, anio] = coincidencia;
+  const fechaValida = new Date(`${anio}-${mes}-${dia}T00:00:00`);
+  if (
+    fechaValida.getFullYear() !== Number(anio) ||
+    fechaValida.getMonth() + 1 !== Number(mes) ||
+    fechaValida.getDate() !== Number(dia)
+  ) {
+    return '';
+  }
+
+  return `${anio}-${mes}-${dia}`;
+};
 
 const EditarEscuelas = () => {
   const dispatch = useDispatch();
@@ -36,6 +60,9 @@ const EditarEscuelas = () => {
   });
 
   const bloqueoSeleccionado = watch('escuelas.0.bloqueo', false);
+  const fechaBaja = watch('escuelas.0.fecha_baja', '');
+  const [fechaBajaTexto, setFechaBajaTexto] = useState('');
+  const fechaBajaPickerRef = useRef(null);
 
   useEffect(() => {
     dispatch(resetModulo({ modulo: 'escuelas' }));
@@ -55,10 +82,13 @@ const EditarEscuelas = () => {
   useEffect(() => {
     if (filaSeleccionada?.id) {
       camposVisibles.forEach((field) => {
-        if (field.type === 'date' && filaSeleccionada[field.name]) {
+        if (field.type === 'date') {
+          setFechaBajaTexto(formatearFecha(filaSeleccionada[field.name]));
           setValue(
             `escuelas.0.${field.name}`,
-            filaSeleccionada[field.name].split('T')[0]
+            filaSeleccionada[field.name]
+              ? filaSeleccionada[field.name].split('T')[0]
+              : null
           );
         } else {
           setValue(
@@ -68,6 +98,7 @@ const EditarEscuelas = () => {
         }
       });
     } else {
+      setFechaBajaTexto('');
       reset();
     }
   }, [filaSeleccionada]);
@@ -144,7 +175,7 @@ const EditarEscuelas = () => {
             ...register(`escuelas.0.${field.name}`),
             disabled:
               field.disabled ||
-              (field.name === 'motivo' && !bloqueoSeleccionado),
+              (['motivo', 'fecha_baja'].includes(field.name) && !bloqueoSeleccionado),
             placeholder:
               field.placeholder !== "no_visible"
                 ? field.placeholder
@@ -167,7 +198,56 @@ const EditarEscuelas = () => {
                   <label className="edit-school-label" htmlFor={`edit-${field.name}`}>{field.label}</label>
                 )}
 
-                {field.type === "select" ? (
+                {field.type === "date" ? (
+                  <div className="edit-school-date-picker">
+                    <input
+                      id={`edit-${field.name}`}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="dd/mm/yyyy"
+                      className="form-control edit-school-control"
+                      value={fechaBajaTexto}
+                      disabled={fieldProps.disabled}
+                      onChange={(event) => {
+                        const texto = event.target.value;
+                        setFechaBajaTexto(texto);
+                        setValue(
+                          `escuelas.0.${field.name}`,
+                          convertirFecha(texto),
+                          { shouldDirty: true }
+                        );
+                      }}
+                    />
+                    <input
+                      type="date"
+                      className="edit-school-native-date-picker"
+                      {...fieldProps}
+                      ref={(element) => {
+                        fieldProps.ref(element);
+                        fechaBajaPickerRef.current = element;
+                      }}
+                      value={fechaBaja || ''}
+                      onChange={(event) => {
+                        fieldProps.onChange(event);
+                        setFechaBajaTexto(formatearFecha(event.target.value));
+                      }}
+                      aria-label="Seleccionar fecha"
+                    />
+                    <button
+                      type="button"
+                      className="edit-school-date-button"
+                      onClick={() => {
+                        const picker = fechaBajaPickerRef.current;
+                        if (picker?.showPicker) picker.showPicker();
+                        else picker?.click();
+                      }}
+                      disabled={fieldProps.disabled}
+                      aria-label="Abrir calendario"
+                    >
+                      <Calendar size={18} aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : field.type === "select" ? (
                   <select id={`edit-${field.name}`} className="form-select edit-school-control" {...fieldProps}>
                     <option value="">
                       {motivosLoading

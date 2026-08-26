@@ -29,6 +29,7 @@ export const formularioCampos = [
   {name: "periodo", label: "Período", placeholder: "no_visible", type: "text"},
   {name: "bloqueo", label: "Bloqueo", placeholder: "Bloqueo", type: "checkbox"},
   {name: "motivo", label: "Motivo", placeholder: "Motivo", type: "select", optionsKey: "motivos"},
+  {name: "fecha_baja", label: "Fecha Baja", placeholder: "Fecha Baja", type: "date"},
   {name: "login", label: "Login", placeholder: "no_visible", type: "text"},
   {name: "empresa", label: "Empresa", placeholder: "no_visible", type: "text"},
   {name: "activo", label: "Activo", placeholder: "no_visible", type: "checkbox"},

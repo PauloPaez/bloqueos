@@ -101,8 +101,8 @@ async def patch_escuelas(document: EscuelasPatch):
 
             # Todo bloqueo debe tener una fecha de baja. Se conserva la fecha
             # existente y se genera una nueva solo si todavía no existe.
-            if datos.get("fecha_baja") is None:
-                datos["fecha_baja"] = actual.get("fecha_baja") or datetime.now()
+            # if datos.get("fecha_baja") is None:
+            #     datos["fecha_baja"] = actual.get("fecha_baja") or datetime.now()
 
         elif bloqueo is False:
             datos["motivo"] = None

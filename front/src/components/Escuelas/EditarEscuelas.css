@@ -56,6 +56,35 @@
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
 
+.edit-school-date-picker {
+  position: relative;
+}
+
+.edit-school-native-date-picker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.edit-school-date-button {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  display: flex;
+  padding: 0.25rem;
+  border: 0;
+  color: #495057;
+  background: transparent;
+  transform: translateY(-50%);
+}
+
+.edit-school-date-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .edit-school-switch-row {
   flex-direction: row;
   align-items: center;
