@@ -6,6 +6,8 @@ from bson.objectid import ObjectId
 from scripts.conf.engine import get_collection
 from scripts.schemas.escuelas import EscuelasPatch, escuelasSh
 
+MOTIVOS_BLOQUEO_TOTAL = ["baja por jubilacion", "baja por fallecimiento"]
+
 
 async def get_escuelas():
     coleccion = get_collection("Escuelas")
