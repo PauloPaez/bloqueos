@@ -13,7 +13,7 @@ const EditarMotivos = () => {
   const filaSeleccionada = useSelector(
     (state) => state.modulos.motivos).datos
 
-
+// TODO: Arreglar problema al actualizar motivos, activo = false no aparece
   const [postMotivos] = usePostMotivosMutation();
   const [patchMotivos] = usePatchMotivosMutation();
 

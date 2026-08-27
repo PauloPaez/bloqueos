@@ -1,3 +1,3 @@
 export const camposRequeridosFormulario = [
-  "bloqueo",
+  "motivo",
 ];
