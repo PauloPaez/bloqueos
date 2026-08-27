@@ -38,6 +38,12 @@ const convertirFecha = (fecha) => {
   return `${anio}-${mes}-${dia}`;
 };
 
+const motivosBloqueoMasivo = [
+  'baja por jubilacion',
+  'baja por jubilación',
+  'baja por fallecimiento',
+];
+
 const EditarEscuelas = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.acceso.user);
@@ -60,6 +66,7 @@ const EditarEscuelas = () => {
   });
 
   const bloqueoSeleccionado = watch('escuelas.0.bloqueo', false);
+  const motivoSeleccionado = watch('escuelas.0.motivo', '');
   const fechaBaja = watch('escuelas.0.fecha_baja', '');
   const [fechaBajaTexto, setFechaBajaTexto] = useState('');
   const fechaBajaPickerRef = useRef(null);
@@ -69,6 +76,13 @@ const EditarEscuelas = () => {
   }, [dispatch]);
 
   const camposVisibles = formularioCampos.filter((field) => {
+    if (field.name === 'bloquear_todos_padrones_dni') {
+      const motivoNormalizado = motivoSeleccionado?.trim().toLowerCase();
+      return bloqueoSeleccionado &&
+        motivosBloqueoMasivo.includes(motivoNormalizado) &&
+        Boolean(filaSeleccionada?.documento_nro);
+    }
+
     if (field.placeholder === 'no_visible') return false;
 
     // El campo 'activo' solo se muestra si hay fila seleccionada
@@ -77,6 +91,17 @@ const EditarEscuelas = () => {
     }
     return true;
   });
+
+  useEffect(() => {
+    const motivoNormalizado = motivoSeleccionado?.trim().toLowerCase();
+    if (
+      !bloqueoSeleccionado ||
+      !motivosBloqueoMasivo.includes(motivoNormalizado) ||
+      !filaSeleccionada?.documento_nro
+    ) {
+      setValue('escuelas.0.bloquear_todos_padrones_dni', false);
+    }
+  }, [bloqueoSeleccionado, motivoSeleccionado, filaSeleccionada?.documento_nro, setValue]);
 
 
   useEffect(() => {
@@ -116,6 +141,8 @@ const EditarEscuelas = () => {
     try {
       const escuelas = data.escuelas?.[0];
 
+      console.log(escuelas)
+
       if (!escuelas || controlDatosFormulario(escuelas)) {
         alert('⚠️ Faltan completar datos formulario');
         return;
@@ -128,11 +155,25 @@ const EditarEscuelas = () => {
         ...(filaSeleccionada?.id ? {} : { activo: true })
       };
 
+      if (
+        escuelas.bloquear_todos_padrones_dni &&
+        !window.confirm(
+          `Se bloquearán todos los padrones activos correspondientes al DNI ${escuelas.documento_nro}. ¿Desea continuar?`
+        )
+      ) {
+        return;
+      }
+
       if (filaSeleccionada?.id) {
-        await patchEscuelas({
+        const respuesta = await patchEscuelas({
           id: filaSeleccionada.id,
           ...escuelasData,
         }).unwrap();
+
+        if (escuelas.bloquear_todos_padrones_dni) {
+          // const cantidad = respuesta?.result?.bloqueados_por_dni ?? 0;
+          alert(`Se bloquearon los padrones del DNI ${escuelas.documento_nro}.`);
+        }
 
         dispatch(resetModulo({ modulo: 'escuelas' }));
       } else {

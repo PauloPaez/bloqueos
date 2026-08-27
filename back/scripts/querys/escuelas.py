@@ -85,7 +85,11 @@ async def patch_escuelas(document: EscuelasPatch):
         filtro = {"_id": ObjectId(doc_id)}
 
         # Solo se incluyen los campos enviados en el PATCH.
-        datos = document.model_dump(exclude={"id"}, exclude_unset=True)
+        bloquear_todos_padrones_dni = document.bloquear_todos_padrones_dni
+        datos = document.model_dump(
+            exclude={"id", "bloquear_todos_padrones_dni"},
+            exclude_unset=True,
+        )
 
         if not datos:
             raise Exception("No hay campos para actualizar")
@@ -100,6 +104,21 @@ async def patch_escuelas(document: EscuelasPatch):
         if bloqueo is True:
             if motivo is None or not isinstance(motivo, str) or not motivo.strip():
                 raise Exception("El motivo es obligatorio cuando bloqueo esta activo")
+
+            if bloquear_todos_padrones_dni:
+                motivo_normalizado = motivo.strip().lower()
+                if motivo_normalizado not in {
+                    "baja por jubilacion",
+                    "baja por jubilación",
+                    "baja por fallecimiento",
+                }:
+                    raise Exception(
+                        "El bloqueo masivo solo está permitido para bajas por jubilación o fallecimiento"
+                    )
+
+                dni = actual.get("documento_nro")
+                if not dni:
+                    raise Exception("La escuela no tiene un DNI asociado")
 
             # Todo bloqueo debe tener una fecha de baja. Se conserva la fecha
             # existente y se genera una nueva solo si todavía no existe.
@@ -116,10 +135,31 @@ async def patch_escuelas(document: EscuelasPatch):
         patch_query = {"$set": datos}
         respuesta = await coleccion.update_one(filtro, patch_query)
 
-        if respuesta.modified_count == 1:
+        bloqueados_por_dni = 0
+        if bloqueo is True and bloquear_todos_padrones_dni:
+            dni = actual.get("documento_nro")
+            masivo_query = {
+                "documento_nro": dni,
+                "activo": True,
+                "bloqueo": {"$ne": True},
+                "_id": {"$ne": ObjectId(doc_id)},
+            }
+            masivo_datos = {
+                "bloqueo": True,
+                "motivo": datos.get("motivo", motivo),
+                "fecha_baja": datos.get("fecha_baja"),
+            }
+            masivo_resultado = await coleccion.update_many(
+                masivo_query,
+                {"$set": masivo_datos},
+            )
+            bloqueados_por_dni = masivo_resultado.modified_count
+
+        if respuesta.modified_count == 1 or bloqueados_por_dni > 0:
             return {
                 "status": "success",
                 "message": "Documento actualizado parcialmente correctamente",
+                "bloqueados_por_dni": bloqueados_por_dni,
             }
         else:
             return {"status": "failed", "message": "No se actualizó el documento"}

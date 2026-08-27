@@ -85,6 +85,7 @@ class EscuelasPatch(BaseModel):
     periodo: Optional[str] = Field(default=None)
     motivo: Optional[str] = Field(default=None)
     fecha_baja: datetime | None = Field(default=None)
+    bloquear_todos_padrones_dni: bool = Field(default=False)
     login: Optional[str] = Field(default=None)
     empresa: Optional[str] = Field(default=None)
     activo: Optional[bool] = Field(default=None)
