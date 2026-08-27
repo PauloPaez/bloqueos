@@ -12,7 +12,7 @@ export const formularioCampos = [
   {name: "importe_acreditado", label: "Importe Acreditado", placeholder: "no_visible", type: "text"},
   {name: "beneficiario_nombre", label: "Beneficiario", placeholder: "Beneficiario", type: "text", disabled: true},
   {name: "documento_tipo", label: "Tipo Documento", placeholder: "no_visible", type: "text"},
-  {name: "documento_nro", label: "Número Documento", placeholder: "DNI", type: "text"},
+  {name: "documento_nro", label: "Número Documento", placeholder: "DNI", type: "text", disabled: true},
   {name: "suc_debito", label: "Sucursal Débito", placeholder: "no_visible", type: "text"},
   {name: "tipo_debito", label: "Tipo Débito", placeholder: "no_visible", type: "text"},
   {name: "cuenta_debito", label: "Cuenta Débito", placeholder: "no_visible", type: "text"},

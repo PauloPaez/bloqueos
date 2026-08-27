@@ -25,9 +25,20 @@
 }
 
 .edit-school-form {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
+}
+
+.edit-school-field,
+.edit-school-section,
+.edit-school-footer-separator,
+.edit-school-footer {
+  grid-column: 1 / -1;
+}
+
+.edit-school-padron-field {
+  grid-column: span 1;
 }
 
 .edit-school-field {
@@ -144,6 +155,14 @@
 }
 
 @media (max-width: 576px) {
+  .edit-school-form {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-school-padron-field {
+    grid-column: 1 / -1;
+  }
+
   .edit-school-dialog {
     margin: 0.75rem;
   }

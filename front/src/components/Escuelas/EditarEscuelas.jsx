@@ -233,7 +233,14 @@ const EditarEscuelas = () => {
               )}
 
               <div
-                className={field.type === "checkbox" ? "edit-school-field edit-school-switch-row" : "edit-school-field"}
+                className={[
+                  "edit-school-field",
+                  field.type === "checkbox" && "edit-school-switch-row",
+                  ["padron", "padron_dv"].includes(field.name) &&
+                    "edit-school-padron-field",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 {field.type !== "checkbox" && (
                   <label className="edit-school-label" htmlFor={`edit-${field.name}`}>{field.label}</label>
