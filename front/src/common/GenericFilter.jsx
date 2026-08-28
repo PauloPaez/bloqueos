@@ -149,7 +149,7 @@ const GenericFilter = ({
       case 'select': {
         const opciones = item.opciones || (Array.isArray(item.valor) ? item.valor : []);
 
-        if (opciones.length === 0) {
+        if (opciones.length === 0 && !item.forzarSelect) {
           return (
             <input
               type="text"

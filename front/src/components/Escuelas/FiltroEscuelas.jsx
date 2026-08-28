@@ -1,11 +1,18 @@
 import React from 'react';
 import GenericFilter from '../../common/GenericFilter';
+import { useGetDistinctMotivosQuery } from '../../store/apiSlice';
 
 const FiltroEscuelas = ({
   filtroInicial,
   postFijo,
   claveFiltro = "escuelas:listar",
 }) => {
+  const {
+    data: motivos = [],
+    isLoading: motivosLoading,
+    isError: motivosError,
+  } = useGetDistinctMotivosQuery('motivo');
+
   const configuracionFiltro = [
     // {   'clave': 'tipo_reg',
     // 'etiqueta': 'Tipo Reg',
@@ -150,8 +157,14 @@ const FiltroEscuelas = ({
     // 'valor': ''},
     {   'clave': 'motivo',
     'etiqueta': 'Motivo',
-    'placeholder': 'Motivo',
+    'placeholder': motivosLoading
+      ? 'Cargando motivos...'
+      : motivosError
+        ? 'No se pudieron cargar los motivos'
+        : 'Motivo',
     'tipo': 'select',
+    'opciones': motivos,
+    'forzarSelect': true,
     'valor': ''},
     {   'clave': 'bloqueo',
     'etiqueta': 'Bloqueo',
