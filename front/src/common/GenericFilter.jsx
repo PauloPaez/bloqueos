@@ -164,7 +164,9 @@ const GenericFilter = ({
 
         return (
           <select
-            className="form-select generic-filter-control"
+            className={`form-select generic-filter-control ${
+              valoresTemporales[item.clave] ? '' : 'generic-filter-placeholder'
+            }`}
             value={valoresTemporales[item.clave] || ''}
             onChange={(e) => handleChange(item.clave, e.target.value)}
           >

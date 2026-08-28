@@ -42,6 +42,10 @@
   background-color: #f3f3f5;
 }
 
+.generic-filter-placeholder {
+  color: #6c757d;
+}
+
 .generic-filter-control:focus {
   border-color: #86b7fe;
   background-color: #f3f3f5;

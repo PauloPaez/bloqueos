@@ -161,7 +161,7 @@ const FiltroEscuelas = ({
       ? 'Cargando motivos...'
       : motivosError
         ? 'No se pudieron cargar los motivos'
-        : 'Motivo',
+        : 'Seleccione motivo',
     'tipo': 'select',
     'opciones': motivos,
     'forzarSelect': true,
