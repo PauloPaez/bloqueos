@@ -253,16 +253,6 @@ const buscarEscuelas = async (
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="text-center my-4">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
-        </div>
-        <p className="mt-2">Cargando escuelas...</p>
-      </div>
-    );
-  }
   // Filtrar campos visibles
   const camposVisibles = formularioCampos.filter(field => field.placeholder !== "no_visible");
   return (
@@ -304,7 +294,12 @@ const buscarEscuelas = async (
           </button>
         </div>
       )}
-      {datos.length > 0 ? (
+      {isLoading ? (
+        <div className="text-center my-4" role="status" aria-live="polite">
+          <div className="spinner-border text-primary" aria-hidden="true" />
+          <p className="mt-2">Buscando escuelas...</p>
+        </div>
+      ) : datos.length > 0 ? (
         <div className="table-container-wrapper">
           <div className="table-container" data-pagination>
             <table className="sticky-table">

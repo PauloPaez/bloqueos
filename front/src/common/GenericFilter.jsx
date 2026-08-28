@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Search } from 'lucide-react';
 import useFiltroListado from '../hooks/useFiltroListado';
 import './GenericFilter.css';
@@ -11,10 +11,13 @@ const GenericFilter = ({
   postFijo = {},
   claveFiltro,
   modulo,
+  predictivo = false,
 }) => {
   const clave = claveFiltro || modulo || 'default';
   const { valores: valoresPersistidos, guardarFiltro } = useFiltroListado(clave);
   const [valoresTemporales, setValoresTemporales] = useState({});
+  const filtroInicializado = useRef(false);
+  const ultimoValorAutomatico = useRef(null);
   // La configuración suele crearse como un nuevo arreglo en cada render.
   // Usamos una firma estable para no borrar los valores que el usuario ya
   // escribió cada vez que el componente vuelve a renderizarse.
@@ -37,6 +40,29 @@ const GenericFilter = ({
     });
     setValoresTemporales(valoresIniciales);
   }, [configuracionKey, clave, valoresPersistidos]);
+
+  useEffect(() => {
+    if (!predictivo || Object.keys(valoresTemporales).length === 0) return;
+
+    const firmaValores = JSON.stringify(valoresTemporales);
+
+    if (!filtroInicializado.current) {
+      filtroInicializado.current = true;
+      ultimoValorAutomatico.current = firmaValores;
+      return;
+    }
+
+    if (firmaValores === ultimoValorAutomatico.current) {
+      return;
+    }
+
+    const temporizador = setTimeout(() => {
+      ultimoValorAutomatico.current = firmaValores;
+      aplicarFiltros();
+    }, 400);
+
+    return () => clearTimeout(temporizador);
+  }, [predictivo, valoresTemporales]);
 
   // Manejar cambios en los inputs
   const handleChange = (clave, valor) => {

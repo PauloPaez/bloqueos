@@ -167,11 +167,13 @@ const FiltroEscuelas = ({
 ];
   
   return (
+    // agregar predictivo, hace que las busquedas sean a medida que se tipea en el input. Y si quiero que deje de ser exacta la busqueda, tengo que cambiar en el backend como hace la busqueda. Esto ya esta aplicado para escuelas(acreditaciones en un futuro), pero si quiero aplicarlo en otro modulo, deberia ser asi
     <GenericFilter
       configuracion={configuracionFiltro}
       filtroInicial={filtroInicial}
       postFijo={postFijo}
       claveFiltro={claveFiltro}
+      predictivo
     />
   );
 };

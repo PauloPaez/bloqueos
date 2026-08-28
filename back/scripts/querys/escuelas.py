@@ -1,4 +1,5 @@
 # querys/escuelas.py
+import re
 from datetime import datetime
 from typing import Any, Dict
 
@@ -7,6 +8,20 @@ from scripts.conf.engine import get_collection
 from scripts.schemas.escuelas import EscuelasPatch, escuelasSh
 
 MOTIVOS_BLOQUEO_TOTAL = ["baja por jubilacion", "baja por fallecimiento"]
+
+
+def _construir_query_predictiva(filtro: dict) -> dict:
+    """Convierte búsquedas de texto en coincidencias por prefijo."""
+    query = {}
+    for campo, valor in filtro.items():
+        if valor is None or valor == "":
+            continue
+        query[campo] = (
+            {"$regex": f"^{re.escape(valor)}", "$options": "i"}
+            if isinstance(valor, str)
+            else valor
+        )
+    return query
 
 
 async def get_escuelas():
@@ -33,7 +48,7 @@ async def search_escuelas_in_db(filter: Dict[str, Any]):
     coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
-        query = {k: v for k, v in filter.items() if v is not None}
+        query = _construir_query_predictiva(filter)
 
         # if 'mes' in query:
         #    mes= query['mes']
@@ -181,7 +196,7 @@ async def search_escuelas_paginado(filter: dict, page: int = 1, page_size: int =
     coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
-        query = {k: v for k, v in filter.items() if v is not None}
+        query = _construir_query_predictiva(filter)
 
         # Calcular el total de documentos
         total = await coleccion.count_documents(query)
