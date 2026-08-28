@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 class Motivos(BaseModel):
     id: Optional[str] = Field(default=None)  # ID del documento
     motivo: Optional[str] = Field(default=None)
+    lleva_fecha: bool = Field(default=False)
     login: Optional[str] = Field(default=None)
     empresa: Optional[str] = Field(default=None)
     activo: Optional[bool] = Field(default=False)

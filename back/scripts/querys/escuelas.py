@@ -120,6 +120,21 @@ async def patch_escuelas(document: EscuelasPatch):
             if motivo is None or not isinstance(motivo, str) or not motivo.strip():
                 raise Exception("El motivo es obligatorio cuando bloqueo esta activo")
 
+            motivo_configuracion = await get_collection("Motivos").find_one(
+                {"motivo": motivo, "activo": True}
+            )
+
+            motivo_lleva_fecha = False
+
+            if motivo_configuracion is not None:
+                motivo_lleva_fecha = motivo_configuracion.get("lleva_fecha", False) #si tiene lleva_fecha, guarda en la variable eso, si no, False
+
+            fecha_baja = datos.get("fecha_baja", actual.get("fecha_baja"))
+            if motivo_lleva_fecha and fecha_baja is None:
+                raise Exception("La fecha de baja es obligatoria para este motivo")
+            if not motivo_lleva_fecha:
+                datos["fecha_baja"] = None
+
             if bloquear_todos_padrones_dni:
                 motivo_normalizado = motivo.strip().lower()
                 if motivo_normalizado not in {

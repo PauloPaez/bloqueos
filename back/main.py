@@ -77,6 +77,7 @@ async def websocket_endpoint(websocket: WebSocket, entity: str):
         "rutas",
         "personas",
         "escuelas",
+        "motivos",
     ]
     if entity not in valid_entities:
         await websocket.close()

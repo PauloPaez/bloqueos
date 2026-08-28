@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import {
   usePostEscuelasMutation,
   usePatchEscuelasMutation,
-  useGetDistinctMotivosQuery,
+  useGetMotivosQuery,
 } from '../../store/apiSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { resetModulo } from '../../store/appSlice';
@@ -57,7 +57,7 @@ const EditarEscuelas = () => {
     data: motivos = [],
     isLoading: motivosLoading,
     isError: motivosError,
-  } = useGetDistinctMotivosQuery('motivo');
+  } = useGetMotivosQuery();
 
   const { register, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
@@ -67,6 +67,9 @@ const EditarEscuelas = () => {
 
   const bloqueoSeleccionado = watch('escuelas.0.bloqueo', false);
   const motivoSeleccionado = watch('escuelas.0.motivo', '');
+  const motivosActivos = motivos.filter((item) => item.activo !== false);
+  const motivoConfigurado = motivosActivos.find((item) => item.motivo === motivoSeleccionado);
+  const motivoLlevaFecha = motivoConfigurado?.lleva_fecha === true;
   const fechaBaja = watch('escuelas.0.fecha_baja', '');
   const [fechaBajaTexto, setFechaBajaTexto] = useState('');
   const fechaBajaPickerRef = useRef(null);
@@ -81,6 +84,10 @@ const EditarEscuelas = () => {
       return bloqueoSeleccionado &&
         motivosBloqueoMasivo.includes(motivoNormalizado) &&
         Boolean(filaSeleccionada?.documento_nro);
+    }
+
+    if (field.name === 'fecha_baja') {
+      return bloqueoSeleccionado && motivoLlevaFecha;
     }
 
     if (field.placeholder === 'no_visible') return false;
@@ -101,12 +108,16 @@ const EditarEscuelas = () => {
     ) {
       setValue('escuelas.0.bloquear_todos_padrones_dni', false);
     }
-  }, [bloqueoSeleccionado, motivoSeleccionado, filaSeleccionada?.documento_nro, setValue]);
+    if (motivosActivos.length > 0 && motivoSeleccionado && (!bloqueoSeleccionado || !motivoLlevaFecha)) {
+      setValue('escuelas.0.fecha_baja', null);
+      setFechaBajaTexto('');
+    }
+  }, [bloqueoSeleccionado, motivoSeleccionado, motivoLlevaFecha, motivosActivos.length, filaSeleccionada?.documento_nro, setValue]);
 
 
   useEffect(() => {
     if (filaSeleccionada?.id) {
-      camposVisibles.forEach((field) => {
+      formularioCampos.forEach((field) => {
         if (field.type === 'date') {
           setFechaBajaTexto(formatearFecha(filaSeleccionada[field.name]));
           setValue(
@@ -145,6 +156,11 @@ const EditarEscuelas = () => {
 
       if (!escuelas || controlDatosFormulario(escuelas)) {
         alert('⚠️ Faltan completar datos formulario');
+        return;
+      }
+
+      if (escuelas.bloqueo && motivoLlevaFecha && !escuelas.fecha_baja) {
+        alert('⚠️ Debe completar la fecha de baja para este motivo');
         return;
       }
 
@@ -304,9 +320,9 @@ const EditarEscuelas = () => {
                           ? 'No se pudieron cargar los motivos'
                           : `Seleccione ${field.label.toLowerCase()}`}
                     </option>
-                    {field.optionsKey === 'motivos' && motivos.map((motivo) => (
-                      <option key={motivo} value={motivo}>
-                        {motivo}
+                    {field.optionsKey === 'motivos' && motivosActivos.map((item) => (
+                      <option key={item.motivo} value={item.motivo}>
+                        {item.motivo}
                       </option>
                     ))}
                   </select>
