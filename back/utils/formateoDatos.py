@@ -1,6 +1,7 @@
-from collections.abc import Mapping
-from decimal import Decimal
 import re
+from collections.abc import Mapping
+from datetime import datetime
+from decimal import Decimal
 from typing import Any
 
 
@@ -94,6 +95,12 @@ def _valores_de_fila(escuela: Any) -> Mapping[str, Any]:
     return vars(escuela)
 
 
+def formatear_motivo_fecha_baja(motivo: str | None, fecha_baja: datetime | None) -> str:
+    if motivo and fecha_baja and motivo.strip().lower() == "baja":
+        return f"{motivo} ({fecha_baja.date()})"
+    return _texto(motivo)
+
+
 def preparar_fila_baja(escuela: Any) -> dict[str, str]:
     """Construye los valores visibles de una fila de Excel/Word.
 
@@ -120,5 +127,5 @@ def preparar_fila_baja(escuela: Any) -> dict[str, str]:
         "centro": _texto(row.get("centro")),
         "sector": _texto(row.get("sector")),
         "cuil": formatear_cuil(cuil) if len(cuil) == 11 else cuil,
-        "motivo": _texto(row.get("motivo")),
+        "motivo": formatear_motivo_fecha_baja(row.get("motivo"), row.get("fecha_baja")),
     }

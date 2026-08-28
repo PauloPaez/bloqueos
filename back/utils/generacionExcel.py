@@ -14,8 +14,8 @@ from utils.formateoDatos import preparar_fila_baja
 
 # TODO: Por el momento las columnas que tienen filas vacias, es porque no se como determinar los datos que llevan. Preguntar temas de diseño, ya que la primera fila, la de los nombres de las columnas, usa un renglon y en el original usa 2
 
+#Las constantes van por orden de posicion
 EXCEL_HEADERS = (
-    "Concepto",
     "Disco",
     "Nro de Padron",
     "Apellido y Nombre",
@@ -33,8 +33,7 @@ EXCEL_HEADERS = (
 
 # Las columnas que todavía no tienen una fuente definida se dejan vacías.
 _EXCEL_FIELDS = (
-    "concepto",
-    None,
+    "concepto", #Este seria el Disco de EXCEL_HEADERS
     "padron",
     "beneficiario_nombre",
     "importe",
