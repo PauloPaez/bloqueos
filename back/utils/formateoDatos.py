@@ -95,13 +95,23 @@ def _valores_de_fila(escuela: Any) -> Mapping[str, Any]:
     return vars(escuela)
 
 
-def formatear_motivo_fecha_baja(motivo: str | None, fecha_baja: datetime | None) -> str:
-    if motivo and fecha_baja and motivo.strip().lower() == "baja":
+def formatear_motivo_fecha_baja(
+    motivo: str | None,
+    fecha_baja: datetime | None,
+    motivos_config: Mapping[str, bool] | None = None,
+) -> str:
+    motivo_configurado = motivos_config or {}
+    lleva_fecha = motivo_configurado.get(_texto(motivo).strip().casefold(), False)
+    if motivo and fecha_baja and lleva_fecha:
         return f"{motivo} ({fecha_baja.date()})"
     return _texto(motivo)
+#TODO: ver si agregar upper o no al formatear. Quiza lo deje asi y que en la base de datos se guarden en mayus
+#TODO: Nota: con fontSize 10 en word, entran todas las fechas. Obviamente habiendo movido el tamaño que ocupa cada columna
 
-
-def preparar_fila_baja(escuela: Any) -> dict[str, str]:
+def preparar_fila_baja(
+    escuela: Any,
+    motivos_config: Mapping[str, bool] | None = None,
+) -> dict[str, str]:
     """Construye los valores visibles de una fila de Excel/Word.
 
     Esta es la única definición de formato para las columnas compartidas por
@@ -127,5 +137,7 @@ def preparar_fila_baja(escuela: Any) -> dict[str, str]:
         "centro": _texto(row.get("centro")),
         "sector": _texto(row.get("sector")),
         "cuil": formatear_cuil(cuil) if len(cuil) == 11 else cuil,
-        "motivo": formatear_motivo_fecha_baja(row.get("motivo"), row.get("fecha_baja")),
+        "motivo": formatear_motivo_fecha_baja(
+            row.get("motivo"), row.get("fecha_baja"), motivos_config
+        ),
     }

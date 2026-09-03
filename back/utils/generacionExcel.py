@@ -59,8 +59,10 @@ def _rows(data: pl.DataFrame | Iterable[Mapping[str, Any]]) -> list[dict[str, An
     return [dict(row) for row in data]
 
 
-def _excel_values(row: Mapping[str, Any]) -> tuple[str, ...]:
-    prepared = preparar_fila_baja(row)
+def _excel_values(
+    row: Mapping[str, Any], motivos_config: Mapping[str, bool] | None = None
+) -> tuple[str, ...]:
+    prepared = preparar_fila_baja(row, motivos_config)
     return tuple(
         "" if field is None or prepared.get(field) is None else str(prepared.get(field))
         for field in _EXCEL_FIELDS
@@ -82,12 +84,13 @@ def generar_excel_bajas(
     df: pl.DataFrame | Iterable[Mapping[str, Any]],
     periodo: str | None = None,
     fecha_pago: Any = None,
+    motivos_config: Mapping[str, bool] | None = None,
 ) -> tuple[io.BytesIO, str]:
     """Genera un Excel plano con las columnas definidas en ``EXCEL_HEADERS``."""
     del fecha_pago  # Se conserva en la firma por compatibilidad con el endpoint.
 
     rows = _rows(df)
-    values = [_excel_values(row) for row in rows]
+    values = [_excel_values(row, motivos_config) for row in rows]
     buffer = io.BytesIO()
 
     with xlsxwriter.Workbook(buffer, {"in_memory": True}) as workbook:
@@ -122,9 +125,12 @@ async def generarExcel(
     datos: Iterable[Mapping[str, Any]],
     periodo: str | None = None,
     fecha_pago: Any = None,
+    motivos_config: Mapping[str, bool] | None = None,
 ) -> StreamingResponse:
     """Compatibilidad con el endpoint existente, devolviendo ``StreamingResponse``."""
-    buffer, filename = generar_excel_bajas(datos, periodo, fecha_pago)
+    buffer, filename = generar_excel_bajas(
+        datos, periodo, fecha_pago, motivos_config
+    )
     return StreamingResponse(
         buffer,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

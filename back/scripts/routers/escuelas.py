@@ -18,6 +18,7 @@ from scripts.querys.escuelas import (
     search_escuelas_in_db,
     search_escuelas_paginado,
 )
+from scripts.querys.motivos import get_motivos
 from scripts.schemas.escuelas import EscuelasPatch
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.generacionExcel import generar_excel_bajas
@@ -138,11 +139,20 @@ async def generarExcelBloqueados(
                 status_code=404, detail="No se encontraron datos para el período."
             )
 
+        motivos_config = {
+            item["motivo"].strip().casefold(): item.get("lleva_fecha", False)
+            for item in await get_motivos()
+            if item.get("motivo")
+        }
+
         grupos = agrupar_por_tipo_banco(resultado)
         archivos = []
         for tipo_banco, escuelas_tipo in grupos.items():
             contenido, _ = generar_excel_bajas(
-                escuelas_tipo, periodo=periodo, fecha_pago=fecha_pago
+                escuelas_tipo,
+                periodo=periodo,
+                fecha_pago=fecha_pago,
+                motivos_config=motivos_config,
             )
             archivos.append(
                 (f"bajas_escuelas_{tipo_banco}.xlsx", contenido)
