@@ -4,7 +4,7 @@ import logging
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from scripts.conf.engine import close_db, init_db
-from scripts.routers.escuelas import escuelas
+from scripts.routers.acreditaciones import acreditaciones
 from scripts.routers.generacionDocs import routerDocs
 from scripts.routers.login import login
 from scripts.routers.motivos import motivos
@@ -104,6 +104,6 @@ app.include_router(rutas, tags=["Rutas"])
 app.include_router(personas, tags=["Personas"])
 app.include_router(notificaciones, tags=["Notificaciones"])
 logger.info("✅ Router notificaciones incluido en la aplicación")
-app.include_router(escuelas, tags=["Escuelas"])
+app.include_router(acreditaciones, tags=["Acreditaciones"])
 app.include_router(routerDocs)
 app.include_router(motivos, tags=["Motivos"])

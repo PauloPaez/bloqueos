@@ -3,12 +3,12 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import StreamingResponse
-from scripts.models.escuelas import (
+from scripts.models.acreditaciones import (
     Escuelas,
     EscuelasResponse,
     EscuelasSearchResponse,
 )
-from scripts.querys.escuelas import (
+from scripts.querys.acreditaciones import (
     add_escuelas,
     get_escuelas,
     get_escuelas_by_id,
@@ -19,7 +19,7 @@ from scripts.querys.escuelas import (
     search_escuelas_paginado,
 )
 from scripts.querys.motivos import get_motivos
-from scripts.schemas.escuelas import EscuelasPatch
+from scripts.schemas.acreditaciones import EscuelasPatch
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
@@ -27,18 +27,18 @@ from utils.generacionZip import crear_zip
 # Importa desde el módulo externo
 from utils.websockets_manager import notify_clients
 
-escuelas = APIRouter()
+acreditaciones = APIRouter()
 
 
-@escuelas.get("/escuelas/", response_model=List[EscuelasResponse])
-async def fetch_escuelas():
+@acreditaciones.get("/escuelas/", response_model=List[EscuelasResponse])
+async def fetch_acreditaciones():
     try:
         return await get_escuelas()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener los datos: {e}")
 
 
-@escuelas.get("/escuelas/{id}/", response_model=EscuelasResponse)
+@acreditaciones.get("/escuelas/{id}/", response_model=EscuelasResponse)
 async def fetch_m_entrada_by_id(id: str):
     try:
         documento = await get_escuelas_by_id(id)
@@ -51,7 +51,7 @@ async def fetch_m_entrada_by_id(id: str):
         )
 
 
-# @escuelas.post("/escuelas/search/", response_model=List[Escuelas])
+# @acreditaciones.post("/escuelas/search/", response_model=List[Escuelas])
 # async def search_escuelas(filter: Dict[str, Any]):
 #     try:
 #         documentos = await search_escuelas_in_db(filter)
@@ -62,8 +62,8 @@ async def fetch_m_entrada_by_id(id: str):
 #         )
 
 
-@escuelas.post("/escuelas/search/", response_model=EscuelasSearchResponse)
-async def search_escuelas(
+@acreditaciones.post("/escuelas/search/", response_model=EscuelasSearchResponse)
+async def search_acreditaciones(
     filter: Dict[str, Any] = Body(default={}), page: int = 1, page_size: int = 10
 ):
     try:
@@ -75,8 +75,8 @@ async def search_escuelas(
         )
 
 
-@escuelas.post("/escuelas/", status_code=201)
-async def post_escuelas(escuelas: Escuelas):
+@acreditaciones.post("/escuelas/", status_code=201)
+async def post_acreditaciones(escuelas: Escuelas):
     try:
         result = await add_escuelas(escuelas.dict())
         await notify_clients("escuelas", "Nuevo escuelas agregado")
@@ -87,8 +87,8 @@ async def post_escuelas(escuelas: Escuelas):
         )
 
 
-@escuelas.put("/escuelas/")
-async def update_escuelas(item: Escuelas):
+@acreditaciones.put("/escuelas/")
+async def update_acreditaciones(item: Escuelas):
     try:
         result = await put_escuelas(item.dict())
         await notify_clients("escuelas", "escuelas actualizado")
@@ -99,8 +99,9 @@ async def update_escuelas(item: Escuelas):
         )
 
 
-@escuelas.patch("/escuelas/")
-async def partial_update_escuelas(document: EscuelasPatch):
+#TODO: Hay un problema grande por el mal uso de schemas que hay en este proyecto. Cuando envio un body con 2 campos a actualizar, id y tipo_reg, todos los demas campos del documento a actualizar, se actualizan a nulo. Tendria que fortalecer el backend arreglando esto usando schemas Pydantic
+@acreditaciones.patch("/escuelas/")
+async def partial_update_acreditaciones(document: EscuelasPatch):
     try:
         result = await patch_escuelas(document)
         await notify_clients("escuelas", "Documento actualizado parcialmente")
@@ -112,7 +113,7 @@ async def partial_update_escuelas(document: EscuelasPatch):
         )
 
 
-@escuelas.get("/escuelas/distinct/{campo}/")
+@acreditaciones.get("/escuelas/distinct/{campo}/")
 async def get_TN_distinct(campo: str):
     try:
         documento = await get_escuelas_distinct(campo)
@@ -125,7 +126,7 @@ async def get_TN_distinct(campo: str):
         )
 
 
-@escuelas.post("/escuelas/generar-excel-bloqueados")
+@acreditaciones.post("/escuelas/generar-excel-bloqueados")
 async def generarExcelBloqueados(
     periodo: str | None = None, fecha_pago: str | None = None
 ):

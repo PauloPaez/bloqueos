@@ -1,10 +1,10 @@
 import io
+from collections.abc import Mapping
 from decimal import Decimal
 from pathlib import Path
-from collections.abc import Mapping
 
 from docxtpl import DocxTemplate
-from scripts.models.escuelas import Escuelas
+from scripts.models.acreditaciones import Escuelas
 from utils.formateoDatos import formatear_importe, preparar_fila_baja
 
 

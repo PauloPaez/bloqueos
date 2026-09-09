@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from scripts.querys.escuelas import search_escuelas_in_db
+from scripts.querys.acreditaciones import search_escuelas_in_db
 from scripts.querys.motivos import get_motivos
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.crearDocx import crearDocumento
@@ -8,7 +8,7 @@ from utils.generacionZip import crear_zip
 
 routerDocs = APIRouter(prefix="/generardoc", tags=["Generacion de documentos"])
 
-
+#Aca genero los DOCX, los excel son generados en los endpoints de acreditaciones. TODO: Podria mejorar el orden y poner el endpoint de los excel en este archivo
 @routerDocs.post("/")
 async def generarDocumento():
     resultado = await search_escuelas_in_db({"bloqueo": True, "activo": True})
