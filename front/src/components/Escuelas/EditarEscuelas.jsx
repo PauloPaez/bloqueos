@@ -129,7 +129,9 @@ const EditarEscuelas = () => {
         } else {
           setValue(
             `escuelas.0.${field.name}`,
-            filaSeleccionada[field.name] ?? null
+            field.name === 'bloquear_todos_padrones_dni'
+              ? Boolean(filaSeleccionada[field.name])
+              : filaSeleccionada[field.name] ?? null
           );
         }
       });
@@ -187,8 +189,8 @@ const EditarEscuelas = () => {
         }).unwrap();
 
         if (escuelas.bloquear_todos_padrones_dni) {
-          // const cantidad = respuesta?.result?.bloqueados_por_dni ?? 0;
-          alert(`Se bloquearon los padrones del DNI ${escuelas.documento_nro}.`);
+          const cantidad = respuesta?.result?.actualizados_por_dni ?? 0;
+          alert(`Se actualizaron ${cantidad} padrones adicionales del DNI ${escuelas.documento_nro}.`);
         }
 
         dispatch(resetModulo({ modulo: 'escuelas' }));

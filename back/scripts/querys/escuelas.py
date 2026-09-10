@@ -165,31 +165,30 @@ async def patch_escuelas(document: EscuelasPatch):
         patch_query = {"$set": datos}
         respuesta = await coleccion.update_one(filtro, patch_query)
 
-        bloqueados_por_dni = 0
+        actualizados_por_dni = 0
         if bloqueo is True and bloquear_todos_padrones_dni:
             dni = actual.get("documento_nro")
-            masivo_query = {
+            masivo_query = { #busca todas las escuelas activas con el mismo dni, excepto la que ya se actualizo. $ne es "distinto de"
                 "documento_nro": dni,
                 "activo": True,
-                "bloqueo": {"$ne": True},
                 "_id": {"$ne": ObjectId(doc_id)},
             }
-            masivo_datos = {
+            masivo_datos = { #indica los campos que se van a actualizar
                 "bloqueo": True,
                 "motivo": datos.get("motivo", motivo),
                 "fecha_baja": datos.get("fecha_baja"),
             }
-            masivo_resultado = await coleccion.update_many(
+            masivo_resultado = await coleccion.update_many( #hace la actualizacion masiva
                 masivo_query,
                 {"$set": masivo_datos},
             )
-            bloqueados_por_dni = masivo_resultado.modified_count
+            actualizados_por_dni = masivo_resultado.modified_count #obtengo la cantidad de documentos modificados
 
-        if respuesta.modified_count == 1 or bloqueados_por_dni > 0:
+        if respuesta.modified_count == 1 or actualizados_por_dni > 0:
             return {
                 "status": "success",
                 "message": "Documento actualizado parcialmente correctamente",
-                "bloqueados_por_dni": bloqueados_por_dni,
+                "actualizados_por_dni": actualizados_por_dni,
             }
         else:
             return {"status": "failed", "message": "No se actualizó el documento"}
