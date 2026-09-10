@@ -12,6 +12,7 @@ import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
 import { Modal } from "react-bootstrap";
 import { Calendar, Save } from "lucide-react";
+import { toast } from "sonner";
 import './EditarEscuelas.css';
 
 const formatearFecha = (fecha) => {
@@ -190,7 +191,11 @@ const EditarEscuelas = () => {
 
         if (escuelas.bloquear_todos_padrones_dni) {
           const cantidad = respuesta?.result?.actualizados_por_dni ?? 0;
-          alert(`Se actualizaron ${cantidad} padrones adicionales del DNI ${escuelas.documento_nro}.`);
+          toast.success(
+            `Escuela actualizada. Se actualizaron ${cantidad} padrones adicionales del DNI ${escuelas.documento_nro}.`
+          );
+        } else {
+          toast.success('Escuela actualizada correctamente.');
         }
 
         dispatch(resetModulo({ modulo: 'escuelas' }));
@@ -212,13 +217,13 @@ const EditarEscuelas = () => {
 
 
   return (
-  <Modal
-    show={!!filaSeleccionada?.id}
-    onHide={handleReset}
-    backdrop="static"
-    centered
-    dialogClassName="edit-school-dialog"
-  >
+    <Modal
+        show={!!filaSeleccionada?.id}
+        onHide={handleReset}
+        backdrop="static"
+        centered
+        dialogClassName="edit-school-dialog"
+      >
     <Modal.Header closeButton className="edit-school-header">
       <Modal.Title className="edit-school-title">Editar Escuela</Modal.Title>
     </Modal.Header>
@@ -368,7 +373,7 @@ const EditarEscuelas = () => {
       </form>
     </Modal.Body>
 
-  </Modal>
+    </Modal>
     );
 };
 
