@@ -1,13 +1,14 @@
 # routers/escuelas.py
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.responses import StreamingResponse
 from scripts.models.escuelas import (
     Escuelas,
     EscuelasResponse,
     EscuelasSearchResponse,
 )
+from scripts.exceptions import EscuelaNotFoundError, EscuelaValidationError
 from scripts.querys.escuelas import (
     add_escuelas,
     get_escuelas,
@@ -99,16 +100,36 @@ async def update_escuelas(item: Escuelas):
         )
 
 
-@escuelas.patch("/escuelas/")
+@escuelas.patch("/escuelas/") #TODO: manejar mejor los errores como, que es necesario un motivo para bloquear. Habria que fortalecerlo desde el front y backend. Ya esta desde el back, solo falta retornar mejor ese mensaje
 async def partial_update_escuelas(document: EscuelasPatch):
     try:
         result = await patch_escuelas(document)
+        if not result["success"]: #si no hubo modificacion de ningun registro, retorna error 400
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No hubo escuelas modificadas.",
+            )
+
         await notify_clients("escuelas", "Documento actualizado parcialmente")
-        return {"message": "Actualización parcial exitosa", "result": result}
+        return { #cuando hubo modificaciones, mantiene en el result(diccionario), la cantidad de dnis modificados, en caso de bloqueo masivo
+            "message": "Actualización parcial exitosa",
+            "status": "success",
+            "result": result,
+        }
+    except EscuelaValidationError as e:
+        print(f"ERROR de validación al actualizar la escuela: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except EscuelaNotFoundError as e:
+        print(f"ERROR al buscar la escuela: {e}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except HTTPException as e:
+        print(f"ERROR: {e.detail}")
+        raise
     except Exception as e:
+        print(f"ERROR al actualizar parcialmente la escuela: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Error al actualizar parcialmente el documento: {e}",
+            detail="Error al actualizar parcialmente la escuela.",
         )
 
 

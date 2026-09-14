@@ -45,6 +45,15 @@ const motivosBloqueoMasivo = [
   'baja por fallecimiento',
 ];
 
+const obtenerMensajeError = (error) => {
+  if (typeof error?.data?.detail === 'string') return error.data.detail;
+  if (typeof error?.data?.message === 'string') return error.data.message;
+  if (error?.status === 'FETCH_ERROR') {
+    return 'No se pudo conectar con el servidor.';
+  }
+  return 'Ocurrió un error al guardar la escuela.';
+};
+
 const EditarEscuelas = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.acceso.user);
@@ -206,6 +215,7 @@ const EditarEscuelas = () => {
       reset();
     } catch (error) {
       console.error('Error al enviar datos:', error);
+      toast.error(obtenerMensajeError(error));
     }
   };
 

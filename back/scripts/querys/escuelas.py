@@ -1,10 +1,10 @@
 # querys/escuelas.py
 import re
-from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 from bson.objectid import ObjectId
 from scripts.conf.engine import get_collection
+from scripts.exceptions import EscuelaNotFoundError, EscuelaValidationError
 from scripts.schemas.escuelas import EscuelasPatch, escuelasSh
 
 MOTIVOS_BLOQUEO_TOTAL = ["baja por jubilacion", "baja por fallecimiento"]
@@ -44,7 +44,7 @@ async def get_escuelas_by_id(id: str):
         raise Exception(f"Error al buscar documento: {e}")
 
 
-async def search_escuelas_in_db(filter: Dict[str, Any]):
+async def search_escuelas_in_db(filter: dict[str, Any]):
     coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
@@ -92,108 +92,98 @@ async def put_escuelas(document):
 
 async def patch_escuelas(document: EscuelasPatch):
     coleccion = get_collection("Escuelas")
-    try:
-        doc_id = document.id
-        if not doc_id or not doc_id.strip():
-            raise Exception("El documento debe incluir la clave 'id'")
+    doc_id = document.id
+    if not doc_id or not doc_id.strip():
+        raise EscuelaValidationError("El documento debe incluir la clave 'id'")
 
-        filtro = {"_id": ObjectId(doc_id)}
+    filtro = {"_id": ObjectId(doc_id)}
 
-        # Solo se incluyen los campos enviados en el PATCH.
-        bloquear_todos_padrones_dni = document.bloquear_todos_padrones_dni
-        datos = document.model_dump(
-            exclude={"id", "bloquear_todos_padrones_dni"},
-            exclude_unset=True,
+    # Solo se incluyen los campos enviados en el PATCH.
+    bloquear_todos_padrones_dni = document.bloquear_todos_padrones_dni
+    datos = document.model_dump(
+        exclude={"id", "bloquear_todos_padrones_dni"},
+        exclude_unset=True,
+    )
+
+    if not datos:
+        raise EscuelaValidationError("No hay campos para actualizar")
+
+    actual = await coleccion.find_one(filtro)
+    if actual is None:
+        raise EscuelaNotFoundError("Documento no encontrado")
+
+    bloqueo = datos.get("bloqueo", actual.get("bloqueo"))
+    motivo = datos.get("motivo", actual.get("motivo"))
+
+    if bloqueo is True:
+        if motivo is None or not isinstance(motivo, str) or not motivo.strip():
+            raise EscuelaValidationError(
+                "El motivo es obligatorio si bloqueo esta activo"
+            )
+
+        motivo_configuracion = await get_collection("Motivos").find_one(
+            {"motivo": motivo, "activo": True}
         )
 
-        if not datos:
-            raise Exception("No hay campos para actualizar")
+        motivo_lleva_fecha = False
 
-        actual = await coleccion.find_one(filtro)
-        if actual is None:
-            raise Exception("Documento no encontrado")
+        if motivo_configuracion is not None:
+            motivo_lleva_fecha = motivo_configuracion.get("lleva_fecha", False) #si tiene lleva_fecha, guarda en la variable eso, si no, False
 
-        bloqueo = datos.get("bloqueo", actual.get("bloqueo"))
-        motivo = datos.get("motivo", actual.get("motivo"))
-
-        if bloqueo is True:
-            if motivo is None or not isinstance(motivo, str) or not motivo.strip():
-                raise Exception("El motivo es obligatorio cuando bloqueo esta activo")
-
-            motivo_configuracion = await get_collection("Motivos").find_one(
-                {"motivo": motivo, "activo": True}
-            )
-
-            motivo_lleva_fecha = False
-
-            if motivo_configuracion is not None:
-                motivo_lleva_fecha = motivo_configuracion.get("lleva_fecha", False) #si tiene lleva_fecha, guarda en la variable eso, si no, False
-
-            fecha_baja = datos.get("fecha_baja", actual.get("fecha_baja"))
-            if motivo_lleva_fecha and fecha_baja is None:
-                raise Exception("La fecha de baja es obligatoria para este motivo")
-            if not motivo_lleva_fecha:
-                datos["fecha_baja"] = None
-
-            if bloquear_todos_padrones_dni:
-                motivo_normalizado = motivo.strip().lower()
-                if motivo_normalizado not in {
-                    "baja por jubilacion",
-                    "baja por jubilación",
-                    "baja por fallecimiento",
-                }:
-                    raise Exception(
-                        "El bloqueo masivo solo está permitido para bajas por jubilación o fallecimiento"
-                    )
-
-                dni = actual.get("documento_nro")
-                if not dni:
-                    raise Exception("La escuela no tiene un DNI asociado")
-
-            # Todo bloqueo debe tener una fecha de baja. Se conserva la fecha
-            # existente y se genera una nueva solo si todavía no existe.
-            # if datos.get("fecha_baja") is None:
-            #     datos["fecha_baja"] = actual.get("fecha_baja") or datetime.now()
-
-        elif bloqueo is False:
-            datos["motivo"] = None
+        fecha_baja = datos.get("fecha_baja", actual.get("fecha_baja"))
+        if motivo_lleva_fecha and fecha_baja is None:
+            raise EscuelaValidationError("La fecha de baja es obligatoria para este motivo")
+        if not motivo_lleva_fecha:
             datos["fecha_baja"] = None
 
-        else:
-            raise Exception("Bloqueo debe ser verdadero o falso")
+        if bloquear_todos_padrones_dni:
+            motivo_normalizado = motivo.strip().lower()
+            if motivo_normalizado not in {
+                "baja por jubilacion",
+                "baja por jubilación",
+                "baja por fallecimiento",
+            }:
+                raise EscuelaValidationError(
+                    "El bloqueo masivo solo está permitido para bajas por jubilación o fallecimiento"
+                )
 
-        patch_query = {"$set": datos}
-        respuesta = await coleccion.update_one(filtro, patch_query)
-
-        actualizados_por_dni = 0
-        if bloqueo is True and bloquear_todos_padrones_dni:
             dni = actual.get("documento_nro")
-            masivo_query = { #busca todas las escuelas activas con el mismo dni, excepto la que ya se actualizo. $ne es "distinto de"
-                "documento_nro": dni,
-                "activo": True,
-                "_id": {"$ne": ObjectId(doc_id)},
-            }
-            masivo_datos = { #indica los campos que se van a actualizar
-                "bloqueo": True,
-                "motivo": datos.get("motivo", motivo),
-                "fecha_baja": datos.get("fecha_baja"),
-            }
-            masivo_resultado = await coleccion.update_many( #hace la actualizacion masiva
-                masivo_query,
-                {"$set": masivo_datos},
-            )
-            actualizados_por_dni = masivo_resultado.modified_count #obtengo la cantidad de documentos modificados
+            if not dni:
+                raise EscuelaValidationError("La escuela no tiene un DNI asociado")
 
-        if respuesta.modified_count == 1 or actualizados_por_dni > 0:
-            return {
-                "status": "success",
-                "message": "Documento actualizado parcialmente correctamente",
-                "actualizados_por_dni": actualizados_por_dni,
-            }
-        else:
-            return {"status": "failed", "message": "No se actualizó el documento"}
-    except Exception as e:
-        raise Exception(f"Error en actualización parcial: {e}")
+    elif bloqueo is False:
+        datos["motivo"] = None
+        datos["fecha_baja"] = None
+
+    else:
+        raise EscuelaValidationError("Bloqueo debe ser verdadero o falso")
+
+    patch_query = {"$set": datos}
+    respuesta = await coleccion.update_one(filtro, patch_query)
+
+    actualizados_por_dni = 0
+    if bloqueo is True and bloquear_todos_padrones_dni:
+        dni = actual.get("documento_nro")
+        masivo_query = { #busca todas las escuelas activas con el mismo dni, excepto la que ya se actualizo. $ne es "distinto de"
+            "documento_nro": dni,
+            "activo": True,
+            "_id": {"$ne": ObjectId(doc_id)},
+        }
+        masivo_datos = { #indica los campos que se van a actualizar
+            "bloqueo": True,
+            "motivo": datos.get("motivo", motivo),
+            "fecha_baja": datos.get("fecha_baja"),
+        }
+        masivo_resultado = await coleccion.update_many( #hace la actualizacion masiva
+            masivo_query,
+            {"$set": masivo_datos},
+        )
+        actualizados_por_dni = masivo_resultado.modified_count #obtengo la cantidad de documentos modificados
+
+    return {
+        "success": respuesta.modified_count == 1 or actualizados_por_dni > 0,
+        "actualizados_por_dni": actualizados_por_dni,
+    }
 
 
 async def get_escuelas_distinct(campo) -> list:
