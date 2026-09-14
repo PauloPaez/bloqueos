@@ -200,11 +200,12 @@ const EditarEscuelas = () => {
 
         if (escuelas.bloquear_todos_padrones_dni) {
           const cantidad = respuesta?.result?.actualizados_por_dni ?? 0;
-          toast.success(
-            `Escuela actualizada. Se actualizaron ${cantidad} padrones adicionales del DNI ${escuelas.documento_nro}.`
-          );
+          const mensaje = respuesta?.result?.message
+            || `Se actualizaron padrones adicionales asociados al DNI ${escuelas.documento_nro}.`;
+          (cantidad > 0 ? toast.success : toast.info)(mensaje);
         } else {
-          toast.success('Escuela actualizada correctamente.');
+          const mensaje = respuesta?.result?.message || 'Escuela actualizada correctamente.';
+          toast.success(mensaje);
         }
 
         dispatch(resetModulo({ modulo: 'escuelas' }));

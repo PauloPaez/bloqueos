@@ -180,10 +180,63 @@ async def patch_escuelas(document: EscuelasPatch):
         )
         actualizados_por_dni = masivo_resultado.modified_count #obtengo la cantidad de documentos modificados
 
+    escuela_actualizada = respuesta.modified_count == 1
+    if bloqueo is True and bloquear_todos_padrones_dni:
+        mensaje = (
+            f"Se actualizaron todos los padrones asociados al DNI {dni}."
+            if actualizados_por_dni > 0
+            else "Los padrones del DNI ya se encontraban bloqueados."
+        )
+    elif escuela_actualizada: #si viene a este elif, significa que esta modificando datos fuera de bloqueo o bloquear todo los padrones
+        mensaje = "Actualización parcial exitosa."
+    else:
+        mensaje = "La escuela ya tenía los datos informados."
+
     return {
-        "success": respuesta.modified_count == 1 or actualizados_por_dni > 0,
+        "success": True,
+        "escuela_actualizada": escuela_actualizada,
         "actualizados_por_dni": actualizados_por_dni,
+        "message": mensaje,
     }
+
+
+# async def desbloquear_escuelas_por_dni(id: str):
+#     coleccion = get_collection("Escuelas")
+#     try:
+#         if not id or not id.strip():
+#             raise Exception("El documento debe incluir la clave 'id'")
+
+#         actual = await coleccion.find_one({"_id": ObjectId(id)})
+#         if actual is None:
+#             raise Exception("Documento no encontrado")
+
+#         dni = actual.get("documento_nro")
+#         if not dni:
+#             raise Exception("La escuela no tiene un DNI asociado")
+
+#         resultado = await coleccion.update_many(
+#             {"documento_nro": dni, "activo": True},
+#             {
+#                 "$set": {
+#                     "bloqueo": False,
+#                     "motivo": None,
+#                     "fecha_baja": None,
+#                 }
+#             },
+#         )
+#         cantidad_actualizada = resultado.modified_count
+#         mensaje = (
+#             f"Se desbloquearon {cantidad_actualizada} padrones del DNI {dni}."
+#             if cantidad_actualizada > 0
+#             else f"No había padrones bloqueados para desbloquear del DNI {dni}."
+#         )
+#         return {
+#             "status": "success",
+#             "message": mensaje,
+#             "actualizados_por_dni": cantidad_actualizada,
+#         }
+#     except Exception as e:
+#         raise Exception(f"Error al desbloquear los padrones del DNI: {e}")
 
 
 async def get_escuelas_distinct(campo) -> list:

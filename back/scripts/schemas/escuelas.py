@@ -96,6 +96,7 @@ class EscuelasPatch(BaseModel):
         if value == "":
             return None
         return value
+
     @field_validator("fecha_baja", mode="before")
     @classmethod
     def convertir_fecha_baja(cls, value):
@@ -106,3 +107,7 @@ class EscuelasPatch(BaseModel):
             return datetime.strptime(value, "%Y-%m-%d")
 
         return value
+
+
+# class DesbloquearEscuelasPorDni(BaseModel):
+#     id: str = Field(..., description="ID de una escuela del DNI a desbloquear")
