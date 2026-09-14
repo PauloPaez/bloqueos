@@ -1,6 +1,4 @@
-# querys/escuelas.py
 import re
-from datetime import datetime
 from typing import Any, Dict
 
 from bson.objectid import ObjectId
@@ -24,7 +22,7 @@ def _construir_query_predictiva(filtro: dict) -> dict:
     return query
 
 
-async def get_escuelas():
+async def get_acreditaciones():
     coleccion = get_collection("Escuelas")
     cursor = coleccion.find()
     data = []
@@ -33,7 +31,7 @@ async def get_escuelas():
     return data
 
 
-async def get_escuelas_by_id(id: str):
+async def get_acreditaciones_by_id(id: str):
     coleccion = get_collection("Escuelas")
     try:
         document = await coleccion.find_one({"_id": ObjectId(id)})
@@ -44,7 +42,7 @@ async def get_escuelas_by_id(id: str):
         raise Exception(f"Error al buscar documento: {e}")
 
 
-async def search_escuelas_in_db(filter: Dict[str, Any]):
+async def search_acreditaciones_in_db(filter: Dict[str, Any]):
     coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos
@@ -68,14 +66,14 @@ async def search_escuelas_in_db(filter: Dict[str, Any]):
         raise Exception(f"Error al buscar documentos: {e}")
 
 
-async def add_escuelas(document: dict) -> ObjectId:
+async def add_acreditaciones(document: dict) -> ObjectId:
     coleccion = get_collection("Escuelas")
     # Inserta el documento en la colección y devuelve el ID generado
     result = await coleccion.insert_one(document)
     return result.inserted_id
 
 
-async def put_escuelas(document):
+async def put_acreditaciones(document):
     coleccion = get_collection("Escuelas")
     filtro = {"_id": ObjectId(document["id"])}
     document.pop("id")
@@ -90,7 +88,7 @@ async def put_escuelas(document):
         return {"status": "failed", "message": "No se actualizó el documento"}
 
 
-async def patch_escuelas(document: EscuelasPatch):
+async def patch_acreditaciones(document: EscuelasPatch):
     coleccion = get_collection("Escuelas")
     try:
         doc_id = document.id
@@ -148,7 +146,7 @@ async def patch_escuelas(document: EscuelasPatch):
 
                 dni = actual.get("documento_nro")
                 if not dni:
-                    raise Exception("La escuela no tiene un DNI asociado")
+                    raise Exception("La acreditacion no tiene un DNI asociado")
 
             # Todo bloqueo debe tener una fecha de baja. Se conserva la fecha
             # existente y se genera una nueva solo si todavía no existe.
@@ -197,7 +195,7 @@ async def patch_escuelas(document: EscuelasPatch):
         raise Exception(f"Error en actualización parcial: {e}")
 
 
-async def get_escuelas_distinct(campo) -> list:
+async def get_acreditaciones_distinct(campo) -> list:
     coleccion = get_collection("Escuelas")
     try:
         document = await coleccion.distinct(campo, {"activo": True})
@@ -207,7 +205,7 @@ async def get_escuelas_distinct(campo) -> list:
         raise Exception(f"Error al buscar documento: {e}")
 
 
-async def search_escuelas_paginado(filter: dict, page: int = 1, page_size: int = 10):
+async def search_acreditaciones_paginado(filter: dict, page: int = 1, page_size: int = 10):
     coleccion = get_collection("Escuelas")
     try:
         # Filtrar eliminando valores nulos o vacíos

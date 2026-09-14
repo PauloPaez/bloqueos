@@ -9,14 +9,14 @@ from scripts.models.acreditaciones import (
     EscuelasSearchResponse,
 )
 from scripts.querys.acreditaciones import (
-    add_escuelas,
-    get_escuelas,
-    get_escuelas_by_id,
-    get_escuelas_distinct,
-    patch_escuelas,
-    put_escuelas,
-    search_escuelas_in_db,
-    search_escuelas_paginado,
+    add_acreditaciones,
+    get_acreditaciones,
+    get_acreditaciones_by_id,
+    get_acreditaciones_distinct,
+    patch_acreditaciones,
+    put_acreditaciones,
+    search_acreditaciones_in_db,
+    search_acreditaciones_paginado,
 )
 from scripts.querys.motivos import get_motivos
 from scripts.schemas.acreditaciones import EscuelasPatch
@@ -33,7 +33,7 @@ acreditaciones = APIRouter()
 @acreditaciones.get("/escuelas/", response_model=List[EscuelasResponse])
 async def fetch_acreditaciones():
     try:
-        return await get_escuelas()
+        return await get_acreditaciones()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al obtener los datos: {e}")
 
@@ -41,7 +41,7 @@ async def fetch_acreditaciones():
 @acreditaciones.get("/escuelas/{id}/", response_model=EscuelasResponse)
 async def fetch_m_entrada_by_id(id: str):
     try:
-        documento = await get_escuelas_by_id(id)
+        documento = await get_acreditaciones_by_id(id)
         if not documento:
             raise HTTPException(status_code=404, detail="Documento no encontrado")
         return documento
@@ -67,7 +67,7 @@ async def search_acreditaciones(
     filter: Dict[str, Any] = Body(default={}), page: int = 1, page_size: int = 10
 ):
     try:
-        documentos = await search_escuelas_paginado(filter, page, page_size)
+        documentos = await search_acreditaciones_paginado(filter, page, page_size)
         return documentos
     except Exception as e:
         raise HTTPException(
@@ -78,7 +78,7 @@ async def search_acreditaciones(
 @acreditaciones.post("/escuelas/", status_code=201)
 async def post_acreditaciones(escuelas: Escuelas):
     try:
-        result = await add_escuelas(escuelas.dict())
+        result = await add_acreditaciones(escuelas.dict())
         await notify_clients("escuelas", "Nuevo escuelas agregado")
         return {"message": "Documento insertado con éxito", "id": str(result)}
     except Exception as e:
@@ -90,7 +90,7 @@ async def post_acreditaciones(escuelas: Escuelas):
 @acreditaciones.put("/escuelas/")
 async def update_acreditaciones(item: Escuelas):
     try:
-        result = await put_escuelas(item.dict())
+        result = await put_acreditaciones(item.dict())
         await notify_clients("escuelas", "escuelas actualizado")
         return {"message": "Documento actualizado con éxito", "id": str(result)}
     except Exception as e:
@@ -103,7 +103,7 @@ async def update_acreditaciones(item: Escuelas):
 @acreditaciones.patch("/escuelas/")
 async def partial_update_acreditaciones(document: EscuelasPatch):
     try:
-        result = await patch_escuelas(document)
+        result = await patch_acreditaciones(document)
         await notify_clients("escuelas", "Documento actualizado parcialmente")
         return {"message": "Actualización parcial exitosa", "result": result}
     except Exception as e:
@@ -116,7 +116,7 @@ async def partial_update_acreditaciones(document: EscuelasPatch):
 @acreditaciones.get("/escuelas/distinct/{campo}/")
 async def get_TN_distinct(campo: str):
     try:
-        documento = await get_escuelas_distinct(campo)
+        documento = await get_acreditaciones_distinct(campo)
         if not documento:
             raise HTTPException(status_code=404, detail="Documento no encontrado")
         return documento
@@ -133,7 +133,7 @@ async def generarExcelBloqueados(
     """Genera la planilla de bajas para el período y fecha indicados. Los parametros de entrada son opcionales"""
     try:
         # 1. Obtener la data (lista de diccionarios)
-        resultado = await search_escuelas_in_db({"bloqueo": True, "activo": True})
+        resultado = await search_acreditaciones_in_db({"bloqueo": True, "activo": True})
 
         if not resultado:
             raise HTTPException(
