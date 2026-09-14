@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from scripts.models.acreditaciones import (
     AcreditacionesResponse,
     AcreditacionesSearchResponse,
-    Escuelas,
+    Acreditaciones,
 )
 from scripts.querys.acreditaciones import (
     add_acreditaciones,
@@ -51,7 +51,7 @@ async def fetch_m_entrada_by_id(id: str):
         )
 
 
-# @acreditaciones.post("/escuelas/search/", response_model=List[Escuelas])
+# @acreditaciones.post("/escuelas/search/", response_model=List[Acreditaciones])
 # async def search_escuelas(filter: Dict[str, Any]):
 #     try:
 #         documentos = await search_escuelas_in_db(filter)
@@ -76,7 +76,7 @@ async def search_acreditaciones(
 
 
 @acreditaciones.post("/escuelas/", status_code=201)
-async def post_acreditaciones(escuelas: Escuelas):
+async def post_acreditaciones(escuelas: Acreditaciones):
     try:
         result = await add_acreditaciones(escuelas.dict())
         await notify_clients("escuelas", "Nuevo escuelas agregado")
@@ -88,7 +88,7 @@ async def post_acreditaciones(escuelas: Escuelas):
 
 
 @acreditaciones.put("/escuelas/")
-async def update_acreditaciones(item: Escuelas):
+async def update_acreditaciones(item: Acreditaciones):
     try:
         result = await put_acreditaciones(item.dict())
         await notify_clients("escuelas", "escuelas actualizado")

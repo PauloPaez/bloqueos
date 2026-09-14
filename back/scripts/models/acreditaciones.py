@@ -4,7 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 
-class Escuelas(BaseModel):
+class Acreditaciones(BaseModel):
     id: Optional[str] = Field(default=None)  # ID del documento
     bloqueo: Optional[bool] = Field(default=False)
     tipo_reg: Optional[str] = Field(default=None)
@@ -51,7 +51,7 @@ class Escuelas(BaseModel):
 
 #funciona como schema de salida al hacer el search paginado. De esa forma se obtiene importe formateado
 #TODO: Estas clases deberian ir a la parte de schemas
-class AcreditacionesResponse(Escuelas):
+class AcreditacionesResponse(Acreditaciones):
     """Representación de salida, incluyendo valores preparados para mostrar."""
 
     concepto: Optional[str] = Field(default=None)
