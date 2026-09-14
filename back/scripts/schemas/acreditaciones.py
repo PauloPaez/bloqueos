@@ -2,10 +2,14 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
-from utils.formateoDatos import formatear_concepto, formatear_importe, _con_digito_verificador
+from utils.formateoDatos import (
+    _con_digito_verificador,
+    formatear_concepto,
+    formatear_importe,
+)
 
 
-def escuelasSh(item):
+def acreditacionesSh(item):
     importe_acreditado = item.get("importe_acreditado")
 
     return {
@@ -52,7 +56,7 @@ def escuelasSh(item):
     }
 
 
-class EscuelasPatch(BaseModel):
+class AcreditacionesPatch(BaseModel):
     id: str = Field(..., description="ID del documento a actualizar")
     bloqueo: Optional[bool] = Field(default=None)
     tipo_reg: Optional[str] = Field(default=None)

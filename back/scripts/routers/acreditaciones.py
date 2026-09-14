@@ -4,9 +4,9 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import StreamingResponse
 from scripts.models.acreditaciones import (
+    AcreditacionesResponse,
+    AcreditacionesSearchResponse,
     Escuelas,
-    EscuelasResponse,
-    EscuelasSearchResponse,
 )
 from scripts.querys.acreditaciones import (
     add_acreditaciones,
@@ -19,7 +19,7 @@ from scripts.querys.acreditaciones import (
     search_acreditaciones_paginado,
 )
 from scripts.querys.motivos import get_motivos
-from scripts.schemas.acreditaciones import EscuelasPatch
+from scripts.schemas.acreditaciones import AcreditacionesPatch
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
@@ -30,7 +30,7 @@ from utils.websockets_manager import notify_clients
 acreditaciones = APIRouter()
 
 
-@acreditaciones.get("/escuelas/", response_model=List[EscuelasResponse])
+@acreditaciones.get("/escuelas/", response_model=List[AcreditacionesResponse])
 async def fetch_acreditaciones():
     try:
         return await get_acreditaciones()
@@ -38,7 +38,7 @@ async def fetch_acreditaciones():
         raise HTTPException(status_code=500, detail=f"Error al obtener los datos: {e}")
 
 
-@acreditaciones.get("/escuelas/{id}/", response_model=EscuelasResponse)
+@acreditaciones.get("/escuelas/{id}/", response_model=AcreditacionesResponse)
 async def fetch_m_entrada_by_id(id: str):
     try:
         documento = await get_acreditaciones_by_id(id)
@@ -62,7 +62,7 @@ async def fetch_m_entrada_by_id(id: str):
 #         )
 
 
-@acreditaciones.post("/escuelas/search/", response_model=EscuelasSearchResponse)
+@acreditaciones.post("/escuelas/search/", response_model=AcreditacionesSearchResponse)
 async def search_acreditaciones(
     filter: Dict[str, Any] = Body(default={}), page: int = 1, page_size: int = 10
 ):
@@ -101,7 +101,7 @@ async def update_acreditaciones(item: Escuelas):
 
 #TODO: Hay un problema grande por el mal uso de schemas que hay en este proyecto. Cuando envio un body con 2 campos a actualizar, id y tipo_reg, todos los demas campos del documento a actualizar, se actualizan a nulo. Tendria que fortalecer el backend arreglando esto usando schemas Pydantic
 @acreditaciones.patch("/escuelas/")
-async def partial_update_acreditaciones(document: EscuelasPatch):
+async def partial_update_acreditaciones(document: AcreditacionesPatch):
     try:
         result = await patch_acreditaciones(document)
         await notify_clients("escuelas", "Documento actualizado parcialmente")

@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from bson.objectid import ObjectId
 from scripts.conf.engine import get_collection
-from scripts.schemas.acreditaciones import EscuelasPatch, escuelasSh
+from scripts.schemas.acreditaciones import AcreditacionesPatch, acreditacionesSh
 
 MOTIVOS_BLOQUEO_TOTAL = ["baja por jubilacion", "baja por fallecimiento"]
 
@@ -27,7 +27,7 @@ async def get_acreditaciones():
     cursor = coleccion.find()
     data = []
     async for document in cursor:
-        data.append(escuelasSh(document))  # Usar esquema para transformar
+        data.append(acreditacionesSh(document))  # Usar esquema para transformar
     return data
 
 
@@ -36,7 +36,7 @@ async def get_acreditaciones_by_id(id: str):
     try:
         document = await coleccion.find_one({"_id": ObjectId(id)})
         if document:
-            return escuelasSh(document)  # Usar esquema para transformar
+            return acreditacionesSh(document)  # Usar esquema para transformar
         return None
     except Exception as e:
         raise Exception(f"Error al buscar documento: {e}")
@@ -60,7 +60,7 @@ async def search_acreditaciones_in_db(filter: Dict[str, Any]):
         cursor = coleccion.find(query)
         data = []
         async for document in cursor:
-            data.append(escuelasSh(document))  # Usar esquema para transformar
+            data.append(acreditacionesSh(document))  # Usar esquema para transformar
         return data
     except Exception as e:
         raise Exception(f"Error al buscar documentos: {e}")
@@ -88,7 +88,7 @@ async def put_acreditaciones(document):
         return {"status": "failed", "message": "No se actualizó el documento"}
 
 
-async def patch_acreditaciones(document: EscuelasPatch):
+async def patch_acreditaciones(document: AcreditacionesPatch):
     coleccion = get_collection("Escuelas")
     try:
         doc_id = document.id
@@ -221,7 +221,7 @@ async def search_acreditaciones_paginado(filter: dict, page: int = 1, page_size:
         cursor = coleccion.find(query).skip(skip).limit(page_size)
         data = []
         async for document in cursor:
-            data.append(escuelasSh(document))
+            data.append(acreditacionesSh(document))
 
         return {
             "data": data,

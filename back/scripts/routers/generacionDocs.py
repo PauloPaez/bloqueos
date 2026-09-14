@@ -9,6 +9,7 @@ from utils.generacionZip import crear_zip
 routerDocs = APIRouter(prefix="/generardoc", tags=["Generacion de documentos"])
 
 #Aca genero los DOCX, los excel son generados en los endpoints de acreditaciones. TODO: Podria mejorar el orden y poner el endpoint de los excel en este archivo
+#TODO: Verificar si es confiable el resultado total de todas las acreditaciones bloqueadas por docx, quiza se pueda hacer mas seguro
 @routerDocs.post("/")
 async def generarDocumento():
     resultado = await search_acreditaciones_in_db({"bloqueo": True, "activo": True})

@@ -50,7 +50,8 @@ class Escuelas(BaseModel):
 
 
 #funciona como schema de salida al hacer el search paginado. De esa forma se obtiene importe formateado
-class EscuelasResponse(Escuelas):
+#TODO: Estas clases deberian ir a la parte de schemas
+class AcreditacionesResponse(Escuelas):
     """Representación de salida, incluyendo valores preparados para mostrar."""
 
     concepto: Optional[str] = Field(default=None)
@@ -58,8 +59,8 @@ class EscuelasResponse(Escuelas):
     padron_formateado: Optional[str] = Field(default=None)
 
 
-class EscuelasSearchResponse(BaseModel):
-    data: List[EscuelasResponse]
+class AcreditacionesSearchResponse(BaseModel):
+    data: list[AcreditacionesResponse]
     total: int
     page: int
     page_size: int
