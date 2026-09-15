@@ -1,13 +1,13 @@
 import React from "react";
-import { usePostEscuelasByFieldMutation } from "../../store/apiSlice"; 
+import { usePostAcreditacionesByFieldMutation } from "../../store/apiSlice"; 
 import GenericSelect from "../../common/GenericSelect";
 
-const SelectEscuelas = ({ value, labelKey, onSelect,disabled, multiple }) => {
+const SelectAcreditaciones = ({ value, labelKey, onSelect,disabled, multiple }) => {
   return (
     <GenericSelect
       value={value}
       onSelect={onSelect}
-      useQuery={()=>usePostEscuelasByFieldMutation()} 
+      useQuery={()=>usePostAcreditacionesByFieldMutation()} 
       valueKey="_id"
       labelKey={labelKey}
       disabled={disabled}
@@ -17,4 +17,4 @@ const SelectEscuelas = ({ value, labelKey, onSelect,disabled, multiple }) => {
   );
 };
 
-export default SelectEscuelas;
+export default SelectAcreditaciones;

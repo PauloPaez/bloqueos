@@ -61,7 +61,7 @@ active_connections: Dict[str, List[WebSocket]] = {
     "pedidos": [],
     "ofertas": [],
     "personas": [],
-    "escuelas": [],
+    "acreditaciones": [],
     "motivos": [],
 }
 

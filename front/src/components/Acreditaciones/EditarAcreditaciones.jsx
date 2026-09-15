@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
-  usePostEscuelasMutation,
-  usePatchEscuelasMutation,
+  usePostAcreditacionesMutation,
+  usePatchAcreditacionesMutation,
   useGetMotivosQuery,
 } from '../../store/apiSlice';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,7 +12,7 @@ import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
 import { Modal } from "react-bootstrap";
 import { Calendar, Save } from "lucide-react";
-import './EditarEscuelas.css';
+import './EditarAcreditaciones.css';
 
 const formatearFecha = (fecha) => {
   if (!fecha) return '';
@@ -44,15 +44,15 @@ const motivosBloqueoMasivo = [
   'baja por fallecimiento',
 ];
 
-const EditarEscuelas = () => {
+const EditarAcreditaciones = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.acceso.user);
   const filaSeleccionada = useSelector(
-    (state) => state.modulos.escuelas).datos
+    (state) => state.modulos.acreditaciones).datos
 
 
-  const [postEscuelas] = usePostEscuelasMutation();
-  const [patchEscuelas] = usePatchEscuelasMutation();
+  const [postAcreditaciones] = usePostAcreditacionesMutation();
+  const [patchAcreditaciones] = usePatchAcreditacionesMutation();
   const {
     data: motivos = [],
     isLoading: motivosLoading,
@@ -61,21 +61,21 @@ const EditarEscuelas = () => {
 
   const { register, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
-      escuelas: [{}],
+      acreditaciones: [{}],
     },
   });
 
-  const bloqueoSeleccionado = watch('escuelas.0.bloqueo', false);
-  const motivoSeleccionado = watch('escuelas.0.motivo', '');
+  const bloqueoSeleccionado = watch('acreditaciones.0.bloqueo', false);
+  const motivoSeleccionado = watch('acreditaciones.0.motivo', '');
   const motivosActivos = motivos.filter((item) => item.activo !== false);
   const motivoConfigurado = motivosActivos.find((item) => item.motivo === motivoSeleccionado);
   const motivoLlevaFecha = motivoConfigurado?.lleva_fecha === true;
-  const fechaBaja = watch('escuelas.0.fecha_baja', '');
+  const fechaBaja = watch('acreditaciones.0.fecha_baja', '');
   const [fechaBajaTexto, setFechaBajaTexto] = useState('');
   const fechaBajaPickerRef = useRef(null);
 
   useEffect(() => {
-    dispatch(resetModulo({ modulo: 'escuelas' }));
+    dispatch(resetModulo({ modulo: 'acreditaciones' }));
   }, [dispatch]);
 
   const camposVisibles = formularioCampos.filter((field) => {
@@ -106,10 +106,10 @@ const EditarEscuelas = () => {
       !motivosBloqueoMasivo.includes(motivoNormalizado) ||
       !filaSeleccionada?.documento_nro
     ) {
-      setValue('escuelas.0.bloquear_todos_padrones_dni', false);
+      setValue('acreditaciones.0.bloquear_todos_padrones_dni', false);
     }
     if (motivosActivos.length > 0 && motivoSeleccionado && (!bloqueoSeleccionado || !motivoLlevaFecha)) {
-      setValue('escuelas.0.fecha_baja', null);
+      setValue('acreditaciones.0.fecha_baja', null);
       setFechaBajaTexto('');
     }
   }, [bloqueoSeleccionado, motivoSeleccionado, motivoLlevaFecha, motivosActivos.length, filaSeleccionada?.documento_nro, setValue]);
@@ -121,14 +121,14 @@ const EditarEscuelas = () => {
         if (field.type === 'date') {
           setFechaBajaTexto(formatearFecha(filaSeleccionada[field.name]));
           setValue(
-            `escuelas.0.${field.name}`,
+            `acreditaciones.0.${field.name}`,
             filaSeleccionada[field.name]
               ? filaSeleccionada[field.name].split('T')[0]
               : null
           );
         } else {
           setValue(
-            `escuelas.0.${field.name}`,
+            `acreditaciones.0.${field.name}`,
             filaSeleccionada[field.name] ?? null
           );
         }
@@ -139,61 +139,61 @@ const EditarEscuelas = () => {
     }
   }, [filaSeleccionada]);
 
-  const controlDatosFormulario = (escuelas) => {
+  const controlDatosFormulario = (acreditaciones) => {
     const camposAValidar = obtenerCamposAValidar();
 
     return camposAValidar.some((fieldName) => {
-      const value = escuelas[fieldName];
+      const value = acreditaciones[fieldName];
       return value === undefined || value === null || value === '';
     });
   };
 
   const onSubmit = async (data) => {
     try {
-      const escuelas = data.escuelas?.[0];
+      const acreditaciones = data.acreditaciones?.[0];
 
-      console.log(escuelas)
+      console.log(acreditaciones)
 
-      if (!escuelas || controlDatosFormulario(escuelas)) {
+      if (!acreditaciones || controlDatosFormulario(acreditaciones)) {
         alert('⚠️ Faltan completar datos formulario');
         return;
       }
 
-      if (escuelas.bloqueo && motivoLlevaFecha && !escuelas.fecha_baja) {
+      if (acreditaciones.bloqueo && motivoLlevaFecha && !acreditaciones.fecha_baja) {
         alert('⚠️ Debe completar la fecha de baja para este motivo');
         return;
       }
 
-      const escuelasData = {
-        ...escuelas,
+      const acreditacionesData = {
+        ...acreditaciones,
         empresa: user.empresa,
         login: user.login,
         ...(filaSeleccionada?.id ? {} : { activo: true })
       };
 
       if (
-        escuelas.bloquear_todos_padrones_dni &&
+        acreditaciones.bloquear_todos_padrones_dni &&
         !window.confirm(
-          `Se bloquearán todos los padrones activos correspondientes al DNI ${escuelas.documento_nro}. ¿Desea continuar?`
+          `Se bloquearán todos los padrones activos correspondientes al DNI ${acreditaciones.documento_nro}. ¿Desea continuar?`
         )
       ) {
         return;
       }
 
       if (filaSeleccionada?.id) {
-        const respuesta = await patchEscuelas({
+        const respuesta = await patchAcreditaciones({
           id: filaSeleccionada.id,
-          ...escuelasData,
+          ...acreditacionesData,
         }).unwrap();
 
-        if (escuelas.bloquear_todos_padrones_dni) {
+        if (acreditaciones.bloquear_todos_padrones_dni) {
           // const cantidad = respuesta?.result?.bloqueados_por_dni ?? 0;
-          alert(`Se bloquearon los padrones del DNI ${escuelas.documento_nro}.`);
+          alert(`Se bloquearon los padrones del DNI ${acreditaciones.documento_nro}.`);
         }
 
-        dispatch(resetModulo({ modulo: 'escuelas' }));
+        dispatch(resetModulo({ modulo: 'acreditaciones' }));
       } else {
-        await postEscuelas(escuelasData).unwrap();
+        await postAcreditaciones(acreditacionesData).unwrap();
       }
 
       reset();
@@ -204,7 +204,7 @@ const EditarEscuelas = () => {
 
   const handleReset = () => {
     reset();
-    dispatch(resetModulo({ modulo: 'escuelas' }));
+    dispatch(resetModulo({ modulo: 'acreditaciones' }));
   };
 
 
@@ -218,7 +218,7 @@ const EditarEscuelas = () => {
     dialogClassName="edit-school-dialog"
   >
     <Modal.Header closeButton className="edit-school-header">
-      <Modal.Title className="edit-school-title">Editar Escuela</Modal.Title>
+      <Modal.Title className="edit-school-title">Editar Acreditacion</Modal.Title>
     </Modal.Header>
 
     <Modal.Body className="edit-school-body">
@@ -229,7 +229,7 @@ const EditarEscuelas = () => {
           );
 
           const fieldProps = {
-            ...register(`escuelas.0.${field.name}`),
+            ...register(`acreditaciones.0.${field.name}`),
             disabled:
               field.disabled ||
               (['motivo', 'fecha_baja'].includes(field.name) && !bloqueoSeleccionado),
@@ -276,7 +276,7 @@ const EditarEscuelas = () => {
                         const texto = event.target.value;
                         setFechaBajaTexto(texto);
                         setValue(
-                          `escuelas.0.${field.name}`,
+                          `acreditaciones.0.${field.name}`,
                           convertirFecha(texto),
                           { shouldDirty: true }
                         );
@@ -370,4 +370,4 @@ const EditarEscuelas = () => {
     );
 };
 
-export default EditarEscuelas;
+export default EditarAcreditaciones;

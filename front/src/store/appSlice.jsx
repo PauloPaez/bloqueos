@@ -117,7 +117,7 @@ export const modulosSlice = createSlice({
             filtros: {},
             estadoEdicion: false,
         },
-        escuelas: {
+        acreditaciones: {
             datos: null,
             filtros: {},
             estadoEdicion: false,

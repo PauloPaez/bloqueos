@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { usePostEscuelasByFieldMutation } from "../../store/apiSlice";
+import { usePostAcreditacionesByFieldMutation } from "../../store/apiSlice";
 import { useDispatch } from "react-redux";
 import {
   setModuloState,
   resetModulo,
 } from "../../store/appSlice";
 import useFiltroListado from "../../hooks/useFiltroListado";
-import FiltroEscuelas from "./FiltroEscuelas";
+import FiltroAcreditaciones from "./FiltroAcreditaciones";
 import { convertirMesANumero } from "../../common/meses"; 
 import { API_BASE_URL, WS_BASE_URL } from "../../config/api";
 import '../../common/tables.css';
@@ -15,7 +15,7 @@ import Pagination from "../Pagination/Pagination";
 import { Download } from "lucide-react";
 import { descargarArchivo } from "../../common/descargarArchivo";
 
-const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
+const ListarAcreditaciones = ({ claveFiltro = "acreditaciones:listar" }) => {
   const dispatch = useDispatch();
   const {
     filtro: filtroListado,
@@ -24,7 +24,7 @@ const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
     resetearFiltro,
     // useFiltroListado envia una clave unica, que es la que va a usar para el genericFilter
   } = useFiltroListado(claveFiltro, { limpiarAlDesmontar: true });
-  const [postEscuelas] = usePostEscuelasByFieldMutation();
+  const [postAcreditaciones] = usePostAcreditacionesByFieldMutation();
   const [datos, setDatos] = useState([]);
   const [paginacion, setPaginacion] = useState({
         total: 0,
@@ -43,14 +43,14 @@ const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
 
   // Cargar datos iniciales
 
-const buscarEscuelas = async (
+const buscarAcreditaciones = async (
         filtro,
         page = 1,
         page_size = paginacion.page_size,
     ) => {
         setIsLoading(true);
         try {
-      const result = await postEscuelas({
+      const result = await postAcreditaciones({
                 filter: filtro,
                 page,
                 page_size,
@@ -80,7 +80,7 @@ const buscarEscuelas = async (
         const filtroActual = filtroGuardado ?? { ...filtroInicial, ...postFijo };
         console.log("Cargando datos con filtro:", filtroActual);
         guardarFiltro(filtroActual);
-        const result = await postEscuelas({
+        const result = await postAcreditaciones({
           filter: filtroActual,
           page: 1,
           page_size: paginacion.page_size,
@@ -108,21 +108,21 @@ const buscarEscuelas = async (
     if (filtroListado && Object.keys(filtroListado).length > 0) {
       const aplicarFiltro = async () => {
         setIsLoading(true);
-        dispatch(resetModulo({ modulo: 'escuelas' }));
+        dispatch(resetModulo({ modulo: 'acreditaciones' }));
         const filtroTransformado = { ...filtroListado };
         if (filtroTransformado.mes && typeof filtroTransformado.mes === "string") {
           const numeroMes = convertirMesANumero(filtroTransformado.mes);
           if (numeroMes) {
             filtroTransformado.mes = numeroMes;
           }
-          await buscarEscuelas(
+          await buscarAcreditaciones(
                     filtroTransformado,
                     1,
                     paginacion.page_size,
                 );
         }
         try {
-          const result = await postEscuelas({
+          const result = await postAcreditaciones({
             filter: filtroTransformado,
             page: 1,
             page_size: paginacion.page_size,
@@ -148,7 +148,7 @@ const buscarEscuelas = async (
   }, [filtroListado]);
   const refetch = useCallback(() => {
     if (filtroListado && Object.keys(filtroListado).length > 0) {
-      return postEscuelas({
+      return postAcreditaciones({
         filter: filtroListado,
         page: paginacion.page,
         page_size: paginacion.page_size,
@@ -165,10 +165,10 @@ const buscarEscuelas = async (
         .catch(err => console.error("Error recargando datos:", err));
     }
     return Promise.resolve();
-  }, [filtroListado, paginacion.page, paginacion.page_size, postEscuelas]);
+  }, [filtroListado, paginacion.page, paginacion.page_size, postAcreditaciones]);
   // WebSocket
   useEffect(() => {
-    const websocket = new WebSocket(`${WS_BASE_URL}ws/escuelas`);
+    const websocket = new WebSocket(`${WS_BASE_URL}ws/acreditaciones`);
     websocket.onmessage = (event) => {
       console.log("Notificación recibida:", event.data);
       refetch();
@@ -182,7 +182,7 @@ const buscarEscuelas = async (
   }, [refetch]);
    const handleRowClick = (dato) => {
     dispatch(setModuloState({
-      modulo: 'escuelas',
+      modulo: 'acreditaciones',
       nuevosDatos: {
         datos: dato,
         estadoEdicion: true,
@@ -193,7 +193,7 @@ const buscarEscuelas = async (
   const handleResetFilter = () => {
     const filtroReset = { ...filtroInicial, ...postFijo };
     resetearFiltro(filtroReset);
-    postEscuelas({
+    postAcreditaciones({
       filter: filtroReset,
       page: 1,
       page_size: paginacion.page_size,
@@ -212,11 +212,11 @@ const buscarEscuelas = async (
   };
 
   const handlePageChange = (newPage) => {
-        buscarEscuelas(filtroListado, newPage, paginacion.page_size);
+        buscarAcreditaciones(filtroListado, newPage, paginacion.page_size);
   };
 
   const handlePageSizeChange = (newPageSize) => {
-        buscarEscuelas(filtroListado, 1, newPageSize);
+        buscarAcreditaciones(filtroListado, 1, newPageSize);
   };
 
   const handleDescargarDocx = async () => {
@@ -225,7 +225,7 @@ const buscarEscuelas = async (
       await descargarArchivo({
         url: `${API_BASE_URL}generardoc/`,
         accept: "application/zip",
-        nombrePorDefecto: "bajas_escuelas_docx.zip",
+        nombrePorDefecto: "bajas_acreditaciones_docx.zip",
         mensajeError: "No se pudo generar el DOCX",
       });
     } catch (err) {
@@ -240,9 +240,9 @@ const buscarEscuelas = async (
     setIsDownloadingExcel(true);
     try {
       await descargarArchivo({
-        url: `${API_BASE_URL}escuelas/generar-excel-bloqueados`,
+        url: `${API_BASE_URL}acreditaciones/generar-excel-bloqueados`,
         accept: "application/zip",
-        nombrePorDefecto: "bajas_escuelas_excel.zip",
+        nombrePorDefecto: "bajas_acreditaciones_excel.zip",
         mensajeError: "No se pudo generar el Excel",
       });
     } catch (err) {
@@ -258,7 +258,7 @@ const buscarEscuelas = async (
   return (
     <div className="schools-list">
       <header className="listado-header">
-        <h1 className="listado-titulo">Listado de Escuelas</h1>
+        <h1 className="listado-titulo">Listado de Acreditaciones</h1>
         <div className="conjunto-botones">
         <button
           type="button"
@@ -281,7 +281,7 @@ const buscarEscuelas = async (
         </div>
       </header>
 
-      <FiltroEscuelas
+      <FiltroAcreditaciones
         filtroInicial={filtroInicial}
         postFijo={postFijo}
         claveFiltro={claveFiltro}
@@ -297,7 +297,7 @@ const buscarEscuelas = async (
       {isLoading ? (
         <div className="text-center my-4" role="status" aria-live="polite">
           <div className="spinner-border text-primary" aria-hidden="true" />
-          <p className="mt-2">Buscando escuelas...</p>
+          <p className="mt-2">Buscando acreditaciones...</p>
         </div>
       ) : datos.length > 0 ? (
         <div className="table-container-wrapper">
@@ -350,4 +350,4 @@ const buscarEscuelas = async (
     </div>
   );
 };
-export default ListarEscuelas;
+export default ListarAcreditaciones;

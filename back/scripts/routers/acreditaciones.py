@@ -24,10 +24,10 @@ from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
 from utils.websockets_manager import notify_clients
 
-acreditaciones = APIRouter()
+acreditaciones = APIRouter(prefix="/acreditaciones")
 
 
-@acreditaciones.get("/escuelas/", response_model=list[AcreditacionesResponse])
+@acreditaciones.get("/", response_model=list[AcreditacionesResponse])
 async def fetch_acreditaciones():
     try:
         return await get_acreditaciones()
@@ -35,7 +35,7 @@ async def fetch_acreditaciones():
         raise HTTPException(status_code=500, detail=f"Error al obtener los datos: {e}")
 
 
-@acreditaciones.get("/escuelas/{id}/", response_model=AcreditacionesResponse)
+@acreditaciones.get("/{id}/", response_model=AcreditacionesResponse)
 async def fetch_m_entrada_by_id(id: str):
     try:
         documento = await get_acreditaciones_by_id(id)
@@ -59,7 +59,7 @@ async def fetch_m_entrada_by_id(id: str):
 #         )
 
 
-@acreditaciones.post("/escuelas/search/", response_model=AcreditacionesSearchResponse)
+@acreditaciones.post("/search/", response_model=AcreditacionesSearchResponse)
 async def search_acreditaciones(
     filter: dict[str, Any] = Body(default={}), page: int = 1, page_size: int = 10
 ):
@@ -72,11 +72,11 @@ async def search_acreditaciones(
         )
 
 
-@acreditaciones.post("/escuelas/", status_code=201)
-async def post_acreditaciones(acredicationes: Acreditaciones):
+@acreditaciones.post("/", status_code=201)
+async def post_acreditaciones(acreditaciones: Acreditaciones):
     try:
-        result = await add_acreditaciones(acredicationes.dict())
-        await notify_clients("escuelas", "Nueva acreditacion agregada")
+        result = await add_acreditaciones(acreditaciones.dict())
+        await notify_clients("acreditaciones", "Nueva acreditacion agregada")
         return {"message": "Documento insertado con éxito", "id": str(result)}
     except Exception as e:
         raise HTTPException(
@@ -84,11 +84,11 @@ async def post_acreditaciones(acredicationes: Acreditaciones):
         )
 
 
-@acreditaciones.put("/escuelas/")
+@acreditaciones.put("/")
 async def update_acreditaciones(item: Acreditaciones):
     try:
         result = await put_acreditaciones(item.dict())
-        await notify_clients("escuelas", "escuelas actualizado")
+        await notify_clients("acreditaciones", "acreditaciones actualizado")
         return {"message": "Documento actualizado con éxito", "id": str(result)}
     except Exception as e:
         raise HTTPException(
@@ -97,11 +97,11 @@ async def update_acreditaciones(item: Acreditaciones):
 
 
 #TODO: Hay un problema grande por el mal uso de schemas que hay en este proyecto. Cuando envio un body con 2 campos a actualizar, id y tipo_reg, todos los demas campos del documento a actualizar, se actualizan a nulo. Tendria que fortalecer el backend arreglando esto usando schemas Pydantic
-@acreditaciones.patch("/escuelas/")
+@acreditaciones.patch("/")
 async def partial_update_acreditaciones(document: AcreditacionesPatch):
     try:
         result = await patch_acreditaciones(document)
-        await notify_clients("escuelas", "Documento actualizado parcialmente")
+        await notify_clients("acreditaciones", "Documento actualizado parcialmente")
         return {"message": "Actualización parcial exitosa", "result": result}
     except Exception as e:
         raise HTTPException(
@@ -110,7 +110,7 @@ async def partial_update_acreditaciones(document: AcreditacionesPatch):
         )
 
 
-@acreditaciones.get("/escuelas/distinct/{campo}/")
+@acreditaciones.get("/distinct/{campo}/")
 async def get_TN_distinct(campo: str):
     try:
         documento = await get_acreditaciones_distinct(campo)
@@ -123,7 +123,7 @@ async def get_TN_distinct(campo: str):
         )
 
 
-@acreditaciones.post("/escuelas/generar-excel-bloqueados")
+@acreditaciones.post("/generar-excel-bloqueados")
 async def generarExcelBloqueados(
     periodo: str | None = None, fecha_pago: str | None = None
 ):

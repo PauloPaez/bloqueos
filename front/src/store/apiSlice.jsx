@@ -5,7 +5,7 @@ export const objetosApi = createApi({
     reducerPath: "objetosApi",
  //   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/" }),
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
-    tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Escuelas", "Motivos"],
+    tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Acreditaciones", "Motivos"],
     endpoints: (builder) => ({
 		getMotivos: builder.query({ 
     		query: () => "motivos/",
@@ -55,53 +55,53 @@ export const objetosApi = createApi({
 					},
 					providesTags: ["Motivos"],
 				}),
-		getEscuelas: builder.query({ 
-				query: () => "escuelas/",
-				providesTags: ["Escuelas"],
+		getAcreditaciones: builder.query({ 
+				query: () => "acreditaciones/",
+				providesTags: ["Acreditaciones"],
 			}),
-		getEscuelasById: builder.query({
-			query: (id) => `escuelas/${id}/`, // Ruta con el parámetro dinámico `id`
-			providesTags: (result, error, id) => [{ type: "Escuelas", id }],
+		getAcreditacionesById: builder.query({
+			query: (id) => `acreditaciones/${id}/`, // Ruta con el parámetro dinámico `id`
+			providesTags: (result, error, id) => [{ type: "Acreditaciones", id }],
 		}),
-		postEscuelasByField: builder.mutation({
+		postAcreditacionesByField: builder.mutation({
 				query: ({ filter = {}, page = 1, page_size = 10 } = {}) => ({
-				url: `escuelas/search/?page=${page}&page_size=${page_size}`,
+				url: `acreditaciones/search/?page=${page}&page_size=${page_size}`,
 				method: "POST",
 				body: filter, // Enviar el filtro como un objeto
 			}),
-			providesTags: (result, error, filter) => [{ type: "Escuelas", filter }],
+			providesTags: (result, error, filter) => [{ type: "Acreditaciones", filter }],
 			}),		
-		postEscuelas: builder.mutation({ 
+		postAcreditaciones: builder.mutation({ 
 				query: (nuevoDatos) => ({
-					url: "escuelas/",
+					url: "acreditaciones/",
 					method: "POST",
 					body: nuevoDatos,
 				}),
-				invalidatesTags: ["Escuelas"],
+				invalidatesTags: ["Acreditaciones"],
 			}),
-		putEscuelas: builder.mutation({ 
+		putAcreditaciones: builder.mutation({ 
 				query: (datos) => ({
-					url: "escuelas/",
+					url: "acreditaciones/",
 					method: "PUT",
 					body: datos,
 				}),
-				invalidatesTags: ["Escuelas"],
+				invalidatesTags: ["Acreditaciones"],
 			}),
-		patchEscuelas: builder.mutation({ 
+		patchAcreditaciones: builder.mutation({ 
 				query: (datos) => ({
-					url: "escuelas/",
+					url: "acreditaciones/",
 					method: "PATCH",
 					body: datos,
 				}),
-				invalidatesTags: ["Escuelas"],
+				invalidatesTags: ["Acreditaciones"],
 			}),
-		getDistinctEscuelas: builder.query({
+		getDistinctAcreditaciones: builder.query({
 				query: (campo) => {
-					const url = `escuelas/distinct/${campo}/`;
+					const url = `acreditaciones/distinct/${campo}/`;
 					console.log('URL generada:', url); // Verifica que sea correcta
 					return url;
 					},
-					providesTags: ["Escuelas"],
+					providesTags: ["Acreditaciones"],
 				}),
 		getPersonas: builder.query({ 
 				query: () => "personas/",
@@ -274,12 +274,12 @@ export const {
 	usePatchMotivosMutation,
 	usePostMotivosByFieldMutation,
 	useGetDistinctMotivosQuery,
-	useGetEscuelasQuery,
-	usePostEscuelasMutation,
-	usePutEscuelasMutation,
-	usePatchEscuelasMutation,
-	usePostEscuelasByFieldMutation,
-	useGetDistinctEscuelasQuery,
+	useGetAcreditacionesQuery,
+	usePostAcreditacionesMutation,
+	usePutAcreditacionesMutation,
+	usePatchAcreditacionesMutation,
+	usePostAcreditacionesByFieldMutation,
+	useGetDistinctAcreditacionesQuery,
 	useGetPersonasQuery,
 	usePostPersonasMutation,
 	usePutPersonasMutation,

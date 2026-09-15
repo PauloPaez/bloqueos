@@ -5,8 +5,8 @@ import Navbar from "./Navbar";
 // Importar todos los componentes
 import ActualizarMotivos from "../Motivos/ActualizarMotivos";
 import ListarMotivos from "../Motivos/ListarMotivos";
-import ActualizarEscuelas from "../Escuelas/ActualizarEscuelas";
-import ListarEscuelas from "../Escuelas/ListarEscuelas";
+import ActualizarAcreditaciones from "../Acreditaciones/ActualizarAcreditaciones";
+import ListarAcreditaciones from "../Acreditaciones/ListarAcreditaciones";
 import ActualizarUsuarios from "./Usuarios/ActualizarUsuarios";
 import ListarUsuarios from "./Usuarios/ListarUsuarios";
 import ActualizarRoles from "./Roles/ActualizarRoles";
@@ -27,8 +27,8 @@ const ProtectedRoutes = () => {
   const componentMap = {
     "/Motivos/ActualizarMotivos": ActualizarMotivos,
     "/Motivos/ListarMotivos": ListarMotivos,
-    "/Escuelas/ActualizarEscuelas": ActualizarEscuelas,
-    "/Escuelas/ListarEscuelas": ListarEscuelas,
+    "/Acreditaciones/ActualizarAcreditaciones": ActualizarAcreditaciones,
+    "/Acreditaciones/ListarAcreditaciones": ListarAcreditaciones,
     "/Usuarios/ActualizarUsuarios": ActualizarUsuarios,
     "/Usuarios/ListarUsuarios": ListarUsuarios,
     "/Roles/ActualizarRoles": ActualizarRoles,
