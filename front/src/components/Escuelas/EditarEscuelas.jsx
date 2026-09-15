@@ -12,6 +12,7 @@ import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
 import { Modal } from "react-bootstrap";
 import { Calendar, Save } from "lucide-react";
+import { toast } from "sonner";
 import './EditarEscuelas.css';
 
 const formatearFecha = (fecha) => {
@@ -43,6 +44,15 @@ const motivosBloqueoMasivo = [
   'baja por jubilación',
   'baja por fallecimiento',
 ];
+
+const obtenerMensajeError = (error) => {
+  if (typeof error?.data?.detail === 'string') return error.data.detail;
+  if (typeof error?.data?.message === 'string') return error.data.message;
+  if (error?.status === 'FETCH_ERROR') {
+    return 'No se pudo conectar con el servidor.';
+  }
+  return 'Ocurrió un error al guardar la escuela.';
+};
 
 const EditarEscuelas = () => {
   const dispatch = useDispatch();
@@ -129,7 +139,9 @@ const EditarEscuelas = () => {
         } else {
           setValue(
             `escuelas.0.${field.name}`,
-            filaSeleccionada[field.name] ?? null
+            field.name === 'bloquear_todos_padrones_dni'
+              ? Boolean(filaSeleccionada[field.name])
+              : filaSeleccionada[field.name] ?? null
           );
         }
       });
@@ -187,8 +199,13 @@ const EditarEscuelas = () => {
         }).unwrap();
 
         if (escuelas.bloquear_todos_padrones_dni) {
-          // const cantidad = respuesta?.result?.bloqueados_por_dni ?? 0;
-          alert(`Se bloquearon los padrones del DNI ${escuelas.documento_nro}.`);
+          const cantidad = respuesta?.result?.actualizados_por_dni ?? 0;
+          const mensaje = respuesta?.result?.message
+            || `Se actualizaron padrones adicionales asociados al DNI ${escuelas.documento_nro}.`;
+          (cantidad > 0 ? toast.success : toast.info)(mensaje);
+        } else {
+          const mensaje = respuesta?.result?.message || 'Escuela actualizada correctamente.';
+          toast.success(mensaje);
         }
 
         dispatch(resetModulo({ modulo: 'escuelas' }));
@@ -199,6 +216,7 @@ const EditarEscuelas = () => {
       reset();
     } catch (error) {
       console.error('Error al enviar datos:', error);
+      toast.error(obtenerMensajeError(error));
     }
   };
 
@@ -210,13 +228,13 @@ const EditarEscuelas = () => {
 
 
   return (
-  <Modal
-    show={!!filaSeleccionada?.id}
-    onHide={handleReset}
-    backdrop="static"
-    centered
-    dialogClassName="edit-school-dialog"
-  >
+    <Modal
+        show={!!filaSeleccionada?.id}
+        onHide={handleReset}
+        backdrop="static"
+        centered
+        dialogClassName="edit-school-dialog"
+      >
     <Modal.Header closeButton className="edit-school-header">
       <Modal.Title className="edit-school-title">Editar Escuela</Modal.Title>
     </Modal.Header>
@@ -366,7 +384,7 @@ const EditarEscuelas = () => {
       </form>
     </Modal.Body>
 
-  </Modal>
+    </Modal>
     );
 };
 

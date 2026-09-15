@@ -1,7 +1,7 @@
 # routers/motivos.py
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from scripts.models.motivos import Motivos
 from scripts.querys.motivos import (
@@ -71,14 +71,22 @@ async def update_motivos(item: Motivos):
 async def partial_update_motivos(document: dict):
     try:
         result = await patch_motivos(document)
-        await notify_clients("motivos", "Documento actualizado parcialmente")
-        return {
+        if result: 
+            message = {
             "message": "Actualización parcial exitosa",
-            "result": result
+            "status": "success"
         }
+        else: 
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se pudo actualizar motivo.")
+        await notify_clients("motivos", "Documento actualizado parcialmente")
+        return message
+    except HTTPException as e:
+        print(f"ERROR: {e.detail}")
+        raise
     except Exception as e:
+        print(f"ERROR al actualizar parcialmente el motivo: {e}")
         raise HTTPException(
-            status_code=500, detail=f"Error al actualizar parcialmente el documento: {e}"
+            status_code=500, detail="Error al actualizar parcialmente el motivo."
         )
 @motivos.get("/motivos/distinct/{campo}/")
 async def get_TN_distinct(campo: str):

@@ -83,11 +83,9 @@ async def patch_motivos(document: dict):
         patch_query = {"$set": document}
         respuesta = await coleccion.update_one(filtro, patch_query)
         
-        if respuesta.modified_count == 1:
-            return {"status": "success", "message": "Documento actualizado parcialmente correctamente"}
-        else:
-            return {"status": "failed", "message": "No se actualizó el documento"}
+        return respuesta.modified_count == 1
     except Exception as e:
+        print(e)
         raise Exception(f"Error en actualización parcial: {e}")
 
 async def get_motivos_distinct(campo) -> list:

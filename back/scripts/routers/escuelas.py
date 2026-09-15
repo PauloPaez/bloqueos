@@ -1,15 +1,17 @@
 # routers/escuelas.py
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.responses import StreamingResponse
 from scripts.models.escuelas import (
     Escuelas,
     EscuelasResponse,
     EscuelasSearchResponse,
 )
+from scripts.exceptions import EscuelaNotFoundError, EscuelaValidationError
 from scripts.querys.escuelas import (
     add_escuelas,
+    desbloquear_escuelas_por_dni,
     get_escuelas,
     get_escuelas_by_id,
     get_escuelas_distinct,
@@ -19,7 +21,7 @@ from scripts.querys.escuelas import (
     search_escuelas_paginado,
 )
 from scripts.querys.motivos import get_motivos
-from scripts.schemas.escuelas import EscuelasPatch
+from scripts.schemas.escuelas import DesbloquearEscuelasPorDni, EscuelasPatch
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
@@ -99,17 +101,44 @@ async def update_escuelas(item: Escuelas):
         )
 
 
-@escuelas.patch("/escuelas/")
+@escuelas.patch("/escuelas/") #TODO: manejar mejor los errores como, que es necesario un motivo para bloquear. Habria que fortalecerlo desde el front y backend. Ya esta desde el back, solo falta retornar mejor ese mensaje
 async def partial_update_escuelas(document: EscuelasPatch):
     try:
         result = await patch_escuelas(document)
         await notify_clients("escuelas", "Documento actualizado parcialmente")
-        return {"message": "Actualización parcial exitosa", "result": result}
+        return { #cuando hubo modificaciones, mantiene en el result(diccionario), la cantidad de dnis modificados, en caso de bloqueo masivo
+            "message": result["message"],
+            "status": "success",
+            "result": result,
+        }
+    except EscuelaValidationError as e:
+        print(f"ERROR de validación al actualizar la escuela: {e}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except EscuelaNotFoundError as e:
+        print(f"ERROR al buscar la escuela: {e}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except HTTPException as e:
+        print(f"ERROR: {e.detail}")
+        raise
     except Exception as e:
+        print(f"ERROR al actualizar parcialmente la escuela: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Error al actualizar parcialmente el documento: {e}",
+            detail="Error al actualizar parcialmente la escuela.",
         )
+
+
+# @escuelas.post("/escuelas/desbloquear-dni/")
+# async def unlock_escuelas_by_dni(document: DesbloquearEscuelasPorDni):
+#     try:
+#         result = await desbloquear_escuelas_por_dni(document.id)
+#         await notify_clients("escuelas", "Padrones del DNI desbloqueados")
+#         return {"message": result["message"], "result": result}
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=500,
+#             detail=f"Error al desbloquear los padrones del DNI: {e}",
+#         )
 
 
 @escuelas.get("/escuelas/distinct/{campo}/")
