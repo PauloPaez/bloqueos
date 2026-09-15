@@ -86,13 +86,13 @@ def _con_digito_verificador(valor: Any, digito: Any) -> str: #formatear padron
     return f"{base}/{dv}" if dv else base
 
 
-def _valores_de_fila(escuela: Any) -> Mapping[str, Any]:
+def _valores_de_fila(acreditacion: Any) -> Mapping[str, Any]:
     """Obtiene los valores tanto de un modelo Pydantic como de un dict."""
-    if isinstance(escuela, Mapping):
-        return escuela
-    if hasattr(escuela, "model_dump"):
-        return escuela.model_dump()
-    return vars(escuela)
+    if isinstance(acreditacion, Mapping):
+        return acreditacion
+    if hasattr(acreditacion, "model_dump"):
+        return acreditacion.model_dump()
+    return vars(acreditacion)
 
 
 def formatear_motivo_fecha_baja(
@@ -109,7 +109,7 @@ def formatear_motivo_fecha_baja(
 #TODO: Nota: con fontSize 10 en word, entran todas las fechas. Obviamente habiendo movido el tamaño que ocupa cada columna
 
 def preparar_fila_baja(
-    escuela: Any,
+    acreditacion: Any,
     motivos_config: Mapping[str, bool] | None = None,
 ) -> dict[str, str]:
     """Construye los valores visibles de una fila de Excel/Word.
@@ -117,7 +117,7 @@ def preparar_fila_baja(
     Esta es la única definición de formato para las columnas compartidas por
     ambos documentos. El template recibe únicamente strings ya preparados.
     """
-    row = _valores_de_fila(escuela)
+    row = _valores_de_fila(acreditacion)
     cuil = _texto(row.get("cuil")).strip()
 
     return {

@@ -8,11 +8,11 @@ from scripts.models.acreditaciones import Acreditaciones
 from utils.formateoDatos import formatear_importe, preparar_fila_baja
 
 
-def calcular_importe_total(escuelas:dict):
+def calcular_importe_total(acreditaciones:dict):
     importe_total = sum(
             (
-                Decimal(str(escuela.get("importe_acreditado") or "0"))
-                for escuela in escuelas
+                Decimal(str(acreditacion.get("importe_acreditado") or "0"))
+                for acreditacion in acreditaciones
             ),
             Decimal("0"),
         )
@@ -21,7 +21,7 @@ def calcular_importe_total(escuelas:dict):
 
 # TODO: Hay un tema, que se manda a descargar desde el front y automaticamente sale para descargar el zip. Pero que pasa si cancela la ventana por error? ya no tiene forma de volver a obtener ese examen y tendria que generar uno nuevo. Hay que ver si es mejor tener la posibilidad de volver a descargar un examen o generar uno nuevo en caso de ese error
 def crearDocumento(
-    escuelas: list[Acreditaciones], motivos_config: Mapping[str, bool] | None = None
+    acreditaciones: list[Acreditaciones], motivos_config: Mapping[str, bool] | None = None
 ):
     # Calcula la ruta absoluta hacia back/utils desde este archivo
     # BASE_DIR = Path(__file__).resolve().parents[1] / "utils" Esta linea seria sin usar parent, que es practicamente lo mismo que parents[1]
@@ -36,9 +36,9 @@ def crearDocumento(
         str(template_path)
     )  # En el word si pongo {% tr}, espacio entre % y tr da error, tiene que ir juntos
 
-    importe_total = calcular_importe_total(escuelas)
+    importe_total = calcular_importe_total(acreditaciones)
 
-    filas = [preparar_fila_baja(escuela, motivos_config) for escuela in escuelas]
+    filas = [preparar_fila_baja(acreditacion, motivos_config) for acreditacion in acreditaciones]
     concepto = filas[0]["concepto"] if filas else ""
     context = {
         "lista": filas,

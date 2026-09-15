@@ -1,12 +1,11 @@
-# routers/escuelas.py
-from typing import Any, Dict, List
+from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import StreamingResponse
 from scripts.models.acreditaciones import (
+    Acreditaciones,
     AcreditacionesResponse,
     AcreditacionesSearchResponse,
-    Acreditaciones,
 )
 from scripts.querys.acreditaciones import (
     add_acreditaciones,
@@ -23,14 +22,12 @@ from scripts.schemas.acreditaciones import AcreditacionesPatch
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
-
-# Importa desde el módulo externo
 from utils.websockets_manager import notify_clients
 
 acreditaciones = APIRouter()
 
 
-@acreditaciones.get("/escuelas/", response_model=List[AcreditacionesResponse])
+@acreditaciones.get("/escuelas/", response_model=list[AcreditacionesResponse])
 async def fetch_acreditaciones():
     try:
         return await get_acreditaciones()
@@ -64,7 +61,7 @@ async def fetch_m_entrada_by_id(id: str):
 
 @acreditaciones.post("/escuelas/search/", response_model=AcreditacionesSearchResponse)
 async def search_acreditaciones(
-    filter: Dict[str, Any] = Body(default={}), page: int = 1, page_size: int = 10
+    filter: dict[str, Any] = Body(default={}), page: int = 1, page_size: int = 10
 ):
     try:
         documentos = await search_acreditaciones_paginado(filter, page, page_size)
@@ -76,10 +73,10 @@ async def search_acreditaciones(
 
 
 @acreditaciones.post("/escuelas/", status_code=201)
-async def post_acreditaciones(escuelas: Acreditaciones):
+async def post_acreditaciones(acredicationes: Acreditaciones):
     try:
-        result = await add_acreditaciones(escuelas.dict())
-        await notify_clients("escuelas", "Nuevo escuelas agregado")
+        result = await add_acreditaciones(acredicationes.dict())
+        await notify_clients("escuelas", "Nueva acreditacion agregada")
         return {"message": "Documento insertado con éxito", "id": str(result)}
     except Exception as e:
         raise HTTPException(
@@ -148,15 +145,15 @@ async def generarExcelBloqueados(
 
         grupos = agrupar_por_tipo_banco(resultado)
         archivos = []
-        for tipo_banco, escuelas_tipo in grupos.items():
+        for tipo_banco, acreditaciones_tipo in grupos.items():
             contenido, _ = generar_excel_bajas(
-                escuelas_tipo,
+                acreditaciones_tipo,
                 periodo=periodo,
                 fecha_pago=fecha_pago,
                 motivos_config=motivos_config,
             )
             archivos.append(
-                (f"bajas_escuelas_{tipo_banco}.xlsx", contenido)
+                (f"bajas_acreditaciones_{tipo_banco}.xlsx", contenido)
             )
 
         zip_generado = crear_zip(archivos)
@@ -165,7 +162,7 @@ async def generarExcelBloqueados(
             zip_generado,
             media_type="application/zip",
             headers={
-                "Content-Disposition": 'attachment; filename="bajas_escuelas_excel.zip"'
+                "Content-Disposition": 'attachment; filename="bajas_acreditaciones_excel.zip"'
             },
         )
 
@@ -173,7 +170,4 @@ async def generarExcelBloqueados(
         raise
     except Exception as e:
         print(f"ERROR: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Error al generar el excel de escuelas",
-        )
+        raise HTTPException(status_code=500, detail="Error al generar el excel de acreditaciones")

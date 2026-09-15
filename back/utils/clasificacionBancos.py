@@ -11,16 +11,16 @@ TIPOS_BANCO = {
 }
 
 
-def _valores_de_fila(escuela: Any) -> Mapping[str, Any]:
-    if isinstance(escuela, Mapping):
-        return escuela
-    if hasattr(escuela, "model_dump"):
-        return escuela.model_dump()
-    return vars(escuela)
+def _valores_de_fila(acreditacion: Any) -> Mapping[str, Any]:
+    if isinstance(acreditacion, Mapping):
+        return acreditacion
+    if hasattr(acreditacion, "model_dump"):
+        return acreditacion.model_dump()
+    return vars(acreditacion)
 
 
-def determinar_tipo_banco(escuela: Any) -> str:
-    fila = _valores_de_fila(escuela)
+def determinar_tipo_banco(acreditacion: Any) -> str:
+    fila = _valores_de_fila(acreditacion)
     tipo_archivo = str(fila.get("tipo_archivo") or "").strip().upper()
     codigo_banco = str(fila.get("cod_banco") or "").strip().zfill(2)
 
@@ -38,11 +38,11 @@ def determinar_tipo_banco(escuela: Any) -> str:
 
 
 def agrupar_por_tipo_banco(
-    escuelas: Iterable[Any],
+    acreditaciones: Iterable[Any],
 ) -> dict[str, list[Any]]:
     grupos = {tipo: [] for tipo in TIPOS_BANCO.values()}
 
-    for escuela in escuelas:
-        grupos[determinar_tipo_banco(escuela)].append(escuela)
+    for acreditacion in acreditaciones:
+        grupos[determinar_tipo_banco(acreditacion)].append(acreditacion)
 
     return grupos
