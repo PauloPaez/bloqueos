@@ -3,15 +3,15 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.responses import StreamingResponse
+from scripts.exceptions import EscuelaNotFoundError, EscuelaValidationError
 from scripts.models.escuelas import (
     Escuelas,
     EscuelasResponse,
     EscuelasSearchResponse,
 )
-from scripts.exceptions import EscuelaNotFoundError, EscuelaValidationError
 from scripts.querys.escuelas import (
     add_escuelas,
-    desbloquear_escuelas_por_dni,
+    # desbloquear_escuelas_por_dni,
     get_escuelas,
     get_escuelas_by_id,
     get_escuelas_distinct,
@@ -21,7 +21,7 @@ from scripts.querys.escuelas import (
     search_escuelas_paginado,
 )
 from scripts.querys.motivos import get_motivos
-from scripts.schemas.escuelas import DesbloquearEscuelasPorDni, EscuelasPatch
+from scripts.schemas.escuelas import EscuelasPatch
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
