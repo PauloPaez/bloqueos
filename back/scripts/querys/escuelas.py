@@ -193,7 +193,7 @@ async def patch_escuelas(document: EscuelasPatch):
     elif escuela_actualizada: #si viene a este elif, significa que esta modificando datos fuera de bloqueo o bloquear todo los padrones
         mensaje = "Actualización parcial exitosa."
     else:
-        mensaje = "La escuela ya tenía los datos informados."
+        mensaje = "No se aplicaron cambios: los datos son idénticos."
 
     return {
         "success": True,
