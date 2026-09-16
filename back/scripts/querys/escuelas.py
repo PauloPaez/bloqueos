@@ -16,11 +16,14 @@ def _construir_query_predictiva(filtro: dict) -> dict:
     for campo, valor in filtro.items():
         if valor is None or valor == "":
             continue
-        query[campo] = (
-            {"$regex": f"^{re.escape(valor)}", "$options": "i"}
-            if isinstance(valor, str)
-            else valor
-        )
+        if campo in {"motivo"}: #a este dict agrego los campos que quiero que sean exactos y no predictivos
+            query[campo] = valor
+        else:
+            query[campo] = (
+                {"$regex": f"^{re.escape(valor)}", "$options": "i"}
+                if isinstance(valor, str)
+                else valor
+            )
     return query
 
 
