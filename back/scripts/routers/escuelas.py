@@ -165,7 +165,7 @@ async def generarExcelBloqueados(
 
         if not resultado:
             raise HTTPException(
-                status_code=404, detail="No se encontraron datos para el período."
+                status_code=404, detail="No se encontraron datos para la generacion de documentos."
             )
 
         motivos_config = {

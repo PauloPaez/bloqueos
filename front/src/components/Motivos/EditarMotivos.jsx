@@ -192,6 +192,13 @@ const EditarMotivos = () => {
       <div className="d-flex justify-content-between mt-3">
         <button
           type="button"
+          className="btn btn-outline-danger"
+          onClick={handleReset}
+        >
+          Reset
+        </button>
+        <button
+          type="button"
           className={`btn ${
             filaSeleccionada?.id
               ? 'btn-outline-warning'
@@ -200,14 +207,6 @@ const EditarMotivos = () => {
           onClick={handleSubmit(onSubmit)}
         >
           {filaSeleccionada?.id ? 'Actualizar' : 'Grabar'}
-        </button>
-
-        <button
-          type="button"
-          className="btn btn-outline-danger"
-          onClick={handleReset}
-        >
-          Reset
         </button>
       </div>
     </form>
