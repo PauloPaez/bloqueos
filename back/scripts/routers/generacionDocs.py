@@ -8,9 +8,12 @@ from utils.generacionZip import crear_zip
 
 routerDocs = APIRouter(prefix="/generardoc", tags=["Generacion de documentos"])
 
+#Logica para tipo de banco en cabecera: X.O.B para Otros bancos, X puede ser S de suplentes o T de titulares
+#X.B.S.J es para Banco San Juan, X puede ser S de suplentes o T de titulares.
 
 @routerDocs.post("/")
 async def generarDocumento():
+    """**Este endpoint genera documentos DOCX**"""
     resultado = await search_escuelas_in_db({"bloqueo": True, "activo": True})
 
     if not resultado:
@@ -27,7 +30,7 @@ async def generarDocumento():
     grupos = agrupar_por_tipo_banco(resultado)
     archivos = (
         (
-            f"bajas_escuelas_{tipo_banco}.docx",
+            f"bajas_acreditaciones_{tipo_banco}.docx",
             crearDocumento(escuelas, motivos_config),
         )
         for tipo_banco, escuelas in grupos.items()
@@ -37,5 +40,5 @@ async def generarDocumento():
     return StreamingResponse(
         zip_generado,
         media_type="application/zip",
-        headers={"Content-Disposition": 'attachment; filename="bajas_escuelas_docx.zip"'},
+        headers={"Content-Disposition": 'attachment; filename="bajas_acreditaciones_docx.zip"'},
     )

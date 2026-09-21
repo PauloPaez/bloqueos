@@ -184,7 +184,7 @@ async def generarExcelBloqueados(
                 motivos_config=motivos_config,
             )
             archivos.append(
-                (f"bajas_escuelas_{tipo_banco}.xlsx", contenido)
+                (f"bajas_acreditaciones_{tipo_banco}.xlsx", contenido)
             )
 
         zip_generado = crear_zip(archivos)
@@ -193,7 +193,7 @@ async def generarExcelBloqueados(
             zip_generado,
             media_type="application/zip",
             headers={
-                "Content-Disposition": 'attachment; filename="bajas_escuelas_excel.zip"'
+                "Content-Disposition": 'attachment; filename="bajas_acreditaciones_excel.zip"'
             },
         )
 
