@@ -27,13 +27,14 @@ async def generarDocumento():
         if item.get("motivo")
     }
 
-    grupos = agrupar_por_tipo_banco(resultado)
-    archivos = (
+    grupos = agrupar_por_tipo_banco(resultado) #obtengo las escuelas bloqueadas pero divididas por grupos
+    archivos = ( #(expresion for elemento in iterable if condicion) funcion generadora. Al ser un generador, la variable archivo recien toma valor cuando es iterada en la funcion crear_zip... Por cada vuelta el for de esa funcion le pide al generador el siguiente resultado. No procesa todos los grupos en la primera llamada a crear_zip, pero tampoco procesa solo uno: procesa uno, lo agrega al ZIP, pide el siguiente y sigue hasta terminar
         (
             f"bajas_acreditaciones_{tipo_banco}.docx",
             crearDocumento(escuelas, motivos_config),
         )
         for tipo_banco, escuelas in grupos.items()
+        if escuelas
     )
     zip_generado = crear_zip(archivos)
 

@@ -177,6 +177,9 @@ async def generarExcelBloqueados(
         grupos = agrupar_por_tipo_banco(resultado)
         archivos = []
         for tipo_banco, escuelas_tipo in grupos.items():
+            if not escuelas_tipo:
+                continue
+
             contenido, _ = generar_excel_bajas(
                 escuelas_tipo,
                 periodo=periodo,
