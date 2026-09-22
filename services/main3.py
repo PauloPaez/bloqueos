@@ -6,7 +6,7 @@ from parsear import parsear_registro
 
 
 BASE = Path("../fuente_de_verdad")
-DESTINO = Path("../padrones")
+DESTINO = Path("../padronesPrueba")
 
 DESTINO.mkdir(exist_ok=True)
 
@@ -35,7 +35,9 @@ for archivo in BASE.rglob("*.*"):
             registro["empresa"] = "DPI"
             registro["login"] = "ppaez"
             registro["activo"] = True
-
+            registro["motivo"] = None
+            registro["fecha_baja"] = None
+ 
             registros.append(registro)
 
 salida = DESTINO / f"{periodo}.json"
