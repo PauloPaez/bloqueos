@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
+from utils.clasificacionBancos import determinar_abreviacion_tipo_banco
 from utils.formateoDatos import formatear_concepto, formatear_importe, _con_digito_verificador
 
 
@@ -11,7 +12,9 @@ def escuelasSh(item):
     return {
         "id": str(item.get("_id")),
         "concepto": formatear_concepto(
-            item.get("tipo_archivo"), item.get("periodo")
+            item.get("tipo_archivo"),
+            item.get("periodo"),
+            determinar_abreviacion_tipo_banco(item),
         ),
         "bloqueo": item.get("bloqueo"),
         "tipo_reg": item.get("tipo_reg"),

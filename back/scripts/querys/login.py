@@ -19,14 +19,14 @@ async def get_login(filter: Dict[str, Any]):
             roles = usuario.get("roles", [])
             # Buscar las rutas asociadas a los roles del usuario
             cursor = coleccionRutas.find({"rol": {"$in": roles}}, {
-                "path": 1, "componente": 1, "_id": 0, "app": 1, "nombre": 1})
+                "path": 1, "componente": 1, "_id": 0, "app": 1, "nombre": 1}).sort("path", 1)
             # Convertir el cursor en una lista
             rutas = await cursor.to_list(length=None)
             print("Rutas encontradas:", rutas)
             # Filtrar rutas basado en el valor de 'app' y eliminar el campo 'app'
             rutas_filtradas = [
                 {"componente": ruta["componente"],
-                    "path": ruta["path"], "nombre": ruta["nombre"]}
+                    "path": ruta["path"], "nombre": ruta.get("nombre")}
                 for ruta in rutas
                 if ruta.get("app") == app
             ]

@@ -16,11 +16,14 @@ def _construir_query_predictiva(filtro: dict) -> dict:
     for campo, valor in filtro.items():
         if valor is None or valor == "":
             continue
-        query[campo] = (
-            {"$regex": f"^{re.escape(valor)}", "$options": "i"}
-            if isinstance(valor, str)
-            else valor
-        )
+        if campo in {"motivo"}: #a este dict agrego los campos que quiero que sean exactos y no predictivos
+            query[campo] = valor
+        else:
+            query[campo] = (
+                {"$regex": f"^{re.escape(valor)}", "$options": "i"}
+                if isinstance(valor, str)
+                else valor
+            )
     return query
 
 
@@ -190,7 +193,7 @@ async def patch_escuelas(document: EscuelasPatch):
     elif escuela_actualizada: #si viene a este elif, significa que esta modificando datos fuera de bloqueo o bloquear todo los padrones
         mensaje = "Actualización parcial exitosa."
     else:
-        mensaje = "La escuela ya tenía los datos informados."
+        mensaje = "No se aplicaron cambios: los datos son idénticos."
 
     return {
         "success": True,

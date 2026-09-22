@@ -165,7 +165,7 @@ async def generarExcelBloqueados(
 
         if not resultado:
             raise HTTPException(
-                status_code=404, detail="No se encontraron datos para el período."
+                status_code=404, detail="No se encontraron datos para la generacion de documentos."
             )
 
         motivos_config = {
@@ -177,6 +177,9 @@ async def generarExcelBloqueados(
         grupos = agrupar_por_tipo_banco(resultado)
         archivos = []
         for tipo_banco, escuelas_tipo in grupos.items():
+            if not escuelas_tipo:
+                continue
+
             contenido, _ = generar_excel_bajas(
                 escuelas_tipo,
                 periodo=periodo,
@@ -184,7 +187,7 @@ async def generarExcelBloqueados(
                 motivos_config=motivos_config,
             )
             archivos.append(
-                (f"bajas_escuelas_{tipo_banco}.xlsx", contenido)
+                (f"bajas_acreditaciones_{tipo_banco}.xlsx", contenido)
             )
 
         zip_generado = crear_zip(archivos)
@@ -193,7 +196,7 @@ async def generarExcelBloqueados(
             zip_generado,
             media_type="application/zip",
             headers={
-                "Content-Disposition": 'attachment; filename="bajas_escuelas_excel.zip"'
+                "Content-Disposition": 'attachment; filename="bajas_acreditaciones_excel.zip"'
             },
         )
 

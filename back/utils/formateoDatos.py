@@ -4,6 +4,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
+from utils.clasificacionBancos import determinar_abreviacion_tipo_banco
+
 
 def formatear_importe(valor: str | int | float | Decimal | None) -> str:
     """Formatea un importe usando la misma regla que la planilla de bajas."""
@@ -57,16 +59,15 @@ def formatear_periodo(periodo: Any) -> str:
 
     return valor
 
-#TODO: Falta agregar logica al tipo de banco
 def formatear_concepto(
     tipo_archivo: Any,
     periodo: Any,
-    tipo_banco: str = "tipo_banco",
+    abreviacion_banco: str,
 ) -> str:
     """Construye el concepto visible para tablas y documentos."""
     archivo = _texto(tipo_archivo).strip()
     periodo_formateado = formatear_periodo(periodo)
-    banco = _texto(tipo_banco).strip()
+    banco = _texto(abreviacion_banco).strip()
 
     if not archivo or not periodo_formateado or not banco:
         return ""
@@ -117,12 +118,14 @@ def preparar_fila_baja(
     Esta es la única definición de formato para las columnas compartidas por
     ambos documentos. El template recibe únicamente strings ya preparados.
     """
-    row = _valores_de_fila(escuela)
+    row = _valores_de_fila(escuela) #se asegura que escuela es un diccionario y lo asigna a row
     cuil = _texto(row.get("cuil")).strip()
 
     return {
         "concepto": formatear_concepto(
-            row.get("tipo_archivo"), row.get("periodo")
+            row.get("tipo_archivo"),
+            row.get("periodo"),
+            determinar_abreviacion_tipo_banco(row),
         ),
         "padron": _con_digito_verificador(row.get("padron"), row.get("padron_dv")),
         "beneficiario_nombre": _texto(row.get("beneficiario_nombre")),

@@ -26,7 +26,6 @@ def crearDocumento(
     # Calcula la ruta absoluta hacia back/utils desde este archivo
     # BASE_DIR = Path(__file__).resolve().parents[1] / "utils" Esta linea seria sin usar parent, que es practicamente lo mismo que parents[1]
     BASE_DIR = Path(__file__).resolve().parent  # back/utils
-    print(BASE_DIR)
 
     # Construye la ruta absoluta hacia el archivo de la plantilla
     template_path = BASE_DIR / "templates" / "templateDocsV2.docx"
@@ -45,7 +44,6 @@ def crearDocumento(
         "concepto": concepto,
         "importe_total": formatear_importe(importe_total),
     }
-
 
     doc.render(context)
 
