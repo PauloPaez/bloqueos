@@ -1,6 +1,6 @@
 import React from 'react';
 import GenericFilter from '../../common/GenericFilter';
-import { useGetDistinctMotivosQuery } from '../../store/apiSlice';
+import { useGetDistinctEscuelasQuery, useGetDistinctMotivosQuery } from '../../store/apiSlice';
 
 const FiltroEscuelas = ({
   filtroInicial,
@@ -12,6 +12,11 @@ const FiltroEscuelas = ({
     isLoading: motivosLoading,
     isError: motivosError,
   } = useGetDistinctMotivosQuery('motivo');
+  const {
+    data: tiposArchivo = [],
+    isLoading: tiposArchivoLoading,
+    isError: tiposArchivoError,
+  } = useGetDistinctEscuelasQuery('tipo_archivo');
 
   const configuracionFiltro = [
     // {   'clave': 'tipo_reg',
@@ -147,8 +152,14 @@ const FiltroEscuelas = ({
     // 'valor': ''},
     {   'clave': 'tipo_archivo',
     'etiqueta': 'Tipo Archivo',
-    'placeholder': 'Tipo Archivo',
-    'tipo': 'str',
+    'placeholder': tiposArchivoLoading
+      ? 'Cargando tipos de archivo...'
+      : tiposArchivoError
+        ? 'No se pudieron cargar los tipos de archivo'
+        : 'Seleccione tipo de archivo',
+    'tipo': 'select',
+    'opciones': tiposArchivo,
+    'forzarSelect': true,
     'valor': ''},
     // {   'clave': 'periodo',
     // 'etiqueta': 'Período',

@@ -1,9 +1,12 @@
+from io import BytesIO
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from scripts.querys.escuelas import search_escuelas_in_db
 from scripts.querys.motivos import get_motivos
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.crearDocx import crearDocumento
+from utils.generacionTXT import generar_contenido_txt
 from utils.generacionZip import crear_zip
 
 routerDocs = APIRouter(prefix="/generardoc", tags=["Generacion de documentos"])
@@ -42,4 +45,25 @@ async def generarDocumento():
         zip_generado,
         media_type="application/zip",
         headers={"Content-Disposition": 'attachment; filename="bajas_acreditaciones_docx.zip"'},
+    )
+
+
+@routerDocs.post("/padrones/")
+async def generar_txt_padrones_bloqueados():
+    """Genera un TXT con los padrones formateados de escuelas bloqueadas activas."""
+    resultado = await search_escuelas_in_db({"bloqueo": True, "activo": True})
+
+    if not resultado:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontraron datos para la generacion del archivo TXT.",
+        )
+
+    contenido = generar_contenido_txt(resultado)
+    return StreamingResponse(
+        BytesIO(contenido),
+        media_type="text/plain; charset=utf-8",
+        headers={
+            "Content-Disposition": 'attachment; filename="padrones_bloqueados.txt"'
+        },
     )

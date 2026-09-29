@@ -35,6 +35,7 @@ const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloadingDocx, setIsDownloadingDocx] = useState(false);
   const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
+  const [isDownloadingTxt, setIsDownloadingTxt] = useState(false);
   // Definir el filtro inicial
   const [mostrarFiltroInicial, setMostrarFiltroInicial] = useState(false);
   const filtroInicial = {"activo": true};
@@ -219,6 +220,7 @@ const buscarEscuelas = async (
         buscarEscuelas(filtroListado, 1, newPageSize);
   };
 
+  // --------- DESCARGAS DE ARCHIVOS ---------
   const handleDescargarDocx = async () => {
     setIsDownloadingDocx(true);
     try {
@@ -253,6 +255,23 @@ const buscarEscuelas = async (
     }
   };
 
+  const handleDescargarTxt = async () => {
+    setIsDownloadingTxt(true);
+    try {
+      await descargarArchivo({
+        url: `${API_BASE_URL}generardoc/padrones/`,
+        accept: "text/plain",
+        nombrePorDefecto: "padrones_bloqueados.txt",
+        mensajeError: "No se pudo generar el TXT",
+      });
+    } catch (err) {
+      console.error("Error generando TXT:", err);
+      window.alert(err.message || "Error al generar el TXT");
+    } finally {
+      setIsDownloadingTxt(false);
+    }
+  };
+
   // Filtrar campos visibles
   const camposVisibles = formularioCampos.filter(field => field.placeholder !== "no_visible");
   return (
@@ -277,6 +296,15 @@ const buscarEscuelas = async (
         >
           <Download size={16} aria-hidden="true" />
           {isDownloadingExcel ? "Generando..." : "Descargar EXCEL"}
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline-dark schools-list-download"
+          onClick={handleDescargarTxt}
+          disabled={isDownloadingTxt}
+        >
+          <Download size={16} aria-hidden="true" />
+          {isDownloadingTxt ? "Generando..." : "Descargar TXT"}
         </button>
         </div>
       </header>
