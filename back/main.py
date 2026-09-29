@@ -33,8 +33,8 @@ except Exception as e:
 origins = [
     "http://localhost",
     "http://localhost:5173",
-    "https://lab.techiar.cloud",
-    "https://subasta.techiar.cloud",
+    "https://testbloqueos.sanjuan,gob.ar",
+
 ]
 app.add_middleware(
     CORSMiddleware,

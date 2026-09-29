@@ -5,8 +5,9 @@ from pathlib import Path
 from parsear import parsear_registro
 
 
-BASE = Path("../fuente_de_verdad")
-DESTINO = Path("../padrones")
+# BASE = Path("../fuente_de_verdad")
+BASE = Path("./fuentes")
+DESTINO = Path("./padrones")
 
 DESTINO.mkdir(exist_ok=True)
 
