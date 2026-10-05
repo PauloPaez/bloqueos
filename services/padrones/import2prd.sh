@@ -1,0 +1,11 @@
+mongoimport \
+--host localhost \ 
+--port 27100 \ 
+--username bloqueos_prod \ 
+--password 'R3YESDt' \ 
+--authenticationDatabase BLOQUEOS_PRD \ 
+--db BLOQUEOS_PRD \ 
+--collection Escuelas \ 
+--file SETIEMBRE26.json \ 
+--jsonArray
+--drop
