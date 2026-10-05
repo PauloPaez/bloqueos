@@ -1,5 +1,6 @@
 .edit-school-dialog {
   max-width: 32rem;
+  
 }
 
 .edit-school-dialog .modal-content {
@@ -152,6 +153,97 @@
 .cerrar-btn {
   color:black;
   border-color: #dee2e6;
+}
+
+.edit-school-confirm-modal {
+  z-index: 1065;
+}
+
+.edit-school-confirm-backdrop {
+  z-index: 1060;
+}
+
+.edit-school-confirm-modal .edit-school-confirm-dialog {
+  max-width: 32rem;
+  margin-right: auto;
+  margin-left: var(--edit-school-confirm-left, auto);
+  width: var(--edit-school-confirm-width, calc(100% - 2rem));
+}
+
+.edit-school-confirm-dialog .modal-content {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.625rem;
+  background: #fff;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.edit-school-confirm-body {
+  padding: 1.5rem;
+}
+
+.edit-school-confirm-title {
+  margin: 0 0 0.5rem;
+  color: #171717;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.edit-school-confirm-description {
+  margin: 0 0 1rem;
+  color: #717182;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.edit-school-confirm-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.edit-school-confirm-footer button {
+  min-height: 36px;
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+}
+
+.edit-school-confirm-footer button:focus-visible {
+  outline: 3px solid rgba(113, 113, 130, 0.5);
+  outline-offset: 2px;
+}
+
+.edit-school-confirm-footer .edit-school-confirm-cancel {
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #171717;
+  background: #fff;
+}
+
+.edit-school-confirm-footer .edit-school-confirm-cancel:hover {
+  background: #e9ebef;
+}
+
+.edit-school-confirm-action {
+  color: #fff;
+  background: #030213;
+}
+
+.edit-school-confirm-action:hover {
+  background: rgba(3, 2, 19, 0.9);
+}
+
+@media (max-width: 575px) {
+  .edit-school-confirm-body {
+    text-align: center;
+  }
+
+  .edit-school-confirm-footer {
+    flex-direction: column-reverse;
+  }
 }
 
 @media (max-width: 576px) {

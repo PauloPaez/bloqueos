@@ -54,6 +54,17 @@ const obtenerMensajeError = (error) => {
   return 'Ocurrió un error al guardar la escuela.';
 };
 
+const alinearConfirmacion = (modal, bodyEdicion) => {
+  const edicion = bodyEdicion.closest('.modal-content');
+  const { left, width } = edicion.getBoundingClientRect();
+  const paddingLeft = parseFloat(window.getComputedStyle(modal).paddingLeft) || 0;
+  modal.style.setProperty(
+    '--edit-school-confirm-left',
+    `${left - modal.getBoundingClientRect().left - paddingLeft}px`
+  );
+  modal.style.setProperty('--edit-school-confirm-width', `${width}px`);
+};
+
 const EditarEscuelas = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.acceso.user);
@@ -82,7 +93,30 @@ const EditarEscuelas = () => {
   const motivoLlevaFecha = motivoConfigurado?.lleva_fecha === true;
   const fechaBaja = watch('escuelas.0.fecha_baja', '');
   const [fechaBajaTexto, setFechaBajaTexto] = useState('');
+  const [datosBloqueoPendientes, setDatosBloqueoPendientes] = useState(null);
+  const modalEdicionBodyRef = useRef(null);
+  const modalConfirmacionRef = useRef(null);
   const fechaBajaPickerRef = useRef(null);
+
+  useEffect(() => {
+    if (!datosBloqueoPendientes) return;
+
+    let frame;
+    const actualizarAlineacion = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        if (modalConfirmacionRef.current) {
+          alinearConfirmacion(modalConfirmacionRef.current, modalEdicionBodyRef.current);
+        }
+      });
+    };
+
+    window.addEventListener('resize', actualizarAlineacion);
+    return () => {
+      window.removeEventListener('resize', actualizarAlineacion);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [datosBloqueoPendientes]);
 
   useEffect(() => {
     dispatch(resetModulo({ modulo: 'escuelas' }));
@@ -160,7 +194,7 @@ const EditarEscuelas = () => {
     });
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data, bloqueoConfirmado = false) => {
     try {
       const escuelas = data.escuelas?.[0];
 
@@ -185,10 +219,9 @@ const EditarEscuelas = () => {
 
       if (
         escuelas.bloquear_todos_padrones_dni &&
-        !window.confirm(
-          `Se bloquearán todos los padrones activos correspondientes al DNI ${escuelas.documento_nro}. ¿Desea continuar?`
-        )
+        !bloqueoConfirmado
       ) {
+        setDatosBloqueoPendientes(data);
         return;
       }
 
@@ -221,6 +254,7 @@ const EditarEscuelas = () => {
   };
 
   const handleReset = () => {
+    setDatosBloqueoPendientes(null);
     reset();
     dispatch(resetModulo({ modulo: 'escuelas' }));
   };
@@ -228,6 +262,7 @@ const EditarEscuelas = () => {
 
 
   return (
+    <>
     <Modal
         show={!!filaSeleccionada?.id}
         onHide={handleReset}
@@ -239,8 +274,8 @@ const EditarEscuelas = () => {
       <Modal.Title className="edit-school-title">Editar Escuela</Modal.Title>
     </Modal.Header>
 
-    <Modal.Body className="edit-school-body">
-      <form className="edit-school-form" onSubmit={handleSubmit(onSubmit)}>
+    <Modal.Body ref={modalEdicionBodyRef} className="edit-school-body">
+      <form className="edit-school-form" onSubmit={handleSubmit((data) => onSubmit(data))}>
         {camposVisibles.map((field) => {
           const separador = separadoresFormulario.find(
             (s) => s.before === field.name
@@ -385,6 +420,55 @@ const EditarEscuelas = () => {
     </Modal.Body>
 
     </Modal>
+    <Modal
+      show={!!datosBloqueoPendientes}
+      onHide={() => setDatosBloqueoPendientes(null)}
+      backdrop="static"
+      centered
+      className="edit-school-confirm-modal"
+      dialogClassName="edit-school-confirm-dialog"
+      backdropClassName="edit-school-confirm-backdrop"
+      onEntering={(modal) => {
+        modalConfirmacionRef.current = modal;
+        alinearConfirmacion(modal, modalEdicionBodyRef.current);
+      }}
+      onExited={() => { modalConfirmacionRef.current = null; }}
+      aria-labelledby="edit-school-confirm-title"
+      aria-describedby="edit-school-confirm-description"
+    >
+      <Modal.Body className="edit-school-confirm-body">
+        <h2 id="edit-school-confirm-title" className="edit-school-confirm-title">
+          ¿Bloquear todos los padrones?
+        </h2>
+        <p id="edit-school-confirm-description" className="edit-school-confirm-description">
+          Esta acción bloqueará todos los padrones activos asociados al DNI{' '}
+          {datosBloqueoPendientes?.escuelas?.[0]?.documento_nro}. Se aplicará a varios
+          registros a la vez.
+        </p>
+        <div className="edit-school-confirm-footer">
+          <button
+            type="button"
+            className="edit-school-confirm-cancel"
+            autoFocus
+            onClick={() => setDatosBloqueoPendientes(null)}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="edit-school-confirm-action"
+            onClick={() => {
+              const data = datosBloqueoPendientes;
+              setDatosBloqueoPendientes(null);
+              onSubmit(data, true);
+            }}
+          >
+            Sí, bloquear todos
+          </button>
+        </div>
+      </Modal.Body>
+    </Modal>
+    </>
     );
 };
 
