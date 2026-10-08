@@ -7,4 +7,4 @@ rsync -av \
 --exclude='*.py[cod]' \
 --exclude='.pytest_cache' \
 --exclude='.mypy_cache' \
-back fastapi-user@10.2.133.193:/home/fastapi-user/testBloqueos
+back fastapi-user@10.2.133.193:/home/fastapi-user/bloqueos

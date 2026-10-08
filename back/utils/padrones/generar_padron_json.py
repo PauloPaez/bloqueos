@@ -1,0 +1,73 @@
+import json
+
+from pathlib import Path
+
+from parsear import parsear_registro
+
+from dotenv import load_dotenv
+
+import shutil
+
+# Raíz del proyecto: .../back/utils/padrones/descargarPadrones.py -> 3 niveles arriba
+RAIZ = Path(__file__).resolve().parents[2]
+RAIZ_DATOS = Path(__file__).resolve().parents[3]
+ARCHIVO_ENV = RAIZ / ".env"
+BASE = RAIZ_DATOS / "datos" / "fuentes"
+DESTINO = RAIZ_DATOS /"datos" / "fuentes_formateadas"
+# BASE = Path("../fuente_de_verdad")
+# BASE = Path("./fuentes")
+# DESTINO = Path("./padrones")
+
+DESTINO.mkdir(exist_ok=True)
+
+registros = []
+periodo = None
+
+def limpiar_directorio(directorio: Path):
+    """Borra el contenido de la carpeta (archivos y subcarpetas), pero no la carpeta."""
+    directorio.mkdir(parents=True, exist_ok=True)
+    for item in directorio.iterdir():
+        if item.is_dir() and not item.is_symlink():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+    print(f"Directorio limpiado: {directorio}")
+    
+limpiar_directorio(DESTINO)
+
+for archivo in BASE.rglob("*.*"):
+
+    if not archivo.is_file():
+        continue
+
+    nombre_archivo = archivo.stem
+
+    if periodo is None:
+        periodo = archivo.suffix.lstrip(".")
+
+    with archivo.open("r", encoding="latin1") as entrada:
+
+        for linea in entrada:
+
+            registro = parsear_registro(linea)
+
+            # Campos que no vienen del layout COBOL
+            registro["tipo_archivo"] = nombre_archivo
+            registro["periodo"] = periodo
+            registro["bloqueo"] = False
+            registro["empresa"] = "DPI"
+            registro["login"] = "ppaez"
+            registro["activo"] = True
+
+            # Campos del modelo que faltaban (se cargan al dar de baja un registro)
+            registro["motivo"] = None
+            registro["fecha_baja"] = None
+
+            registros.append(registro)
+
+salida = DESTINO / f"{periodo}.json"
+
+with salida.open("w", encoding="utf-8") as f:
+    json.dump(registros, f, ensure_ascii=False, indent=4, default=float)
+
+print(f"Generado: {salida}")

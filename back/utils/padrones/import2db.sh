@@ -1,0 +1,11 @@
+mongoimport \
+  --host localhost \
+  --port 27100 \
+  --username bloqueos_test \
+  --password 'R3YESDt' \
+  --authenticationDatabase BLOQUEOS_TEST \
+  --db BLOQUEOS_TEST \
+  --collection Escuelas \
+  --file SETIEMBRE26.json \
+  --jsonArray \
+  --drop
