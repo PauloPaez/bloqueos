@@ -145,8 +145,8 @@ async def partial_update_escuelas(document: EscuelasPatch):
 async def get_TN_distinct(campo: str):
     try:
         documento = await get_escuelas_distinct(campo)
-        if not documento:
-            raise HTTPException(status_code=404, detail="Documento no encontrado")
+        # if not documento:
+        #     raise HTTPException(status_code=404, detail="Documento no encontrado")
         return documento
     except Exception as e:
         raise HTTPException(

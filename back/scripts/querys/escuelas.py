@@ -246,7 +246,7 @@ async def get_escuelas_distinct(campo) -> list:
     coleccion = get_collection("Escuelas")
     try:
         document = await coleccion.distinct(campo, {"activo": True})
-        return sorted(document)
+        return sorted(valor for valor in document if valor is not None and valor != "")
 
     except Exception as e:
         raise Exception(f"Error al buscar documento: {e}")
