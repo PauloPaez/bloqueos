@@ -1,6 +1,5 @@
 import asyncio
 import logging
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from scripts.conf.engine import close_db, init_db
@@ -13,6 +12,7 @@ from scripts.routers.personas import personas
 from scripts.routers.roles import roles
 from scripts.routers.rutas import rutas
 from scripts.routers.usuarios import usuarios
+from scripts.routers.habilitaciones import habilitaciones
 from utils.websockets_manager import (
     add_connection,
     notify_clients,
@@ -20,13 +20,11 @@ from utils.websockets_manager import (
     remove_connection,
     start_redis_listener,
 )
-
 logger = logging.getLogger(__name__)
 app = FastAPI(version="0.9.1")
 # AGREGAR ESTOS LOGS PARA DEBUG:
 try:
     from scripts.routers.usuarios import usuarios
-
     logger.info("✅ Router usuarios importado correctamente")
 except Exception as e:
     logger.error(f"❌ Error importando usuarios: {e}")
@@ -34,7 +32,6 @@ origins = [
     "http://localhost",
     "http://localhost:5173",
     "https://testbloqueos.sanjuan,gob.ar",
-
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -46,8 +43,6 @@ app.add_middleware(
         "Content-Disposition"
     ],  # si hay problemas en prod por archivos, podria ser por esto, pero muy dificil que sea esa la causa. Ya que solo le muestra el nombre del archivo generado por el backend. Ya que si no esta esto, el nombre va a ser el de la variable nombrePorDefecto definida al llamar al helper de descargarArchivo en javascrpit
 )
-
-
 @app.on_event("startup")
 async def startup_event():
     """Inicializar MongoDB, Redis y sus listeners al arrancar la aplicación."""
@@ -60,14 +55,10 @@ async def startup_event():
         logger.info("Aplicación iniciada con Redis para WebSockets")
     except Exception as e:
         logger.error(f"Error en startup: {e}")
-
-
 @app.on_event("shutdown")
 async def shutdown_event():
     close_db()
     logger.info("Conexión con MongoDB cerrada")
-
-
 @app.websocket("/ws/{entity}")
 async def websocket_endpoint(websocket: WebSocket, entity: str):
     valid_entities = [
@@ -78,6 +69,7 @@ async def websocket_endpoint(websocket: WebSocket, entity: str):
         "personas",
         "escuelas",
         "motivos",
+        "habilitaciones",
     ]
     if entity not in valid_entities:
         await websocket.close()
@@ -95,8 +87,6 @@ async def websocket_endpoint(websocket: WebSocket, entity: str):
     except Exception as e:
         logger.error(f"Error en WebSocket {entity}: {e}")
         await remove_connection(entity, websocket)
-
-
 app.include_router(usuarios, tags=["Usuarios"])
 app.include_router(roles, tags=["Roles"])
 app.include_router(login, tags=["Login"])
@@ -107,3 +97,4 @@ logger.info("✅ Router notificaciones incluido en la aplicación")
 app.include_router(escuelas, tags=["Escuelas"])
 app.include_router(routerDocs)
 app.include_router(motivos, tags=["Motivos"])
+app.include_router(habilitaciones, tags=["Habilitaciones"])

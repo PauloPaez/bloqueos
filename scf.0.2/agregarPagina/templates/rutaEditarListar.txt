@@ -1,0 +1,8 @@
+      <Route
+          path="/EditarListar/!Model!"
+          element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <EditarListar!Model! />
+            </ProtectedRoute>
+          }
+        />

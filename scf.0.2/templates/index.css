@@ -1,0 +1,50 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.pantalla-container {
+  display: flex;
+  height: 100vh;
+  padding: 1rem 2rem;
+  gap: 2rem;
+  background: linear-gradient(135deg, #f7f9fc 0%, #e8ecf3 100%);
+  box-sizing: border-box;
+}
+
+/* ===== TARJETAS ===== */
+.editar-modelo,
+.listar-modelo {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== TITULOS ===== */
+.layout-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+}
+
+/* ===== SOLO LISTAR ===== */
+.solo-listar .listar-modelo {
+  flex-basis: 100% !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  .pantalla-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .editar-modelo,
+  .listar-modelo {
+    flex-basis: 100% !important;
+    max-width: 100%;
+  }
+}
+

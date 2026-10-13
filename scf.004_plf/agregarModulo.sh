@@ -17,34 +17,37 @@ if [[ ! -f "$archivo" ]]; then
   exit 1
 fi
 
-echo -e "${CYAN}Creando el modelo ${modelo}...${NC}"
+# echo -e "${CYAN}Creando el modelo ${modelo}...${NC}"
 
-python3 ./agregarModeloFuentes/agregarModelo.py  ${modelo}
-python3 ./agregarModeloFuentes/agregarSchema.py ${modelo}
-python3 ./agregarModeloFuentes/agregarQuery.py ${modelo}
-python3 ./agregarModeloFuentes/agregarRouter.py ${modelo}
-python3 ./agregarModeloFuentes/modificarMain.py ${modelo}
-python3 ./agregarModeloFuentes/modificarApiSlice.py ${modelo}
-python3 ./agregarModeloFuentes/modificarWebSocket.py ${modelo}
+# python3 ./agregarModeloFuentes/agregarModelo.py  ${modelo}
+# python3 ./agregarModeloFuentes/agregarSchema.py ${modelo}
+# python3 ./agregarModeloFuentes/agregarQuery.py ${modelo}
+# python3 ./agregarModeloFuentes/agregarRouter.py ${modelo}
+# python3 ./agregarModeloFuentes/modificarMain.py ${modelo}
+# python3 ./agregarModeloFuentes/modificarApiSlice.py ${modelo}
+# python3 ./agregarModeloFuentes/modificarWebSocket.py ${modelo}
 
-#--------------------FRONT--------------------------
+# #--------------------FRONT--------------------------
 
-python3 agregarComponentFuentes/componenteListar.py ${modelo}
-python3 agregarComponentFuentes/componenteEditar.py ${modelo}
-python3 agregarComponentFuentes/agregarStateModulo.py ${modelo}
-python3 agregarComponentFuentes/generarFiltro.py ${modelo}
-python3 agregarComponentFuentes/componenteActualizar.py ${modelo}
-python3 agregarComponentFuentes/agregarEnArchivoRoutes.py ${modelo}
+# python3 agregarComponentFuentes/componenteListar.py ${modelo}
+# python3 agregarComponentFuentes/componenteEditar.py ${modelo}
+# python3 agregarComponentFuentes/agregarStateModulo.py ${modelo}
+# python3 agregarComponentFuentes/generarFiltro.py ${modelo}
+# python3 agregarComponentFuentes/componenteActualizar.py ${modelo}
+# python3 agregarComponentFuentes/agregarEnArchivoRoutes.py ${modelo}
 
-python3 agregarSelect/agregarSelect.py ${modelo}
+# python3 agregarSelect/agregarSelect.py ${modelo}
 
-#copiar archivos estaticos desde templates al nuevo componente
-capitalizado="${modelo^}"
-echo modelo: $capitalizado
+# #copiar archivos estaticos desde templates al nuevo componente
+# capitalizado="${modelo^}"
+# echo modelo: $capitalizado
 
-cp agregarComponentFuentes/templates/camposRequeridosFormulario.js ../front/src/components/${capitalizado}/
-cp agregarComponentFuentes/templates/camposValidacion.js ../front/src/components/${capitalizado}/
-cp agregarComponentFuentes/templates/formularioSeparadores.js ../front/src/components/${capitalizado}/
+# cp agregarComponentFuentes/templates/camposRequeridosFormulario.js ../front/src/components/${capitalizado}/
+# cp agregarComponentFuentes/templates/camposValidacion.js ../front/src/components/${capitalizado}/
+# cp agregarComponentFuentes/templates/formularioSeparadores.js ../front/src/components/${capitalizado}/
+
+
+
 
 # ----------------------------------------------------
 # read -p "Ingrese Nombre de Base de Datos:: " DB

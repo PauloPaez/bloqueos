@@ -1,0 +1,18 @@
+
+Principales cambios realizados:
+
+Eliminé useCallback para fetchData - Se eliminó completamente la función fetchData con useCallback que causaba problemas de dependencias circulares.
+
+Separé la carga inicial en un efecto independiente con dependencias vacías [] para que se ejecute solo una vez al montar el componente.
+
+Agregué estado isLoading para manejar mejor la experiencia de usuario durante la carga.
+
+Simplifiqué las llamadas a la API usando directamente post!Model! en cada lugar donde se necesite.
+
+Corregí el manejo del filtro en el WebSocket para que recargue los datos con el filtro actual.
+
+Corregí el filtro en el tbody - El código original tenía un error donde estaba filtrando datos por field.placeholder. Lo corregí para que solo se filtren los campos.
+
+Mantuve la estructura limpia del template original pero con la lógica de carga corregida.
+
+Para usar este template, simplemente reemplaza !Model! con el nombre de tu modelo (por ejemplo: Productos, Clientes, etc.) y define los formFields específicos para ese modelo.

@@ -1,0 +1,20 @@
+.data-select {
+    width: 100%; /* Se ajusta al contenedor */
+    max-width: 200px; /* Limita el ancho máximo */
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+    overflow: hidden; /* Oculta el texto que se sale del ancho */
+    text-overflow: ellipsis; /* Agrega puntos suspensivos si el texto es muy largo */
+    font-size: 14px; /* Ajusta el tamaño de fuente para mayor claridad */
+    padding: 5px; /* Espaciado interno */
+    border: 1px solid #ccc; /* Borde del select */
+    border-radius: 4px; /* Borde redondeado */
+    background-color: #fff; /* Fondo blanco */
+    cursor: pointer; /* Indicador de clic */
+  }
+  
+  .data-select option {
+    white-space: nowrap; /* Evita el salto de línea en las opciones */
+    overflow: hidden; /* Oculta texto desbordado */
+    text-overflow: ellipsis; /* Agrega puntos suspensivos */
+  }
+  

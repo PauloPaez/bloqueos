@@ -1,0 +1,111 @@
+# querys/habilitaciones.py
+import json
+from bson.objectid import ObjectId
+from datetime import datetime
+from typing import Dict, Any
+from datetime import datetime
+# ----------------------------------------------------
+from scripts.schemas.habilitaciones import habilitacionesSh
+from scripts.conf.engine import get_collection
+# -----------------------------------------------------
+# coleccion = database.Habilitaciones
+
+
+async def get_habilitaciones():
+    coleccion = get_collection("Habilitaciones")
+    cursor = coleccion.find()
+    data = []
+    async for document in cursor:
+        # Usar esquema para transformar
+        data.append(habilitacionesSh(document))
+    return data
+
+
+async def get_habilitaciones_by_id(id: str):
+    coleccion = get_collection("Habilitaciones")
+    try:
+        document = await coleccion.find_one({"_id": ObjectId(id)})
+        if document:
+            return habilitacionesSh(document)  # Usar esquema para transformar
+        return None
+    except Exception as e:
+        raise Exception(f"Error al buscar documento: {e}")
+
+
+async def search_habilitaciones_in_db(filter: Dict[str, Any]):
+    coleccion = get_collection("Habilitaciones")
+    try:
+        # Filtrar eliminando valores nulos o vacíos
+        query = {k: v for k, v in filter.items() if v is not None}
+
+        # if 'mes' in query:
+        #    mes= query['mes']
+        #    del query['mes']
+        #    query['fecha_accidente'] = {
+        #        "$gte": datetime(2025, mes, 1),
+        #        "$lt": datetime(2025, mes + 1, 1)
+        #    }
+
+        # Ejecutar la búsqueda en la colección
+        cursor = coleccion.find(query)
+        data = []
+        async for document in cursor:
+            # Usar esquema para transformar
+            data.append(habilitacionesSh(document))
+        return data
+    except Exception as e:
+        raise Exception(f"Error al buscar documentos: {e}")
+
+
+async def add_habilitaciones(document: dict) -> ObjectId:
+    coleccion = get_collection("Habilitaciones")
+    # Inserta el documento en la colección y devuelve el ID generado
+    result = await coleccion.insert_one(document)
+    return result.inserted_id
+
+
+async def put_habilitaciones(document):
+    coleccion = get_collection("Habilitaciones")
+    filtro = {"_id": ObjectId(document['id'])}
+    document.pop('id')
+
+    set_query = {"$set": document}
+
+    respuesta = await coleccion.update_one(filtro, set_query)
+
+    if respuesta.modified_count == 1:
+        return {"status": "success", "message": "Documento actualizado correctamente"}
+    else:
+        return {"status": "failed", "message": "No se actualizó el documento"}
+
+
+async def patch_habilitaciones(document: dict):
+    coleccion = get_collection("Habilitaciones")
+    try:
+        # Se espera que el diccionario incluya la clave "id" para identificar el documento
+        doc_id = document.get("id")
+        if not doc_id:
+            raise Exception("El documento debe incluir la clave 'id'")
+
+        filtro = {"_id": ObjectId(doc_id)}
+        document.pop("id")
+
+        patch_query = {"$set": document}
+        respuesta = await coleccion.update_one(filtro, patch_query)
+
+        if respuesta.modified_count == 1:
+            return {"status": "success", "message": "Documento actualizado parcialmente correctamente"}
+        else:
+            return {"status": "failed", "message": "No se actualizó el documento"}
+    except Exception as e:
+        raise Exception(f"Error en actualización parcial: {e}")
+
+
+async def get_habilitaciones_distinct(campo) -> list:
+    coleccion = get_collection("Habilitaciones")
+    try:
+        document = await coleccion.distinct(campo, {"activo": True})
+        return sorted(document)
+
+    except Exception as e:
+        raise Exception(f"Error al buscar documento: {e}")

@@ -1,0 +1,30 @@
+Tipos
+    const [!NombreArreglo!, set!NombreArreglo!] = useState([]);
+    const [recuperar!NombreArreglo!] = usePost!ModuloSecundario!ByFieldMutation(); 
+    const !campoPrimario!Seleccionado = watch('!moduloSecundario!.0.!campoPrimario!'); // moduloDestino, es nombre del formulario
+    
+    // Función para cargar los tomos
+    const cargar!NombreArreglo! = useCallback(async (!campoPrimario!) => {
+        if (!!campoPrimario!) {
+            setTomos([]);
+            return;
+        }
+        try {
+            const result = await recuperar!NombreArreglo!({ !campoPrimario! }).unwrap();
+            // Asumiendo que result es un array de objetos con propiedad !campoSecundario!
+            const !NombreArreglo!Unicos = [...new Set(
+                result
+                    .filter(item => item.!campoSecundario!)
+                    .map(item => item.!campoSecundario!.toString().trim())
+            )];
+            setTomos(!NombreArreglo!Unicos);
+        } catch (error) {
+            console.error("Error al cargar !NombreArreglo!:", error);
+            set!NombreArreglo!([]);
+        }
+    }, [recuperar!NombreArreglo!]);
+    
+    // Efecto que se dispara cuando cambia el libro seleccionado
+    useEffect(() => {
+        cargar!NombreArreglo!(!campoPrimario!Seleccionado);
+    }, [!campoPrimario!Seleccionado, cargar!NombreArreglo!]);

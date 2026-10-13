@@ -5,8 +5,56 @@ export const objetosApi = createApi({
     reducerPath: "objetosApi",
  //   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000/" }),
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
-    tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Escuelas", "Motivos"],
+    tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Escuelas", "Motivos","Habilitaciones",],
     endpoints: (builder) => ({
+	getHabilitaciones: builder.query({ 
+    		query: () => "habilitaciones/",
+    		providesTags: ["Habilitaciones"],
+		}),
+	getHabilitacionesById: builder.query({
+		query: (id) => `habilitaciones/${id}/`, // Ruta con el parámetro dinámico `id`
+		providesTags: (result, error, id) => [{ type: "Habilitaciones", id }],
+	}),
+	postHabilitacionesByField: builder.mutation({
+		query: (filter) => ({
+			url: "habilitaciones/search/",
+			method: "POST",
+			body: filter, // Enviar el filtro como un objeto
+		}),
+		providesTags: (result, error, filter) => [{ type: "Habilitaciones", filter }],
+		}),		
+    postHabilitaciones: builder.mutation({ 
+        	query: (nuevoDatos) => ({
+        	    url: "habilitaciones/",
+        	    method: "POST",
+        	    body: nuevoDatos,
+			}),
+    	    invalidatesTags: ["Habilitaciones"],
+		}),
+	putHabilitaciones: builder.mutation({ 
+    		query: (datos) => ({
+        		url: "habilitaciones/",
+        		method: "PUT",
+        		body: datos,
+			}),
+    		invalidatesTags: ["Habilitaciones"],
+		}),
+	patchHabilitaciones: builder.mutation({ 
+    		query: (datos) => ({
+        		url: "habilitaciones/",
+        		method: "PATCH",
+        		body: datos,
+			}),
+    		invalidatesTags: ["Habilitaciones"],
+		}),
+    getDistinctHabilitaciones: builder.query({
+            query: (campo) => {
+                const url = `habilitaciones/distinct/${campo}/`;
+                console.log('URL generada:', url); // Verifica que sea correcta
+                return url;
+                },
+                providesTags: ["Habilitaciones"],
+            }),
 		getMotivos: builder.query({ 
     		query: () => "motivos/",
     		providesTags: ["Motivos"],
@@ -268,6 +316,12 @@ export const objetosApi = createApi({
 
 });
 export const {
+	useGetHabilitacionesQuery,
+	usePostHabilitacionesMutation,
+	usePutHabilitacionesMutation,
+	usePatchHabilitacionesMutation,
+	usePostHabilitacionesByFieldMutation,
+	useGetDistinctHabilitacionesQuery,
 	useGetMotivosQuery,
 	usePostMotivosMutation,
 	usePutMotivosMutation,

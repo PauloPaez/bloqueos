@@ -1,0 +1,201 @@
+[
+    {
+        "name": "bloqueo",
+        "type": "bool",
+        "label": "Bloqueo",
+        "placeholder": "Bloqueo"
+    },
+    {
+        "name": "tipo_reg",
+        "type": "str",
+        "label": "Tipo Reg",
+        "placeholder": "Tipo Reg"
+    },
+    {
+        "name": "cod_liquidacion",
+        "type": "str",
+        "label": "Código Liquidación",
+        "placeholder": "Código Liquidación"
+    },
+    {
+        "name": "centro_pago",
+        "type": "str",
+        "label": "Centro Pago",
+        "placeholder": "Centro Pago"
+    },
+    {
+        "name": "pago_anio",
+        "type": "str",
+        "label": "Año Pago",
+        "placeholder": "Año Pago"
+    },
+    {
+        "name": "pago_mes",
+        "type": "str",
+        "label": "Mes Pago",
+        "placeholder": "Mes Pago"
+    },
+    {
+        "name": "pago_dia",
+        "type": "str",
+        "label": "Día Pago",
+        "placeholder": "Día Pago"
+    },
+    {
+        "name": "suc_acreditacion",
+        "type": "str",
+        "label": "Sucursal Acreditación",
+        "placeholder": "Sucursal Acreditación"
+    },
+    {
+        "name": "tipo_acreditacion",
+        "type": "str",
+        "label": "Tipo Acreditación",
+        "placeholder": "Tipo Acreditación"
+    },
+    {
+        "name": "cuenta_acreditacion",
+        "type": "str",
+        "label": "Cuenta Acreditación",
+        "placeholder": "Cuenta Acreditación"
+    },
+    {
+        "name": "cuenta_acreditacion_dv",
+        "type": "str",
+        "label": "DV Cuenta Acreditación",
+        "placeholder": "DV Cuenta Acreditación"
+    },
+    {
+        "name": "importe_acreditado",
+        "type": "float",
+        "label": "Importe Acreditado",
+        "placeholder": "Importe Acreditado"
+    },
+    {
+        "name": "beneficiario_nombre",
+        "type": "str",
+        "label": "Beneficiario",
+        "placeholder": "Beneficiario"
+    },
+    {
+        "name": "documento_tipo",
+        "type": "str",
+        "label": "Tipo Documento",
+        "placeholder": "Tipo Documento"
+    },
+    {
+        "name": "documento_nro",
+        "type": "str",
+        "label": "Número Documento",
+        "placeholder": "Número Documento"
+    },
+    {
+        "name": "suc_debito",
+        "type": "str",
+        "label": "Sucursal Débito",
+        "placeholder": "Sucursal Débito"
+    },
+    {
+        "name": "tipo_debito",
+        "type": "str",
+        "label": "Tipo Débito",
+        "placeholder": "Tipo Débito"
+    },
+    {
+        "name": "cuenta_debito",
+        "type": "str",
+        "label": "Cuenta Débito",
+        "placeholder": "Cuenta Débito"
+    },
+    {
+        "name": "cuenta_debito_dv",
+        "type": "str",
+        "label": "DV Cuenta Débito",
+        "placeholder": "DV Cuenta Débito"
+    },
+    {
+        "name": "cuil",
+        "type": "str",
+        "label": "CUIL",
+        "placeholder": "CUIL"
+    },
+    {
+        "name": "zona",
+        "type": "str",
+        "label": "Zona",
+        "placeholder": "Zona"
+    },
+    {
+        "name": "centro",
+        "type": "str",
+        "label": "Centro",
+        "placeholder": "Centro"
+    },
+    {
+        "name": "sector",
+        "type": "str",
+        "label": "Sector",
+        "placeholder": "Sector"
+    },
+    {
+        "name": "padron",
+        "type": "str",
+        "label": "Padrón",
+        "placeholder": "Padrón"
+    },
+    {
+        "name": "padron_dv",
+        "type": "str",
+        "label": "DV Padrón",
+        "placeholder": "DV Padrón"
+    },
+    {
+        "name": "reservado",
+        "type": "str",
+        "label": "Reservado",
+        "placeholder": "Reservado"
+    },
+    {
+        "name": "cod_banco",
+        "type": "str",
+        "label": "Código Banco",
+        "placeholder": "Código Banco"
+    },
+    {
+        "name": "tipo_archivo",
+        "type": "str",
+        "label": "Tipo Archivo",
+        "placeholder": "Tipo Archivo"
+    },
+    {
+        "name": "periodo",
+        "type": "str",
+        "label": "Período",
+        "placeholder": "Período"
+    },
+    {
+        "name": "motivo",
+        "type": "select",
+        "label": "Motivo",
+        "placeholder": "Motivo",
+        "optionsKey": "motivos"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "Login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

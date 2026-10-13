@@ -1,0 +1,26 @@
+[
+    {
+        "name": "concepto",
+        "type": "str",
+        "label": "Concepto",
+        "placeholder": "Concepto"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

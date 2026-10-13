@@ -1,0 +1,50 @@
+[
+    {
+        "name": "nota_al_general",
+        "type": "bool",
+        "label": "Nota dirigida al director general",
+        "placeholder": "Nota dirigida al director general"
+    },
+    {
+        "name": "copia_acta_asamblea",
+        "type": "bool",
+        "label": "Copia certificada del acta de convoca a asamblea",
+        "placeholder": "Copia certificada del acta de convoca a asamblea"
+    },
+    {
+        "name": "acta_asamblea_extraordinaria",
+        "type": "bool",
+        "label": "Acta de asamblea extraordinaria",
+        "placeholder": "Acta de asamblea extraordinaria"
+    },
+    {
+        "name": "registro_asistencia",
+        "type": "bool",
+        "label": "Registro de Asistencia",
+        "placeholder": "Registro de Asistencia"
+    },
+    {
+        "name": "unidades_tributarias",
+        "type": "bool",
+        "label": "1500 unidades tributarias",
+        "placeholder": "1500 unidades tributarias"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

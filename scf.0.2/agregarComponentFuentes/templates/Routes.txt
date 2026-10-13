@@ -1,0 +1,2 @@
+    "/!Model!/Actualizar!Model!": Actualizar!Model!,
+    "/!Model!/Listar!Model!": Listar!Model!,

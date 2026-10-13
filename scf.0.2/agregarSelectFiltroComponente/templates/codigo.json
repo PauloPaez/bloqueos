@@ -1,0 +1,59 @@
+[
+  { 
+    "criterio": "import { resetModulo } from '../../store/appSlice';",
+    "axn": "antes",
+    "codigoNuevo": [
+      "import { usePost!ModuloOrigen!ByFieldMutation } from'../../store/apiSlice';"
+    ]
+  },
+  {
+    "criterio": "const user = useSelector((state) => state.acceso.user);",
+    "axn": "despues",
+    "codigoNuevo": [
+      "const [!CampoDestino!, set!CampoDestino!] = useState([]);"
+    ]
+  },
+  {
+    "criterio": "const user = useSelector((state) => state.acceso.user);",
+    "axn": "despues",
+    "codigoNuevo": [
+      "const [recuperar!CampoDestino!] = usePost!ModuloOrigen!ByFieldMutation();"
+    ]
+  },
+  {
+    "criterio": "\"!campoDestino!\": []",  
+    "axn": "reemplazar",
+    "codigoNuevo": [
+      "\"!campoDestino!\": !CampoDestino!"
+    ]
+  },
+  {
+    "criterio": "const onSubmit = async (data) => {",
+    "axn": "antes",
+    "codigoNuevo": [
+      "const !campoDestino!Seleccionado = watch('!moduloDestino!.0.!campoDestino!');",
+      "",
+      "const cargar!CampoDestino! = useCallback(async (!campoMostrar!) => {",
+      "  try {",
+      "    const result = await recuperar!CampoDestino!(!filtro!).unwrap();",
+      "    const !campoDestino!Unicos = [...new Set(",
+      "      result",
+      "        .filter(item => item.!campoMostrar!)",
+      "        .map(item => item.!campoMostrar!.toString().trim())",
+      "        .sort()",
+      "    )];",
+      "",
+      "    set!CampoDestino!(!campoDestino!Unicos);",
+      "  } catch (error) {",
+      "    console.error('Error al cargar !campoDestino!:', error);",
+      "    set!CampoDestino!([]);",
+      "  }",
+      "}, [recuperar!CampoDestino!]);",
+      "",
+      "useEffect(() => {",
+      "  console.log('!campoMostrar!->Seleccionado: ', !campoDestino!Seleccionado);",
+      "  cargar!CampoDestino!(!campoDestino!Seleccionado);",
+      "}, []);"
+    ]
+  } 
+]

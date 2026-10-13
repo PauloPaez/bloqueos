@@ -1,0 +1,110 @@
+[
+    {
+        "name": "nombre_producto",
+        "type": "str",
+        "label": "Nombre producto",
+        "placeholder": "Nombre producto"
+    },
+    {
+        "name": "tipo",
+        "type": "str",
+        "label": "Tipo producto",
+        "placeholder": "Tipo producto"
+    },
+    {
+        "name": "cantidad",
+        "type": "int",
+        "label": "Cantidad solicitada",
+        "placeholder": "Cantidad solicitada"
+    },
+	{
+        "name": "precio_lista",
+        "type": "float",
+        "label": "Precio de lista",
+        "placeholder": "Precio de lista"
+    },
+	{
+        "name": "descuento",
+        "type": "float",
+        "label": "Descuento promocion",
+        "placeholder": "Descuento promocion"
+    },
+	{
+        "name": "precio_venta",
+        "type": "float",
+        "label": "Precio de venta",
+        "placeholder": "Precio de venta"
+    },
+	{
+        "name": "subtotal_carrito_comercio",
+        "type": "float",
+        "label": "Subtotal a pagar al comercio",
+        "placeholder": "Subtotal a pagar al comercio"
+    },
+    {
+        "name": "comercio",
+        "type": "str",
+        "label": "Comercio",
+        "placeholder": "Comercio"
+    },
+    {
+        "name": "direccion",
+        "type": "str",
+        "label": "Domicilio comercio",
+        "placeholder": "Domicilio comercio"
+    },
+    {
+        "name": "departamento",
+        "type": "str",
+        "label": "Localidad comercio",
+        "placeholder": "Localidad comercio"
+    },
+    {
+        "name": "fecha_entrega",
+        "type": "datetime",
+        "label": "Fecha entrega del producto",
+        "placeholder": "Fecha entrega del producto"
+    },
+    {
+        "name": "cliente",
+        "type": "str",
+        "label": "Cliente",
+        "placeholder": "Cliente"
+    },
+    {
+        "name": "numero_carrito",
+        "type": "int",
+        "label": "Identificador carrito",
+        "placeholder": "Identificador carrito"
+    },
+    {
+        "name": "fecha_carrito",
+        "type": "datetime",
+        "label": "Fecha creacion carrito",
+        "placeholder": "Fecha creacion carrito"
+    },
+    {
+        "name": "estado_carrito",
+        "type": "str",
+        "label": "Estado carrito",
+        "placeholder": "Estado carrito"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

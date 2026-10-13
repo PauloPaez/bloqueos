@@ -1,0 +1,45 @@
+[
+    {
+        "name": "nombre_producto",
+        "type": "str",
+        "label": "Nombre Producto",
+        "placeholder": "Nombre Producto"
+    },
+    {
+        "name": "rubro",
+        "type": "str",
+        "label": "Rubro",
+        "placeholder": "Rubro"
+    },
+
+    {
+        "name": "precio_lista",
+        "type": "float",
+        "label": "Precio de lista",
+        "placeholder": "Precio de lista"
+    },
+    {
+        "name": "stock",
+        "type": "int",
+        "label": "Stock",
+        "placeholder": "Stock"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

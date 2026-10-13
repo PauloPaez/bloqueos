@@ -1,0 +1,9 @@
+          ...(field.name === "!campo!" && {
+            onKeyDown: (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const !campo!Value = e.target.value;
+                buscar!Campo!(!campo!Value);
+              }
+            }
+          })

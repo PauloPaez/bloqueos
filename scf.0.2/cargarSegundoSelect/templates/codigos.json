@@ -1,0 +1,29 @@
+[
+{ 
+    "criterio": "import { resetModulo } from '../../store/appSlice';",
+    "axn": "antes",
+    "codigoNuevo": "import { usePost!ModuloOwnerSecData!ByFieldMutation } from'../../store/apiSlice';\n"
+},
+{
+    "criterio": "const user = useSelector((state) => state.acceso.user);",
+    "axn": "despues",
+    "codigoNuevo": " const [!CampoSecundarioPlural!, set!CampoSecundarioPlural!] = useState([]);\n"
+},
+{
+    "criterio": "const user = useSelector((state) => state.acceso.user);",
+    "axn": "despues",
+    "codigoNuevo": " const [recuperar!CampoSecundarioPlural!] = usePost!ModuloOwnerSecData!ByFieldMutation();\n"
+},
+{
+    "criterio": "'!campoSecundarioPlural!': []",  
+    "axn": "reemplazar",
+    "codigoNuevo": "    '!campoSecundarioPlural!': !CampoSecundarioPlural!\n"
+}
+,
+{
+    "criterio": "const onSubmit = async (data) => {",
+    "axn": "antes",
+    "codigoNuevo": "const !campoPrimario!Seleccionado = watch('!moduloDestino!.0.!campoPrimario!');\n\nconst cargar!CampoSecundarioPlural! = useCallback(async (!campoPrimario!) => {\n  if (!!campoPrimario!) {\n    set!CampoSecundarioPlural!([]);\n    return;\n  }\n  try {\n    const result = await recuperar!CampoSecundarioPlural!({ !campoPrimario! }).unwrap();\n    const !campoSecundarioPlural!Unicos = [...new Set(\n      result\n        .filter(item => item.!campoSecundario!)\n        .map(item => item.!campoSecundario!.toString().trim()).sort()\n    )];\n\n    set!CampoSecundarioPlural!(!campoSecundarioPlural!Unicos);\n  } catch (error) {\n    console.error('Error al cargar !campoSecundarioPlural!:', error);\n    set!CampoSecundarioPlural!([]);\n  }\n}, [recuperar!CampoSecundarioPlural!]);\n\nuseEffect(() => {\n  console.log('!campoPrimario!->Seleccionado: ', !campoPrimario!Seleccionado)\n  cargar!CampoSecundarioPlural!(!campoPrimario!Seleccionado);\n}, [!campoPrimario!Seleccionado, cargar!CampoSecundarioPlural!]);\n"
+
+} 
+]

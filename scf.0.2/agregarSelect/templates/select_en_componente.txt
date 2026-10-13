@@ -1,0 +1,12 @@
+       <div className="mb-3">
+         <label className="form-label" htmlFor='Roles'>
+           !Label!
+         </label>
+         <Select!Modelo_del_select!
+           value={!Modelo_del_select!Value || []} // Valor actual del campo "derivacion"
+           labelKey="!labelKey!" // Campo a mostrar en la lista
+           onSelect={(value) => setValue("!componente_a_modificar!.0.!campo_del_formulario!", value)} // Actualizar el valor en el formulario
+           multiple={false} // Permitir selección múltiple
+         />
+       </div>
+

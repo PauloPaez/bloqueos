@@ -75,9 +75,7 @@ export const filtroListadoSlice = createSlice({
         setFiltroListadoPorClave: (state, action) => {
             const { clave, filtro = {}, valores } = action.payload;
             if (!clave) return;
-
             state.filtrosPorClave[clave] = { ...filtro };
-
             if (valores !== undefined) {
                 state.valoresFiltrosPorClave[clave] = { ...valores };
             }
@@ -85,14 +83,12 @@ export const filtroListadoSlice = createSlice({
         resetFiltroListadoPorClave: (state, action) => {
             const { clave, filtro = {} } = action.payload;
             if (!clave) return;
-
             state.filtrosPorClave[clave] = { ...filtro };
             state.valoresFiltrosPorClave[clave] = {};
         },
         limpiarFiltroListadoPorClave: (state, action) => {
             const { clave } = action.payload;
             if (!clave) return;
-
             delete state.filtrosPorClave[clave];
             delete state.valoresFiltrosPorClave[clave];
         },
@@ -112,6 +108,11 @@ export const modulosSlice = createSlice({
     name: 'modulos',
     initialState: {
         // Estructura de datos para cada módulo
+        habilitaciones: {
+            datos: null,
+            filtros: {},
+            estadoEdicion: false,
+        },
         motivos: {
             datos: null,
             filtros: {},

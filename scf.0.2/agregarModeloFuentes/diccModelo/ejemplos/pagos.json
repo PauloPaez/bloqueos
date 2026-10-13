@@ -1,0 +1,56 @@
+[
+    {
+        "name": "comercio",
+        "type": "str",
+        "label": "Comercio",
+        "placeholder": "Comercio"
+    },
+    {
+        "name": "total",
+        "type": "float",
+        "label": "Total a pagar al comercio",
+        "placeholder": "Total a pagar al comercio"
+    },
+    {
+        "name": "estado_pago",
+        "type": "str",
+        "label": "Estado pago",
+        "placeholder": "Estado pago"
+    },
+    {
+        "name": "fecha_pago",
+        "type": "datetime",
+        "label": "Fecha pago",
+        "placeholder": "Fecha pago"
+    },
+    {
+        "name": "numero_carrito",
+        "type": "int",
+        "label": "Identificacion carrito",
+        "placeholder": "Identificacion carrito"
+    },
+    {
+        "name": "cliente",
+        "type": "str",
+        "label": "Cliente",
+        "placeholder": "Cliente"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

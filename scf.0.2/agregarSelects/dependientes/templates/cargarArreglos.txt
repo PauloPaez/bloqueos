@@ -1,0 +1,30 @@
+ //************* Consultas API para obtener categorías y tipos ************************* */ 
+
+  const { data: !campoPrimario! = [] } = useGetDistinct!ModelOrigen!Query('categoria'); //primer nivel de búsqueda con select 
+                                                                                    
+  const [seek!ModelOrigen!] = usePost!ModelOrigen!ByFieldMutation(); //segundo nivel de búsqueda con select dependientes
+
+  // Actualización de categorías
+  useEffect(() => {
+    if (!campoPrimario!.length > 0) {
+      setDatosSelect(prev => ({ ...prev, !campoPrimario! }));
+    }
+  }, [!campoPrimario!]);
+
+  // Función para recuperar tipos según categoría
+  const recuperar!CampoSecundario! = useCallback(async (!campoPrimario!) => {
+    if (!!campoPrimario!) return;
+    const filtro = { !campoPrimario! };
+    try {
+      const result = await seek!ModelOrigen!(filtro).unwrap();
+      console.log("!campoSecundario! recuperados:", result);
+      const !campoSecundario!Unicos = [...new Set(result.map(item => item.!campoSecundario!))];
+      setDatosSelect(prev => ({ ...prev, !campoSecundario!: !campoSecundario!Unicos }));
+    } catch (err) {
+      console.error("Error fetching !campoPrimario! según !campoSecundario!:", err);
+      setDatosSelect(prev => ({ ...prev, !campoSecundario!: [] }));
+    }
+  }, [seek!ModelOrigen!]);
+  
+   //************* FIN Consultas API para obtener categorías y tipos ************************* */ 
+   

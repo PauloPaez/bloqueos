@@ -1,0 +1,56 @@
+[
+    {
+        "name": "nombre_pàciente",
+        "type": "str",
+        "label": "Nombre Paciente",
+        "placeholder": "Nombre Paciente"
+    },
+    {
+        "name": "apellido_paciente",
+        "type": "str",
+        "label": "Apellido Paciente",
+        "placeholder": "Apellido Paciente"
+    },
+    {
+        "name": "nombre_medico",
+        "type": "str",
+        "label": "Nombre Médico",
+        "placeholder": "Nombre Médico"
+    },
+    {
+        "name": "apellido_medico",
+        "type": "str",
+        "label": "Apellido Medico",
+        "placeholder": "Apellido Medico"
+    },
+    {
+        "name": "diagnostico",
+        "type": "str",
+        "label": "Diagnostico",
+        "placeholder": "Diagnostico"
+    },
+    {
+        "name": "derivacion",
+        "type": "str",
+        "label": "Derivación",
+        "placeholder": "Derivación"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

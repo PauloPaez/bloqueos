@@ -1,0 +1,38 @@
+[
+    {
+        "name": "rol",
+        "type": "list",
+        "label": "Área",
+        "placeholder": "Área"
+    },
+    {
+        "name": "periodo",
+        "type": "str",
+        "label": "Periodo",
+        "placeholder": "Periodo"
+    },
+    {
+        "name": "fecha_cierre",
+        "type": "datetime",
+        "label": "Fecha Cierre",
+        "placeholder": "Fecha Cierre"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

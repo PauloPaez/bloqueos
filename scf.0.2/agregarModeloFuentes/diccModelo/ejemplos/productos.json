@@ -1,0 +1,32 @@
+[
+    {
+        "name": "nombre_producto",
+        "type": "str",
+        "label": "Nombre Producto",
+        "placeholder": "Nombre Producto"
+    },
+    {
+        "name": "rubro",
+        "type": "str",
+        "label": "Rubro",
+        "placeholder": "Rubro"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

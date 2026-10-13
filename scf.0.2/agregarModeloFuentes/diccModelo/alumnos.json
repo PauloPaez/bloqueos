@@ -1,0 +1,75 @@
+[
+    {
+        "name": "login",
+        "type": "str",
+        "label": "Login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "path",
+        "type": "str",
+        "label": "Path Video",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "path_imagen",
+        "type": "str",
+        "label": "Path Imagen",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "descripcion_tutorial",
+        "type": "str",
+        "label": "Descripción Tutorial",
+        "placeholder": "Descripción Tutorial"
+    },
+    {
+        "name": "fecha_compra",
+        "type": "datetime",
+        "label": "Fecha Compra",
+        "placeholder": "Fecha Compra"
+    },
+    {
+        "name": "actual",
+        "type": "select",
+        "label": "Derivar",
+        "placeholder": "visible",
+        "optionsKey": "actuales"
+    },
+    {
+        "name": "anterior",
+        "type": "str",
+        "label": "anterior",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "fecha_derivacion",
+        "type": "str",
+        "label": "fecha_derivacion",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "fecha_creacion",
+        "type": "datetimeCreation",
+        "label": "fecha_creacion",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

@@ -1,0 +1,124 @@
+// Listar!model!.jsx
+import React, { useState, useEffect } from "react";
+import { usePost!Model!ByFieldMutation } from "../../store/apiSlice";
+import { useDispatch } from "react-redux";
+import { setFila } from "../../store/appSlice";
+
+const Listar!model! = () => {
+  const dispatch = useDispatch();
+  const [post!model!, { error, isLoading }] = usePost!Model!ByFieldMutation();
+  const [!model!, set!Model!] = useState([]);
+
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await post!model!({}).unwrap();
+        set!model!(result);
+      } catch (err) {
+        console.error("Error fetching !model!:", err);
+      }
+    };
+    fetchData();
+  }, [post!model!]);
+
+
+  // WebSocket connection
+  useEffect(() => {
+    const websocket = new WebSocket("ws://localhost:8000/ws/!model!");
+
+    websocket.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log("Mensaje recibido:", message.wsk_!model!);
+      // Procesar automáticamente todos los campos con prefijo "fecha"
+      Object.keys(message.wsk_!model!).forEach((key) => {
+        if (key.startsWith("fecha") && message.wsk_!model![key]) {
+          const fecha = new Date(message.wsk_!model![key]);
+          if (!isNaN(fecha)) {
+            message.wsk_!model![key] = fecha.toISOString(); // Convertir a ISO si es válida
+          }
+        }
+      });
+
+        set!Model!(prev!model! => {
+          switch (message.accion) {
+            case 'post':
+              return [...prev!model!, message.wsk_!model!];
+            case 'patch':
+              return prev!model!.map(item =>
+                item.id === message.wsk_!model!.id ? message.wsk_!model! : item
+              );
+            case 'put':
+              return prev!model!.map(item =>
+                item.id === message.wsk_!model!.id ? message.wsk_!model! : item
+              );
+            case 'delete':
+              return prev!model!.filter(item => item._id !== message.data.id);
+            default:
+              return prev!model!;
+          }
+        });
+      } catch (err) {
+        console.error("Error procesando mensaje WebSocket:", err);
+      }
+    };
+
+    return () => websocket.close();
+  }, []);
+
+
+
+  if (isLoading) return <p>Cargando !model!...</p>;
+  if (error) return <p>Error al cargar !model!: {error.message}</p>;
+  if (!!model! || !model!.length === 0) return <p>No hay datos disponibles</p>;
+  const formFields = [
+  ];
+  const columnas = Object.keys(!model![0]).filter((key) => {
+    // Filtrar columnas basadas en formFields excluyendo campos con placeholder "no_visible"
+    const field = formFields.find((f) => f.name === key);
+    return field && field.placeholder !== "no_visible";
+  });
+  // Función para manejar la selección de una fila
+  const handleRowClick = (socio) => {
+    dispatch(setFila(socio)); // Despacha la acción para guardar el socio seleccionado
+    console.log("Fila seleccionada:", socio);
+  };
+  return (
+    <div>
+      <h2>Listado de !model!</h2>
+      <table className="table table-striped">
+        <thead>
+          <tr>
+            {columnas.map((columna) => (
+              <th key={columna}>{columna}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {!model!.map((item, index) => (
+            <tr key={index} onClick={() => handleRowClick(item)}>
+              {columnas.map((columna) => {
+                const valor = item[columna];
+                const campo = formFields.find(f => f.name === columna);
+                // Formatear fechas
+                if (campo?.type === "date" && valor) {
+                  const fecha = new Date(valor);
+                  const formatoEspañol = fecha.toLocaleDateString('es-ES');
+                  return <td key={columna}>{formatoEspañol}</td>;
+                }
+                if (Array.isArray(valor)) return <td key={columna}>{valor.join(", ")}</td>;
+                // Formatear booleanos
+                if (typeof valor === "boolean") {
+                  return <td key={columna}>{valor ? "SI" : "NO"}</td>;
+                }
+                return <td key={columna}>{valor || "-"}</td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+export default Listar!model!;

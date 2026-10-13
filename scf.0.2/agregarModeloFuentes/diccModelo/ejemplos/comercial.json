@@ -1,0 +1,76 @@
+[
+    {
+        "name": "cliente_empresa",
+        "type": "str",
+        "label": "Empresa Cliente",
+        "placeholder": "Empresa Cliente"
+    },
+    {
+        "name": "persona_contacto",
+        "type": "str",
+        "label": "Persona de Contacto",
+        "placeholder": "Persona de Contacto"
+    },
+    {
+        "name": "celular",
+        "type": "str",
+        "label": "Celular",
+        "placeholder": "ej. 264555666"
+    },
+    {
+        "name": "tipo_solicitud",
+        "label": "Tipo de Solicitud",
+        "type": "select",
+        "optionsKey": "tipo_solicituds",
+        "placeholder": "Tipo de Solicitud"
+    },
+    {
+        "name": "estado",
+        "label": "Estado Solicitud",
+        "type": "select",
+        "optionsKey": "estados",
+        "placeholder": "Estado Solicitud"
+    },
+    {
+        "name": "proximo",
+        "type": "str",
+        "label": "proximo",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "anterior",
+        "type": "str",
+        "label": "anterior",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "fecha_derivacion",
+        "type": "str",
+        "label": "fecha_derivacion",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "fecha_creacion",
+        "type": "datetime",
+        "label": "fecha_creacion",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

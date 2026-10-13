@@ -1,0 +1,75 @@
+[
+    {
+        "name": "nomeclatura_presupuesto",
+        "type": "str",
+        "label": "Nomeclatura Presupuesto",
+        "placeholder": "Nomeclatura Presupuesto"
+    },
+    {
+        "name": "titulo_presupuesto",
+        "type": "str",
+        "label": "Titulo Presupuesto",
+        "placeholder": "Titulo Presupuesto"
+    },
+    {
+        "name": "version_presupesto",
+        "type": "str",
+        "label": "Versión Presupuesto",
+        "placeholder": "Versión Presupuesto"
+    },
+    {
+        "name": "descripcion_presupuesto",
+        "type": "str",
+        "label": "Descripcion Presupuesto",
+        "placeholder": "Descripcion Presupuesto"
+    },
+    {
+        "name": "descripcion_proyecto",
+        "type": "str",
+        "label": "Descripcion Proyecto",
+        "placeholder": "Descripcion Proyecto"
+    },
+    {
+        "name": "actual",
+        "type": "select",
+        "label": "Derivar",
+        "placeholder": "visible",
+        "optionsKey": "actuales"
+    },
+    {
+        "name": "anterior",
+        "type": "str",
+        "label": "anterior",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "fecha_derivacion",
+        "type": "str",
+        "label": "fecha_derivacion",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "fecha_creacion",
+        "type": "datetimeCreation",
+        "label": "fecha_creacion",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "login",
+        "type": "str",
+        "label": "login",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "empresa",
+        "type": "str",
+        "label": "Empresa",
+        "placeholder": "no_visible"
+    },
+    {
+        "name": "activo",
+        "type": "bool",
+        "label": "Activo",
+        "placeholder": "Activo"
+    }
+]

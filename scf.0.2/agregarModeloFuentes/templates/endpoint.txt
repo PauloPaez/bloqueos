@@ -1,0 +1,48 @@
+	get!endpoint!: builder.query({ 
+    		query: () => "!endpoint_url!/",
+    		providesTags: ["!endpoint!"],
+		}),
+	get!endpoint!ById: builder.query({
+		query: (id) => `!endpoint_url!/${id}/`, // Ruta con el parámetro dinámico `id`
+		providesTags: (result, error, id) => [{ type: "!endpoint!", id }],
+	}),
+	post!endpoint!ByField: builder.mutation({
+		query: (filter) => ({
+			url: "!endpoint_url!/search/",
+			method: "POST",
+			body: filter, // Enviar el filtro como un objeto
+		}),
+		providesTags: (result, error, filter) => [{ type: "!endpoint!", filter }],
+		}),		
+    post!endpoint!: builder.mutation({ 
+        	query: (nuevoDatos) => ({
+        	    url: "!endpoint_url!/",
+        	    method: "POST",
+        	    body: nuevoDatos,
+			}),
+    	    invalidatesTags: ["!endpoint!"],
+		}),
+	put!endpoint!: builder.mutation({ 
+    		query: (datos) => ({
+        		url: "!endpoint_url!/",
+        		method: "PUT",
+        		body: datos,
+			}),
+    		invalidatesTags: ["!endpoint!"],
+		}),
+	patch!endpoint!: builder.mutation({ 
+    		query: (datos) => ({
+        		url: "!endpoint_url!/",
+        		method: "PATCH",
+        		body: datos,
+			}),
+    		invalidatesTags: ["!endpoint!"],
+		}),
+    getDistinct!endpoint!: builder.query({
+            query: (campo) => {
+                const url = `!endpoint_url!/distinct/${campo}/`;
+                console.log('URL generada:', url); // Verifica que sea correcta
+                return url;
+                },
+                providesTags: ["!endpoint!"],
+            }),
