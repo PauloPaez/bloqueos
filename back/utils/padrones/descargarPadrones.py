@@ -1,26 +1,22 @@
 import os
-import sys
+import shutil
 import stat
+import sys
 from pathlib import Path
 
 import paramiko
 from dotenv import load_dotenv
-import shutil
+
+if __package__:
+    from .prefijos import PREFIJOS
+else:
+    from prefijos import PREFIJOS
 
 # Raíz del proyecto: .../back/utils/padrones/descargarPadrones.py -> 3 niveles arriba
 RAIZ = Path(__file__).resolve().parents[2]
 RAIZ_DATOS = Path(__file__).resolve().parents[3]
 ARCHIVO_ENV = RAIZ / ".env"
 DIR_LOCAL = RAIZ_DATOS / "datos" / "fuentes"
-
-PREFIJOS = [
-    "SUAC1",
-    "SUAC1OTROS",
-    "TIAC1",
-    "TIAC1COMN",
-    "TIAC1COMNOTROS",
-    "TIAC1OTROS",
-]
 
 PERIODO_DEFECTO = "AGOSTO26"
 
