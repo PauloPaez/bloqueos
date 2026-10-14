@@ -54,8 +54,8 @@ def generar_padron_json(periodo: str, base: Path = BASE, destino: Path = DESTINO
                 registro["tipo_archivo"] = archivo.stem
                 registro["periodo"] = periodo
                 registro["bloqueo"] = False
-                registro["empresa"] = "DPI" #si no es necesario, lo podria removera este campo o ponerlo como vacio.
-                registro["login"] = "ppaez" #este campo deberia ser de quien cargó. Ya que si se ve login como campos en modelos que no son Usuario, entonces se usa como quien hizo esa accion
+                registro["empresa"] = "DPI" #TODO: si no es necesario, lo podria removera este campo o ponerlo como vacio.
+                registro["login"] = "ppaez" #TODO: este campo deberia ser de quien cargó. Ya que si se ve login como campos en modelos que no son Usuario, entonces se usa como quien hizo esa accion
                 registro["activo"] = True
 
                 # Campos del modelo que faltaban (se cargan al dar de baja un registro)
