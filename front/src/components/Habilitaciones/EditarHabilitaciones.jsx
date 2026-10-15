@@ -80,7 +80,6 @@ const EditarHabilitaciones = () => {
         ...habilitaciones,
         empresa: user.empresa,
         login: user.login,
-        activo: true,
       };
 
       if (filaSeleccionada?.id) {
@@ -91,7 +90,7 @@ const EditarHabilitaciones = () => {
 
         dispatch(resetModulo({ modulo: 'habilitaciones' }));
       } else {
-        await postHabilitaciones(habilitacionesData).unwrap();
+        await postHabilitaciones({ ...habilitacionesData, activo: true }).unwrap();
       }
 
       reset();

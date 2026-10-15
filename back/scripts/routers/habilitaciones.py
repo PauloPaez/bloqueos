@@ -1,17 +1,23 @@
 # routers/habilitaciones.py
-from fastapi import APIRouter, HTTPException
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
-# ----------------------------------------------------
 from scripts.models.habilitaciones import Habilitaciones
-# ----------------------------------------------------
-from scripts.querys.habilitaciones import get_habilitaciones, add_habilitaciones, \
-    put_habilitaciones, get_habilitaciones_by_id, search_habilitaciones_in_db,\
-    patch_habilitaciones, get_habilitaciones_distinct
-# ----------------------------------------------------
-# Importa desde el módulo externo
+from scripts.querys.habilitaciones import (
+    add_habilitaciones,
+    get_habilitaciones,
+    get_habilitaciones_by_id,
+    get_habilitaciones_distinct,
+    patch_habilitaciones,
+    put_habilitaciones,
+    search_habilitaciones_in_db,
+)
 from utils.websockets_manager import notify_clients
+
 habilitaciones = APIRouter()
+
+
 @habilitaciones.get("/habilitaciones/", response_model=List[Habilitaciones])
 async def fetch_habilitaciones():
     try:
@@ -65,6 +71,8 @@ async def update_habilitaciones(item: Habilitaciones):
 async def partial_update_habilitaciones(document: dict):
     try:
         result = await patch_habilitaciones(document)
+        if result["status"] == "failed":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result["message"])
         await notify_clients("habilitaciones", "Documento actualizado parcialmente")
         return {
             "message": "Actualización parcial exitosa",

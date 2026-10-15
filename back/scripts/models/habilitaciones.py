@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, field_validator
 
 class Habilitaciones(BaseModel):
     id: Optional[str] = Field(default=None)  # ID del documento
-    rol: Optional[List[str]] = Field(default=[])
+    rol: str | None
     periodo: Optional[str] = Field(default=None)
     fecha_cierre: Optional[datetime] = Field(default=None)
     login: Optional[str] = Field(default=None)
