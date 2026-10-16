@@ -42,8 +42,8 @@ const EditarHabilitaciones = () => {
   const camposVisibles = formularioCampos.filter((field) => {
     if (field.placeholder === 'no_visible') return false;
 
-    // El campo 'activo' solo se muestra si hay fila seleccionada
-    if (field.name === 'activo' && !filaSeleccionada?.id) {
+    // Los estados solo se muestran al editar una habilitación existente.
+    if (['activo', 'cerrado'].includes(field.name) && !filaSeleccionada?.id) {
       return false;
     }
     return true;
@@ -66,7 +66,7 @@ const EditarHabilitaciones = () => {
         } else {
           setValue(
             `habilitaciones.0.${field.name}`,
-            filaSeleccionada[field.name] ?? null
+            filaSeleccionada[field.name] ?? (field.type === 'checkbox' ? false : null)
           );
         }
       });

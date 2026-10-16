@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -14,6 +15,7 @@ class HabilitacionesBase(BaseModel):
     rol: str | None = Field(default=None)
     periodo: str | None = Field(default=None)
     fecha_cierre: datetime | None = Field(default=None)
+    cerrado: bool | None = Field(default=False)
     login: str | None = Field(default=None)
     empresa: str | None = Field(default=None)
     activo: bool | None = Field(default=False)
@@ -47,6 +49,12 @@ class HabilitacionesEntrada(HabilitacionesBase): #esto lo hice ya que el respons
 class HabilitacionesCreate(HabilitacionesEntrada):
     rol: str
     periodo: str
+    cerrado: Literal[False] = False  # Toda habilitación se crea abierta; el cierre es manual.
+
+    @field_validator("cerrado", mode="before")
+    @classmethod
+    def normalizar_cerrado(cls, value):
+        return False if value is None else value
 
 
 class HabilitacionesResponse(HabilitacionesBase):
@@ -56,6 +64,14 @@ class HabilitacionesResponse(HabilitacionesBase):
 
 class HabilitacionesUpdate(HabilitacionesEntrada):
     id: str
+
+    @model_validator(mode="before")
+    @classmethod
+    def omitir_cerrado_nulo(cls, data):
+        # null no solicita cambiar el estado; solo true o false lo modifican.
+        if isinstance(data, dict) and data.get("cerrado") is None:
+            return {campo: valor for campo, valor in data.items() if campo != "cerrado"}
+        return data
 
     @model_validator(mode="after")
     def validar_periodo_enviado(self):

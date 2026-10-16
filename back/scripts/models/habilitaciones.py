@@ -8,6 +8,7 @@ class Habilitaciones(BaseModel):
     rol: str | None
     periodo: Optional[str] = Field(default=None)
     fecha_cierre: Optional[datetime] = Field(default=None)
+    cerrado: bool | None = Field(default=False)
     login: Optional[str] = Field(default=None)
     empresa: Optional[str] = Field(default=None)
     activo: Optional[bool] = Field(default=False)
