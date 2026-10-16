@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from utils.padrones.importPadron import ordenar_periodo
@@ -26,12 +27,21 @@ class HabilitacionesBase(BaseModel):
 
 
 class HabilitacionesEntrada(HabilitacionesBase): #esto lo hice ya que el response tambien validaba el periodo, rompiendo el listado y no habia posibilidad de ver un error y desactivarlo
-    """Comparte la validación de período únicamente entre creación y actualización."""
+    """Comparte las validaciones de entrada entre creación y actualización."""
 
     @field_validator("periodo")
     @classmethod
     def validar_periodo(cls, value):
         return normalizar_periodo(value) if value is not None else None
+
+    @field_validator("fecha_cierre")
+    @classmethod
+    def validar_fecha_cierre(cls, value):
+        # Es una fecha de calendario: hoy es válido, sin comparar la hora de cierre.
+        hoy = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).date()
+        if value is not None and value.date() < hoy:
+            raise ValueError("La fecha de cierre no puede ser anterior a hoy.")
+        return value
 
 
 class HabilitacionesCreate(HabilitacionesEntrada):

@@ -7,6 +7,11 @@ import { formularioCampos } from './FormularioEditar';
 import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
 
+const hoyEnArgentina = () => new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'America/Argentina/Buenos_Aires',
+  year: 'numeric', month: '2-digit', day: '2-digit',
+}).format(new Date());
+
 const EditarHabilitaciones = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.acceso.user);
@@ -82,7 +87,16 @@ const EditarHabilitaciones = () => {
         login: user.login,
       };
 
+      const fechaAnterior = filaSeleccionada?.fecha_cierre?.split('T')[0] ?? '';
+      const fechaCambiada = !filaSeleccionada?.id || habilitaciones.fecha_cierre !== fechaAnterior;
+      if (fechaCambiada && habilitaciones.fecha_cierre && habilitaciones.fecha_cierre < hoyEnArgentina()) {
+        alert('La fecha de cierre no puede ser anterior a hoy.');
+        return;
+      }
+
       if (filaSeleccionada?.id) {
+        // No reenviar una fecha histórica sin cambios al editar otro campo.
+        if (!fechaCambiada) delete habilitacionesData.fecha_cierre;
         await patchHabilitaciones({
           id: filaSeleccionada.id,
           ...habilitacionesData,
@@ -123,6 +137,7 @@ const EditarHabilitaciones = () => {
             field.placeholder !== 'no_visible'
               ? field.placeholder
               : undefined,
+          min: field.name === 'fecha_cierre' ? hoyEnArgentina() : undefined,
         };
 
         return (
