@@ -7,6 +7,11 @@ import { formularioCampos } from './FormularioEditar';
 import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
 
+const mesesPeriodo = [
+  'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+  'JULIO', 'AGOSTO', 'SETIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE',
+];
+
 const hoyEnArgentina = () => new Intl.DateTimeFormat('sv-SE', {
   timeZone: 'America/Argentina/Buenos_Aires',
   year: 'numeric', month: '2-digit', day: '2-digit',
@@ -25,6 +30,8 @@ const EditarHabilitaciones = () => {
   const { register, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       habilitaciones: [{}],
+      mesPeriodo: '',
+      anioPeriodo: '',
     },
   });
 
@@ -46,7 +53,12 @@ const EditarHabilitaciones = () => {
   useEffect(() => {
     if (filaSeleccionada?.id) {
       camposVisibles.forEach((field) => {
-        if (field.type === 'date' && filaSeleccionada[field.name]) {
+        if (field.name === 'periodo') {
+          const periodo = filaSeleccionada.periodo?.toUpperCase().replace('SEPTIEMBRE', 'SETIEMBRE');
+          const partes = periodo?.match(/^([A-Z]+)(\d{2})$/);
+          setValue('mesPeriodo', partes && mesesPeriodo.includes(partes[1]) ? partes[1] : '');
+          setValue('anioPeriodo', partes ? `20${partes[2]}` : '');
+        } else if (field.type === 'date' && filaSeleccionada[field.name]) {
           setValue(
             `habilitaciones.0.${field.name}`,
             filaSeleccionada[field.name].split('T')[0]
@@ -74,7 +86,16 @@ const EditarHabilitaciones = () => {
 
   const onSubmit = async (data) => {
     try {
-      const habilitaciones = data.habilitaciones?.[0];
+      const { mesPeriodo, anioPeriodo } = data;
+      // MESAA representa los años 2000 a 2099 usando sus últimos dos dígitos.
+      if (!mesesPeriodo.includes(mesPeriodo) || !/^20\d{2}$/.test(String(anioPeriodo))) {
+        alert('Seleccione el mes e ingrese un año entre 2000 y 2099.');
+        return;
+      }
+      const habilitaciones = data.habilitaciones?.[0] && {
+        ...data.habilitaciones[0],
+        periodo: `${mesPeriodo}${String(anioPeriodo).slice(-2)}`,
+      };
 
       if (!habilitaciones || controlDatosFormulario(habilitaciones)) {
         alert('⚠️ Faltan completar datos formulario');
@@ -131,7 +152,7 @@ const EditarHabilitaciones = () => {
         );
 
         const fieldProps = {
-          ...register(`habilitaciones.0.${field.name}`),
+          ...(field.name === 'periodo' ? {} : register(`habilitaciones.0.${field.name}`)),
           disabled: field.disabled,
           placeholder:
             field.placeholder !== 'no_visible'
@@ -169,7 +190,38 @@ const EditarHabilitaciones = () => {
                 <label className="form-label">{field.label}</label>
               )}
 
-              {field.type === 'select' ? (
+              {field.name === 'periodo' ? (
+                <div className="row g-2">
+                  <div className="col-7">
+                    <label className="form-label" htmlFor="habilitaciones-mes">Mes</label>
+                    <select
+                      id="habilitaciones-mes"
+                      className="form-select"
+                      {...register('mesPeriodo')}
+                    >
+                      <option value="">Seleccione mes</option>
+                      {mesesPeriodo.map((mes) => (
+                        <option key={mes} value={mes}>
+                          {mes.charAt(0) + mes.slice(1).toLowerCase()}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-5">
+                    <label className="form-label" htmlFor="habilitaciones-anio">Año</label>
+                    <input
+                      id="habilitaciones-anio"
+                      type="number"
+                      className="form-control"
+                      placeholder="2026"
+                      min="2000"
+                      max="2099"
+                      step="1"
+                      {...register('anioPeriodo')}
+                    />
+                  </div>
+                </div>
+              ) : field.type === 'select' ? (
                 <select className="form-control" {...fieldProps}>
                   <option value="">
                     Seleccione {field.label.toLowerCase()}
