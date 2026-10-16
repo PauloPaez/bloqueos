@@ -2,8 +2,6 @@
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
-from scripts.models.habilitaciones import Habilitaciones
 from scripts.querys.habilitaciones import (
     add_habilitaciones,
     get_habilitaciones,
@@ -13,12 +11,18 @@ from scripts.querys.habilitaciones import (
     put_habilitaciones,
     search_habilitaciones_in_db,
 )
+from scripts.schemas.schemaHabilitaciones import (
+    HabilitacionesCreate,
+    HabilitacionesResponse,
+    HabilitacionesUpdate,
+    normalizar_periodo,
+)
 from utils.websockets_manager import notify_clients
 
 habilitaciones = APIRouter()
 
 
-@habilitaciones.get("/habilitaciones/", response_model=List[Habilitaciones])
+@habilitaciones.get("/habilitaciones/", response_model=List[HabilitacionesResponse])
 async def fetch_habilitaciones():
     try:
         return await get_habilitaciones()
@@ -26,7 +30,9 @@ async def fetch_habilitaciones():
         raise HTTPException(
             status_code=500, detail=f"Error al obtener los datos: {e}"
         )
-@habilitaciones.get("/habilitaciones/{id}/", response_model=Habilitaciones)
+
+
+@habilitaciones.get("/habilitaciones/{id}/", response_model=HabilitacionesResponse)
 async def fetch_m_entrada_by_id(id: str):
     try:
         documento= await get_habilitaciones_by_id(id)
@@ -38,7 +44,9 @@ async def fetch_m_entrada_by_id(id: str):
         raise HTTPException(
             status_code =500, detail=f"Error al obtener el documento: {e}"
         )
-@habilitaciones.post("/habilitaciones/search/", response_model=List[Habilitaciones])
+
+
+@habilitaciones.post("/habilitaciones/search/", response_model=List[HabilitacionesResponse])
 async def search_habilitaciones(filter: Dict[str, Any]):
     try:
         documentos= await search_habilitaciones_in_db(filter)
@@ -47,30 +55,37 @@ async def search_habilitaciones(filter: Dict[str, Any]):
         raise HTTPException(
         status_code =500, detail=f"Error al realizar la búsqueda: {e}"
         )
+
+
 @habilitaciones.post("/habilitaciones/", status_code=201)
-async def post_habilitaciones(habilitaciones: Habilitaciones):
+async def post_habilitaciones(habilitacion: HabilitacionesCreate):
     try:
-        result = await add_habilitaciones(habilitaciones.dict())
+        result = await add_habilitaciones(habilitacion.model_dump())
         await notify_clients("habilitaciones", "Nuevo habilitaciones agregado")
         return {"message": "Documento insertado con éxito", "id": str(result)}
     except Exception as e:
+        print(f"ERROR: {e}")
         raise HTTPException(
-        status_code =500, detail=f"Error al insertar el documento: {e}"
+        status_code =500, detail="Error al insertar habilitacion"
     )
+
+
 @habilitaciones.put("/habilitaciones/")
-async def update_habilitaciones(item: Habilitaciones):
+async def update_habilitaciones(item: HabilitacionesUpdate):
     try:
-        result= await put_habilitaciones(item.dict())
+        result= await put_habilitaciones(item.model_dump(exclude_unset=True))
         await notify_clients("habilitaciones", "habilitaciones actualizado")
         return {"message": "Documento actualizado con éxito", "id": str(result)}
     except Exception as e:
         raise HTTPException(
             status_code =500, detail=f"Error al actualizar el documento: {e}"
         )
+
+
 @habilitaciones.patch("/habilitaciones/")
-async def partial_update_habilitaciones(document: dict):
+async def partial_update_habilitaciones(habilitacion: HabilitacionesUpdate):
     try:
-        result = await patch_habilitaciones(document)
+        result = await patch_habilitaciones(habilitacion.model_dump(exclude_unset=True))
         if result["status"] == "failed":
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result["message"])
         await notify_clients("habilitaciones", "Documento actualizado parcialmente")
@@ -78,10 +93,16 @@ async def partial_update_habilitaciones(document: dict):
             "message": "Actualización parcial exitosa",
             "result": result
         }
+    except HTTPException as e:
+        print(f"ERROR: {e.detail}")
+        raise
     except Exception as e:
+        print(f"ERROR: {e}")
         raise HTTPException(
-            status_code=500, detail=f"Error al actualizar parcialmente el documento: {e}"
+            status_code=500, detail="Error al actualizar parcialmente la habilitacion"
         )
+
+
 @habilitaciones.get("/habilitaciones/distinct/{campo}/")
 async def get_TN_distinct(campo: str):
     try:
