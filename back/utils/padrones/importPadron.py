@@ -2,7 +2,6 @@ import asyncio
 import json
 import re
 from pathlib import Path
-from time import perf_counter  # TODO PRUEBA_RENDIMIENTO: retirar al terminar las mediciones.
 
 from pymongo import IndexModel
 from scripts.conf.engine import get_collection
@@ -60,24 +59,9 @@ async def copiar_indices(actual, temporal):
 
 async def cargar_temporal(temporal, registros):
     """Inserta por lotes y verifica la cantidad sin modificar las acreditaciones vigentes."""
-    # TODO PRUEBA_RENDIMIENTO: retirar cronómetros y mensajes de progreso tras las pruebas.
-    inicio_carga = perf_counter()
-    total_lotes = (len(registros) + TAMANO_LOTE - 1) // TAMANO_LOTE
-    print(f"[PRUEBA] Iniciando carga de {len(registros)} registros en {total_lotes} lotes", flush=True)
     for inicio in range(0, len(registros), TAMANO_LOTE):
-        # TODO PRUEBA_RENDIMIENTO: medir cada inserción para detectar esperas por lote.
-        inicio_lote = perf_counter()
         await temporal.insert_many(registros[inicio:inicio + TAMANO_LOTE], ordered=True)
-        print(
-            f"[PRUEBA] Lote {inicio // TAMANO_LOTE + 1}/{total_lotes}: "
-            f"{perf_counter() - inicio_lote:.2f} s",
-            flush=True,
-        )
-    # TODO PRUEBA_RENDIMIENTO: separar transferencia/inserción del conteo de verificación.
-    print(f"[PRUEBA] Inserción total: {perf_counter() - inicio_carga:.2f} s", flush=True)
-    inicio_conteo = perf_counter()
     cantidad = await temporal.count_documents({})
-    print(f"[PRUEBA] Conteo de verificación: {perf_counter() - inicio_conteo:.2f} s", flush=True)
     if cantidad != len(registros):
         raise RuntimeError(f"Carga incompleta: se esperaban {len(registros)} registros y hay {cantidad}.")
 
@@ -97,15 +81,8 @@ async def validar_periodo_nuevo(base, periodo): #aca verifica tambien los period
 
 async def importar_padron(periodo: str, directorio: Path = DIRECTORIO_JSON) -> dict:
     """Coordina validación, carga temporal y reemplazo usando la conexión del backend."""
-    # TODO PRUEBA_RENDIMIENTO: retirar medición total y de lectura después de probar.
-    inicio_total = perf_counter()
-    print("[PRUEBA] Leyendo y validando el JSON...", flush=True)
     # La lectura del JSON no bloquea el procesamiento de otras solicitudes del backend.
     registros = await asyncio.to_thread(leer_padron, periodo, directorio)
-    print(f"[PRUEBA] Lectura y validación del JSON: {perf_counter() - inicio_total:.2f} s", flush=True)
-    # TODO PRUEBA_RENDIMIENTO: esta etapa incluye la conexión inicial diferida de MongoDB.
-    inicio_preparacion = perf_counter()
-    print("[PRUEBA] Consultando MongoDB y preparando la colección temporal...", flush=True)
     periodo = periodo.upper()
     actual = get_collection("Escuelas")
     base = actual.database
@@ -120,27 +97,15 @@ async def importar_padron(periodo: str, directorio: Path = DIRECTORIO_JSON) -> d
     temporal = await base.create_collection("EscuelasTemporal", check_exists=False, **opciones)
     publicacion_iniciada = False
     try:
-        # TODO PRUEBA_RENDIMIENTO: registrar preparación antes de consultar períodos e índices.
-        print(f"[PRUEBA] Preparación de temporal: {perf_counter() - inicio_preparacion:.2f} s", flush=True)
-        inicio_periodos = perf_counter()
-        print("[PRUEBA] Consultando y validando períodos activos...", flush=True)
         # Se valida después de reservar la temporal para evitar dos cargas concurrentes.
         await validar_periodo_nuevo(base, periodo)
-        # TODO PRUEBA_RENDIMIENTO: retirar tiempos de validación y copia de índices.
-        print(f"[PRUEBA] Validación de períodos: {perf_counter() - inicio_periodos:.2f} s", flush=True)
-        inicio_indices = perf_counter()
-        print("[PRUEBA] Preparando índices...", flush=True)
         if existe_actual:
             await copiar_indices(actual, temporal)
-        print(f"[PRUEBA] Preparación de índices: {perf_counter() - inicio_indices:.2f} s", flush=True)
         await cargar_temporal(temporal, registros)
         publicacion_iniciada = True
         # Sustituye Escuelas en una sola operación del servidor, sin respaldo completo.
         # El cierre del período y su histórico de bloqueados se integrarán en el flujo de habilitaciones.
         try:
-            # TODO PRUEBA_RENDIMIENTO: retirar medición de publicación después de probar.
-            inicio_publicacion = perf_counter()
-            print("[PRUEBA] Publicando Escuelas...", flush=True)
             await temporal.rename("Escuelas", dropTarget=True)
         except Exception as error:
             # Si se perdió la respuesta de red, la operación podría haberse completado.
@@ -148,8 +113,6 @@ async def importar_padron(periodo: str, directorio: Path = DIRECTORIO_JSON) -> d
             raise RuntimeError(
                 "No se pudo confirmar la publicación. Revisar Escuelas y EscuelasTemporal antes de reintentar."
             ) from error
-        # TODO PRUEBA_RENDIMIENTO: registrar fuera del manejo del error de renombrado.
-        print(f"[PRUEBA] Publicación: {perf_counter() - inicio_publicacion:.2f} s", flush=True)
     except Exception:
         if not publicacion_iniciada:
             # Una carga parcial se descarta; Escuelas permanece intacta.
@@ -157,6 +120,4 @@ async def importar_padron(periodo: str, directorio: Path = DIRECTORIO_JSON) -> d
         # Tras iniciar el renombrado conservamos los datos disponibles para inspección.
         raise
 
-    # TODO PRUEBA_RENDIMIENTO: retirar el resumen temporal después de probar.
-    print(f"[PRUEBA] Tiempo total del importador: {perf_counter() - inicio_total:.2f} s", flush=True)
     return {"periodo": periodo, "cantidad": len(registros)}
