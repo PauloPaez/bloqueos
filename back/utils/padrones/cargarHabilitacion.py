@@ -5,8 +5,8 @@ from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 from scripts.conf.engine import get_collection
 from scripts.querys.habilitaciones import add_habilitaciones
-from utils.padrones.descargarPadrones import descargar_archivos, variables_ambiente
-from utils.padrones.generar_padron_json import generar_padron_json
+from utils.padrones.descargarPadrones import DIR_LOCAL, descargar_archivos, nombres_archivos, variables_ambiente
+from utils.padrones.generar_padron_json import DESTINO, generar_padron_json
 from utils.padrones.importPadron import (
     importar_padron,
     ordenar_periodo,
@@ -34,6 +34,20 @@ def preparar_archivos(documento):
     generar_padron_json(
         documento["periodo"], login=documento.get("login"), empresa=documento.get("empresa"),
     )
+
+
+def limpiar_archivos_procesados(periodo):
+    """Borra únicamente las fuentes y el JSON locales del período ya cargado y registrado."""
+    ordenar_periodo(periodo)
+    periodo = periodo.upper()
+    archivos = [DIR_LOCAL / nombre for nombre in nombres_archivos(periodo)]
+    archivos.append(DESTINO / f"{periodo}.json")
+    for archivo in archivos:
+        try:
+            archivo.unlink(missing_ok=True)
+        except OSError as error:
+            # Un archivo que no se pudo borrar no impide limpiar los restantes.
+            print(f"ERROR al eliminar el archivo procesado {archivo}: {error}")
 
 
 async def crear_habilitacion_con_padron(documento):
@@ -89,7 +103,14 @@ async def crear_habilitacion_con_padron(documento):
             + ("Escuelas puede contener una carga parcial. Revise Escuelas y ControlCargas antes de reintentar." if importacion_iniciada else "No se importaron acreditaciones.")
         ) from error
 
-    # El guardado ya terminó: un fallo de limpieza no debe informar que la importación falló.
+    # Limpiamos solo después del guardado confirmado y todavía con la reserva tomada.
+    # Una limpieza fallida no convierte una carga completada en un error para el usuario.
+    try:
+        await asyncio.to_thread(limpiar_archivos_procesados, documento["periodo"])
+    except Exception as error:
+        print(f"ERROR al limpiar los archivos de la carga completada: {error}")
+
+    # El guardado ya terminó: un fallo al liberar la reserva tampoco invalida la carga.
     try:
         await control.delete_one({"_id": "padrones", "habilitacion._id": documento["_id"]})
     except Exception as error:

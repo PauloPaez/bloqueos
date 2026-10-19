@@ -177,3 +177,6 @@ dist-ssr
 
 .env.development
 .env.production
+
+# Archivos descargados y generados durante las cargas
+/datos/
