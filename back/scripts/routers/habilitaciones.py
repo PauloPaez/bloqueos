@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, status
 from scripts.querys.habilitaciones import (
-    add_habilitaciones,
     get_habilitaciones,
     get_habilitaciones_by_id,
     get_habilitaciones_distinct,
@@ -18,6 +17,7 @@ from scripts.schemas.schemaHabilitaciones import (
     normalizar_periodo,
 )
 from utils.websockets_manager import notify_clients
+from utils.padrones.cargarHabilitacion import crear_habilitacion_con_padron
 
 habilitaciones = APIRouter()
 
@@ -60,14 +60,23 @@ async def search_habilitaciones(filter: Dict[str, Any]):
 @habilitaciones.post("/habilitaciones/", status_code=201)
 async def post_habilitaciones(habilitacion: HabilitacionesCreate):
     try:
-        result = await add_habilitaciones(habilitacion.model_dump())
-        await notify_clients("habilitaciones", "Nuevo habilitaciones agregado")
-        return {"message": "Documento insertado con éxito", "id": str(result)}
+        result = await crear_habilitacion_con_padron(habilitacion.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        print(f"ERROR: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         print(f"ERROR: {e}")
-        raise HTTPException(
-        status_code =500, detail="Error al insertar habilitacion"
-    )
+        raise HTTPException(status_code=500, detail="Error al iniciar la carga de acreditaciones")
+
+    # Una notificación fallida no revierte ni invalida una carga que ya terminó correctamente.
+    for modulo in ("escuelas", "habilitaciones"):
+        try:
+            await notify_clients(modulo, "Acreditaciones cargadas y habilitación registrada")
+        except Exception as e:
+            print(f"ERROR al notificar {modulo}: {e}")
+    return {"message": "Acreditaciones cargadas y habilitación registrada", **result}
 
 
 @habilitaciones.put("/habilitaciones/")

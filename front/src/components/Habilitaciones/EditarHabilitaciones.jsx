@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { usePostHabilitacionesMutation, usePatchHabilitacionesMutation } from '../../store/apiSlice';
 import { useSelector, useDispatch } from 'react-redux';
@@ -24,8 +24,10 @@ const EditarHabilitaciones = () => {
     (state) => state.modulos.habilitaciones).datos
 
 
-  const [postHabilitaciones] = usePostHabilitacionesMutation();
+  const [postHabilitaciones, { isLoading: cargando }] = usePostHabilitacionesMutation();
   const [patchHabilitaciones] = usePatchHabilitacionesMutation();
+  const cargaEnCurso = useRef(false);
+  const [errorCarga, setErrorCarga] = useState('');
 
   const { register, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
@@ -85,6 +87,8 @@ const EditarHabilitaciones = () => {
   };
 
   const onSubmit = async (data) => {
+    if (cargaEnCurso.current) return;
+    setErrorCarga('');
     try {
       const { mesPeriodo, anioPeriodo } = data;
       // MESAA representa los años 2000 a 2099 usando sus últimos dos dígitos.
@@ -125,16 +129,26 @@ const EditarHabilitaciones = () => {
 
         dispatch(resetModulo({ modulo: 'habilitaciones' }));
       } else {
+        cargaEnCurso.current = true;
         await postHabilitaciones({ ...habilitacionesData, activo: true }).unwrap();
+        alert('Acreditaciones cargadas y habilitación registrada correctamente.');
       }
 
       reset();
     } catch (error) {
       console.error('Error al enviar datos:', error);
+      const detalle = error?.data?.detail;
+      setErrorCarga(typeof detalle === 'string' ? detalle : Array.isArray(detalle)
+        ? detalle.map((item) => item.msg).join(' ')
+        : 'No se pudo confirmar el guardado. Revise el listado antes de reintentar.');
+    } finally {
+      cargaEnCurso.current = false;
     }
   };
 
   const handleReset = () => {
+    if (cargaEnCurso.current) return;
+    setErrorCarga('');
     reset();
     dispatch(resetModulo({ modulo: 'habilitaciones' }));
   };
@@ -146,6 +160,14 @@ const EditarHabilitaciones = () => {
         backgroundColor: filaSeleccionada?.id ? '#fcf4dd' : '#ffffff',
       }}
     >
+      {cargando && (
+        <div className="alert alert-info" role="status">
+          Descargando y cargando acreditaciones. La operación puede tardar varios minutos.
+          Espere el resultado antes de cerrar esta pantalla.
+        </div>
+      )}
+      {errorCarga && <div className="alert alert-danger" role="alert">{errorCarga}</div>}
+      <fieldset disabled={cargando}>
       {camposVisibles.map((field) => {
         const separador = separadoresFormulario.find(
           (s) => s.before === field.name
@@ -153,7 +175,7 @@ const EditarHabilitaciones = () => {
 
         const fieldProps = {
           ...(field.name === 'periodo' ? {} : register(`habilitaciones.0.${field.name}`)),
-          disabled: field.disabled,
+          disabled: field.disabled || cargando,
           placeholder:
             field.placeholder !== 'no_visible'
               ? field.placeholder
@@ -265,7 +287,7 @@ const EditarHabilitaciones = () => {
           }`}
           onClick={handleSubmit(onSubmit)}
         >
-          {filaSeleccionada?.id ? 'Actualizar' : 'Grabar'}
+          {cargando ? 'Cargando acreditaciones…' : filaSeleccionada?.id ? 'Actualizar' : 'Grabar'}
         </button>
 
         <button
@@ -276,6 +298,7 @@ const EditarHabilitaciones = () => {
           Reset
         </button>
       </div>
+      </fieldset>
     </form>
   );
 };

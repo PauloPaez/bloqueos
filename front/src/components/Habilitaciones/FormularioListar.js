@@ -4,5 +4,6 @@ export const formularioCampos = [
   {name: "fecha_cierre", label: "Fecha Cierre", placeholder: "Fecha Cierre", type: "date"},
   {name: "login", label: "login", placeholder: "no_visible", type: "text"},
   {name: "empresa", label: "Empresa", placeholder: "no_visible", type: "text"},
+  {name: "cerrado", label: "Cerrado", placeholder: "Cerrado", type: "text"},
   {name: "activo", label: "Activo", placeholder: "Activo", type: "checkbox"},
 ];

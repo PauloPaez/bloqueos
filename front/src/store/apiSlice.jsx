@@ -29,7 +29,7 @@ export const objetosApi = createApi({
         	    method: "POST",
         	    body: nuevoDatos,
 			}),
-    	    invalidatesTags: ["Habilitaciones"],
+            invalidatesTags: ["Habilitaciones", "Escuelas"],
 		}),
 	putHabilitaciones: builder.mutation({ 
     		query: (datos) => ({

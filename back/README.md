@@ -30,3 +30,14 @@ Exportación de documentos
 - Se corrigió el caso en que bloquear_todos_padrones_dni se enviaba como null.
 - Ahora se envía como false cuando no está seleccionado, sin alterar otros campos como activo.
 *Nota: los cambios relacionados con el botón para desbloquear todos los padrones por DNI quedaron guardados en un stash y no forman parte de la implementación activa actual.*
+
+**Carga de acreditaciones desde Habilitaciones**
+
+- Grabar (POST) valida el período y el cierre manual del último período activo, descarga por SFTP, genera el JSON, importa y registra la habilitación al final. Actualizar (PATCH/PUT) no ejecuta los scripts.
+- Los períodos se comparan con las habilitaciones activas registradas; no se aceptan períodos iguales o anteriores. Los documentos de una carga parcial en `Escuelas` no definen un período completado. La fecha de cierre no cierra automáticamente un período.
+- `ControlCargas` reserva la operación completa con `_id: "padrones"`. Al terminar se elimina ese documento. No tiene vencimiento automático para evitar liberar una carga que todavía trabaja.
+- La importación valida todo el JSON, vacía los documentos de `Escuelas` con `delete_many({})` e inserta por lotes de 10.000. Se conservan los índices y opciones; no se crea ni renombra una colección temporal.
+- Durante la inserción `Escuelas` puede estar vacía o parcial. Una carga incompleta no debe utilizarse para trabajar con acreditaciones. `ControlCargas` impide otra carga, pero no bloquea por sí sola las consultas o ediciones de escuelas.
+- Si una importación o un guardado queda incierto, la reserva conserva el documento de habilitación previsto, incluido su `_id`. Antes de liberar la reserva, comprobar que el proceso terminó y revisar `Escuelas` y ese `_id` en `Habilitaciones`. Si la inserción quedó parcial, después de esa revisión se puede liberar la reserva y reintentar: la importación vuelve a vaciar `Escuelas` antes de cargar, sin duplicar documentos. Si las acreditaciones se cargaron completas pero falta la habilitación, recuperar su registro sin repetir la importación.
+- La solicitud permanece abierta hasta terminar. El servidor o proxy debe permitir la duración de descarga, generación e importación. No se configuró ningún proxy desde este cambio.
+- El histórico de bloqueados sigue pendiente. Por ahora se exige el cierre manual, pero no se comprueba que exista un histórico: la carga elimina las acreditaciones anteriores sin respaldo completo.
