@@ -3,10 +3,12 @@ import json
 from bson.objectid import ObjectId
 from datetime import datetime
 from typing import Dict, Any
+from zoneinfo import ZoneInfo
 from datetime import datetime
 # ----------------------------------------------------
 from scripts.schemas.habilitaciones import habilitacionesSh
 from scripts.conf.engine import get_collection
+from scripts.schemas.schemaHabilitaciones import normalizar_periodo
 # -----------------------------------------------------
 # coleccion = database.Habilitaciones
 
@@ -109,3 +111,70 @@ async def get_habilitaciones_distinct(campo) -> list:
 
     except Exception as e:
         raise Exception(f"Error al buscar documento: {e}")
+
+
+async def obtener_habilitacion_para_cierre(periodo):
+    """Identifica la habilitación activa de las acreditaciones mostradas, sin cerrar durante una carga."""
+    periodo = normalizar_periodo(periodo)
+    if await get_collection("ControlCargas").find_one({"_id": "padrones"}):
+        raise ValueError("Hay una carga en curso o pendiente de revisión. No se puede cerrar el período.")
+    if not await get_collection("Escuelas").find_one({"periodo": periodo, "activo": True}, {"_id": 1}):
+        raise ValueError("El período no corresponde a las acreditaciones activas cargadas.")
+    documentos = await get_collection("Habilitaciones").find({"periodo": periodo, "activo": True}).to_list(length=2)
+    if not documentos:
+        raise ValueError(f"No hay una habilitación activa para el período {periodo}.")
+    if len(documentos) > 1:
+        raise ValueError(f"Hay más de una habilitación activa para {periodo}. Revise los registros antes de cerrar.")
+    return documentos[0]
+
+
+def estado_cierre_periodo(habilitacion):
+    """Informa el plazo de cierre manual, inclusive durante todo el día límite de Argentina."""
+    periodo = habilitacion["periodo"]
+    fecha = habilitacion.get("fecha_cierre")
+    cerrado = habilitacion.get("cerrado") is True
+    hoy = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).date()
+    fecha_limite = fecha.date() if fecha is not None else None
+    puede_cerrar = not cerrado and fecha_limite is not None and hoy <= fecha_limite
+    if cerrado:
+        mensaje = f"El período {periodo} ya está cerrado."
+    elif fecha_limite is None:
+        mensaje = f"El período {periodo} no tiene fecha de cierre. Defínala en habilitaciones antes de cerrar."
+    elif hoy > fecha_limite:
+        mensaje = f"El plazo para cerrar el período {periodo} venció el {fecha_limite:%d/%m/%Y}."
+    else:
+        mensaje = f"Puede cerrar el período {periodo} hasta el {fecha_limite:%d/%m/%Y}, inclusive."
+    return {
+        "periodo": periodo, "cerrado": cerrado, "puede_cerrar": puede_cerrar,
+        "fecha_limite": fecha_limite.isoformat() if fecha_limite else None, "mensaje": mensaje,
+        "dias_restantes": (fecha_limite - hoy).days if fecha_limite else None,
+    }
+
+
+async def consultar_cierre_periodo(periodo):
+    """Devuelve el plazo y cuenta las bloqueadas de todo el período, sin paginación ni filtros de pantalla."""
+    habilitacion = await obtener_habilitacion_para_cierre(periodo)
+    cantidad = await get_collection("Escuelas").count_documents({
+        "periodo": habilitacion["periodo"], "activo": True, "bloqueo": True,
+    })
+    return {**estado_cierre_periodo(habilitacion), "cantidad_bloqueadas": cantidad}
+
+
+async def cerrar_habilitacion_periodo(periodo):
+    """Cierra manualmente dentro del plazo; no modifica acreditaciones ni genera aún el histórico."""
+    habilitacion = await obtener_habilitacion_para_cierre(periodo)
+    estado = estado_cierre_periodo(habilitacion)
+    if estado["cerrado"]:
+        return estado
+    if not estado["puede_cerrar"]:
+        raise ValueError(estado["mensaje"])
+    resultado = await get_collection("Habilitaciones").update_one(
+        {
+            "_id": habilitacion["_id"], "activo": True, "cerrado": {"$ne": True},
+            "fecha_cierre": habilitacion["fecha_cierre"], "periodo": habilitacion["periodo"],
+        },
+        {"$set": {"cerrado": True}},
+    )
+    if resultado.modified_count != 1:
+        raise ValueError("La habilitación cambió durante el cierre. Actualice el listado y revise su estado.")
+    return estado_cierre_periodo({**habilitacion, "cerrado": True})

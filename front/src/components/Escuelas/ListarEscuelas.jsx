@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { usePostEscuelasByFieldMutation } from "../../store/apiSlice";
+import {
+  usePostEscuelasByFieldMutation,
+  useGetCierrePeriodoEscuelasQuery,
+  useCerrarPeriodoEscuelasMutation,
+} from "../../store/apiSlice";
 import { useDispatch } from "react-redux";
 import {
   setModuloState,
@@ -14,6 +18,8 @@ import { formularioCampos } from './FormularioListar';
 import Pagination from "../Pagination/Pagination";
 import { Download } from "lucide-react";
 import { descargarArchivo } from "../../common/descargarArchivo";
+import { toast } from 'sonner';
+import { AvisoCierrePeriodo, BotonCierrePeriodo } from './CierrePeriodo';
 
 const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
   const dispatch = useDispatch();
@@ -26,6 +32,25 @@ const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
   } = useFiltroListado(claveFiltro, { limpiarAlDesmontar: true });
   const [postEscuelas] = usePostEscuelasByFieldMutation();
   const [datos, setDatos] = useState([]);
+  const periodosTabla = [...new Set(datos.map((item) => item.periodo).filter(Boolean))];
+  const periodoTabla = periodosTabla.length === 1 ? periodosTabla[0] : null;
+  const {
+    currentData: estadoCierre,
+    isFetching: consultandoCierre,
+    error: errorEstadoCierre,
+    refetch: refetchEstadoCierre,
+  } = useGetCierrePeriodoEscuelasQuery(periodoTabla, {
+    skip: !periodoTabla,
+    refetchOnMountOrArgChange: true,
+    pollingInterval: 60000,
+  });
+  const [cerrarPeriodo, { isLoading: cerrandoPeriodo }] = useCerrarPeriodoEscuelasMutation();
+  const [errorCerrar, setErrorCerrar] = useState('');
+  const edicionDeshabilitada = consultandoCierre || !!errorEstadoCierre || !estadoCierre?.puede_cerrar || cerrandoPeriodo;
+
+  useEffect(() => {
+    setErrorCerrar('');
+  }, [periodoTabla]);
   const [paginacion, setPaginacion] = useState({
         total: 0,
         page: 1,
@@ -173,6 +198,7 @@ const buscarEscuelas = async (
     websocket.onmessage = (event) => {
       console.log("Notificación recibida:", event.data);
       refetch();
+      if (periodoTabla) refetchEstadoCierre();
     };
     websocket.onclose = () => {
       console.log("WebSocket cerrado");
@@ -180,8 +206,9 @@ const buscarEscuelas = async (
     return () => {
       websocket.close();
     };
-  }, [refetch]);
+  }, [refetch, periodoTabla, refetchEstadoCierre]);
    const handleRowClick = (dato) => {
+    if (edicionDeshabilitada) return;
     dispatch(setModuloState({
       modulo: 'escuelas',
       nuevosDatos: {
@@ -221,6 +248,20 @@ const buscarEscuelas = async (
   };
 
   // --------- DESCARGAS DE ARCHIVOS ---------
+  const handleCerrarPeriodo = async () => {
+    if (!periodoTabla || !estadoCierre?.puede_cerrar || cerrandoPeriodo || consultandoCierre || isLoading) return;
+    setErrorCerrar('');
+    try {
+      const resultado = await cerrarPeriodo(periodoTabla).unwrap();
+      toast.success(resultado.mensaje);
+      return true;
+    } catch (error) {
+      setErrorCerrar(error?.data?.detail || 'No se pudo confirmar el cierre. Actualice el listado para revisar su estado.');
+      refetchEstadoCierre();
+      return false;
+    }
+  };
+
   const handleDescargarDocx = async () => {
     setIsDownloadingDocx(true);
     try {
@@ -306,8 +347,30 @@ const buscarEscuelas = async (
           <Download size={16} aria-hidden="true" />
           {isDownloadingTxt ? "Generando..." : "Descargar TXT"}
         </button>
+        <BotonCierrePeriodo
+          key={periodoTabla}
+          estado={estadoCierre}
+          disabled={isLoading || consultandoCierre || cerrandoPeriodo || !!errorEstadoCierre || !estadoCierre?.puede_cerrar || !periodoTabla}
+          consultando={consultandoCierre}
+          cerrando={cerrandoPeriodo}
+          error={errorCerrar || (errorEstadoCierre && (errorEstadoCierre?.data?.detail || 'No se pudo consultar el estado del período.'))}
+          onAbrir={() => { setErrorCerrar(''); refetchEstadoCierre(); }}
+          onConfirmar={handleCerrarPeriodo}
+        />
         </div>
       </header>
+
+      {errorCerrar && <div className="alert alert-danger" role="alert">{errorCerrar}</div>}
+      {periodoTabla && (errorEstadoCierre ? (
+        <div className="alert alert-warning" role="alert">
+          {errorEstadoCierre?.data?.detail || 'No se pudo consultar la fecha límite de cierre.'}
+        </div>
+      ) : estadoCierre ? (
+        <AvisoCierrePeriodo estado={estadoCierre} />
+      ) : null)}
+      {periodosTabla.length > 1 && (
+        <div className="alert alert-warning">La tabla contiene varios períodos. Muestre uno solo para poder cerrarlo.</div>
+      )}
 
       <FiltroEscuelas
         filtroInicial={filtroInicial}
@@ -340,7 +403,9 @@ const buscarEscuelas = async (
               </thead>
               <tbody>
                 {datos.map((item, index) => (
-                  <tr key={index} onClick={() => handleRowClick(item)}>
+                  <tr key={index} onClick={() => handleRowClick(item)}
+                    aria-disabled={edicionDeshabilitada}
+                    title={edicionDeshabilitada ? estadoCierre?.mensaje : 'Editar escuela'}>
                     {camposVisibles.map((field) => {
                       const valor = field.name === "importe_acreditado"
                         ? (item.importe_acreditado_formateado ?? item[field.name])

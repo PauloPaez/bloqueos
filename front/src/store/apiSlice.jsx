@@ -7,6 +7,18 @@ export const objetosApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Escuelas", "Motivos","Habilitaciones",],
     endpoints: (builder) => ({
+    getCierrePeriodoEscuelas: builder.query({
+      query: (periodo) => `escuelas/cierre-periodo/${encodeURIComponent(periodo)}/`,
+      providesTags: ["Habilitaciones", "Escuelas"],
+    }),
+    cerrarPeriodoEscuelas: builder.mutation({
+      query: (periodo) => ({
+        url: "escuelas/cerrar-periodo/",
+        method: "POST",
+        body: { periodo },
+      }),
+      invalidatesTags: ["Habilitaciones", "Escuelas"],
+    }),
 	getHabilitaciones: builder.query({ 
     		query: () => "habilitaciones/",
     		providesTags: ["Habilitaciones"],
@@ -316,6 +328,8 @@ export const objetosApi = createApi({
 
 });
 export const {
+    useGetCierrePeriodoEscuelasQuery,
+    useCerrarPeriodoEscuelasMutation,
 	useGetHabilitacionesQuery,
 	usePostHabilitacionesMutation,
 	usePutHabilitacionesMutation,

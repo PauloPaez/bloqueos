@@ -1,0 +1,60 @@
+.periodo-boton {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  background-color: black;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.periodo-aviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.periodo-aviso > svg { flex-shrink: 0; }
+.periodo-aviso p { margin: 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.periodo-aviso strong { font-weight: 500; }
+.periodo-detalle { opacity: .75; }
+.periodo-aviso-aviso { background: #fffbeb; border-color: #fcd34d; color: #78350f; }
+.periodo-aviso-vencido { background: #fef2f2; border-color: #fecaca; color: #7f1d1d; }
+.periodo-aviso-cerrado { background: #ecfdf5; border-color: #a7f3d0; color: #064e3b; }
+
+.periodo-dialogo { border: 1px solid #e5e7eb; border-radius: 10px; }
+.periodo-dialogo .modal-header { border: 0; padding: 24px 24px 8px; }
+.periodo-dialogo .modal-title { font-size: 18px; font-weight: 600; }
+.periodo-dialogo .modal-body { padding: 8px 24px 16px; color: #6b7280; font-size: 14px; }
+.periodo-dialogo .modal-footer { border: 0; padding: 0 24px 24px; }
+.periodo-conteo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+  color: #111827;
+}
+.periodo-conteo strong { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.periodo-fecha { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; font-size: 12px; }
+.periodo-dialogo .alert { margin-top: 12px; }
+
+@media (max-width: 575px) {
+  .periodo-detalle-amplio { display: none; }
+  .periodo-conteo { flex-wrap: wrap; }
+}
+.schools-list .listado-header,
+.schools-list .conjunto-botones { flex-wrap: wrap; }
+
+.schools-list .sticky-table tbody tr[aria-disabled="true"]:hover {
+  background-color: inherit;
+  cursor: default;
+}
+

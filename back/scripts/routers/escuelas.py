@@ -22,6 +22,8 @@ from scripts.querys.escuelas import (
 )
 from scripts.querys.motivos import get_motivos
 from scripts.schemas.escuelas import EscuelasPatch
+from scripts.schemas.schemaHabilitaciones import CerrarPeriodoRequest
+from scripts.querys.habilitaciones import consultar_cierre_periodo, cerrar_habilitacion_periodo
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
@@ -30,6 +32,34 @@ from utils.generacionZip import crear_zip
 from utils.websockets_manager import notify_clients
 
 escuelas = APIRouter()
+
+
+@escuelas.get("/escuelas/cierre-periodo/{periodo}/")
+async def consultar_cierre_escuelas(periodo: str):
+    try:
+        return await consultar_cierre_periodo(periodo)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"ERROR al consultar el cierre del período: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo consultar el estado de cierre del período.")
+
+
+@escuelas.post("/escuelas/cerrar-periodo/")
+async def cerrar_periodo_escuelas(documento: CerrarPeriodoRequest):
+    try:
+        resultado = await cerrar_habilitacion_periodo(documento.periodo)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"ERROR al cerrar el período: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo cerrar el período.")
+    for modulo in ("habilitaciones", "escuelas"):
+        try:
+            await notify_clients(modulo, resultado["mensaje"])
+        except Exception as e:
+            print(f"ERROR al notificar el cierre de {modulo}: {e}")
+    return resultado
 
 
 @escuelas.get("/escuelas/", response_model=List[EscuelasResponse])

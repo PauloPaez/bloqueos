@@ -75,7 +75,18 @@ class HabilitacionesUpdate(HabilitacionesEntrada):
 
     @model_validator(mode="after")
     def validar_periodo_enviado(self):
+        if "cerrado" in self.model_fields_set:
+            raise ValueError("El cierre del período debe realizarse desde la pantalla de escuelas.")
         if "periodo" in self.model_fields_set and self.periodo is None:
             raise ValueError("El período debe tener formato MESAA.")
         return self
+
+
+class CerrarPeriodoRequest(BaseModel):
+    periodo: str
+
+    @field_validator("periodo")
+    @classmethod
+    def validar_periodo(cls, value):
+        return normalizar_periodo(value)
 
