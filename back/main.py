@@ -13,6 +13,7 @@ from scripts.routers.roles import roles
 from scripts.routers.rutas import rutas
 from scripts.routers.usuarios import usuarios
 from scripts.routers.habilitaciones import habilitaciones
+from scripts.routers.bloqueados_historicos import bloqueados_historicos
 from utils.websockets_manager import (
     add_connection,
     notify_clients,
@@ -98,3 +99,4 @@ app.include_router(escuelas, tags=["Escuelas"])
 app.include_router(routerDocs)
 app.include_router(motivos, tags=["Motivos"])
 app.include_router(habilitaciones, tags=["Habilitaciones"])
+app.include_router(bloqueados_historicos, tags=["Bloqueados históricos"])

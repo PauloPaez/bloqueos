@@ -5,6 +5,7 @@ from typing import Any
 from bson.objectid import ObjectId
 from scripts.conf.engine import get_collection
 from scripts.exceptions import EscuelaNotFoundError, EscuelaValidationError
+from scripts.querys.habilitaciones import estado_cierre_periodo
 from scripts.schemas.escuelas import EscuelasPatch, escuelasSh
 
 MOTIVOS_BLOQUEO_TOTAL = ["baja por jubilacion", "baja por fallecimiento"]
@@ -71,7 +72,20 @@ async def search_escuelas_in_db(filter: dict[str, Any]):
         raise Exception(f"Error al buscar documentos: {e}")
 
 
+async def validar_periodo_editable(periodo):
+    """Permite escribir acreditaciones solo si su habilitación está activa, abierta y dentro del plazo."""
+    habilitacion = await get_collection("Habilitaciones").find_one({
+        "periodo": periodo, "activo": True,
+    })
+    if habilitacion is None:
+        raise EscuelaValidationError("No hay una habilitación activa para el período de esta acreditación.")
+    estado = estado_cierre_periodo(habilitacion)#verifica si se puede cerrar o no el periodo. En este caso, funciona para habilitar la modificacion de la escuela/acreditacion
+    if not estado["puede_cerrar"]:
+        raise EscuelaValidationError(f"No se puede modificar la acreditación. {estado['mensaje']}")
+
+
 async def add_escuelas(document: dict) -> ObjectId:
+    await validar_periodo_editable(document.get("periodo"))
     coleccion = get_collection("Escuelas")
     # Inserta el documento en la colección y devuelve el ID generado
     result = await coleccion.insert_one(document)
@@ -81,7 +95,12 @@ async def add_escuelas(document: dict) -> ObjectId:
 async def put_escuelas(document):
     coleccion = get_collection("Escuelas")
     filtro = {"_id": ObjectId(document["id"])}
+    actual = await coleccion.find_one(filtro)
+    if actual is None:
+        raise EscuelaNotFoundError("Documento no encontrado")
+    await validar_periodo_editable(actual.get("periodo"))
     document.pop("id")
+    document.pop("periodo", None)
 
     set_query = {"$set": document}
 
@@ -104,7 +123,7 @@ async def patch_escuelas(document: EscuelasPatch):
     # Solo se incluyen los campos enviados en el PATCH.
     bloquear_todos_padrones_dni = document.bloquear_todos_padrones_dni
     datos = document.model_dump(
-        exclude={"id", "bloquear_todos_padrones_dni"},
+        exclude={"id", "bloquear_todos_padrones_dni", "periodo"}, #se excluye periodo ya que es un dato que no deberia ser modificable
         exclude_unset=True,
     )
 
@@ -114,6 +133,9 @@ async def patch_escuelas(document: EscuelasPatch):
     actual = await coleccion.find_one(filtro)
     if actual is None:
         raise EscuelaNotFoundError("Documento no encontrado")
+
+    # Validar el período guardado antes de modificar la escuela o bloquear por DNI.
+    await validar_periodo_editable(actual.get("periodo"))
 
     bloqueo = datos.get("bloqueo", actual.get("bloqueo"))
     motivo = datos.get("motivo", actual.get("motivo"))

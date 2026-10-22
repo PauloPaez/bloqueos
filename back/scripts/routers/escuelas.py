@@ -113,6 +113,8 @@ async def post_escuelas(escuelas: Escuelas):
         result = await add_escuelas(escuelas.dict())
         await notify_clients("escuelas", "Nuevo escuelas agregado")
         return {"message": "Documento insertado con éxito", "id": str(result)}
+    except EscuelaValidationError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error al insertar el documento: {e}"
@@ -125,6 +127,10 @@ async def update_escuelas(item: Escuelas):
         result = await put_escuelas(item.dict())
         await notify_clients("escuelas", "escuelas actualizado")
         return {"message": "Documento actualizado con éxito", "id": str(result)}
+    except EscuelaValidationError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except EscuelaNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error al actualizar el documento: {e}"

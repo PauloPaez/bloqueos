@@ -1,7 +1,7 @@
 # querys/habilitaciones.py
 import json
 from bson.objectid import ObjectId
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any
 from zoneinfo import ZoneInfo
 from datetime import datetime
@@ -9,6 +9,7 @@ from datetime import datetime
 from scripts.schemas.habilitaciones import habilitacionesSh
 from scripts.conf.engine import get_collection
 from scripts.schemas.schemaHabilitaciones import normalizar_periodo
+from scripts.querys.bloqueados_historicos import guardar_bloqueados_historicos
 # -----------------------------------------------------
 # coleccion = database.Habilitaciones
 
@@ -154,6 +155,8 @@ def estado_cierre_periodo(habilitacion):
 async def consultar_cierre_periodo(periodo):
     """Devuelve el plazo y cuenta las bloqueadas de todo el período, sin paginación ni filtros de pantalla."""
     habilitacion = await obtener_habilitacion_para_cierre(periodo)
+    if habilitacion.get("historico_generado") is True and habilitacion.get("cerrado") is True:
+        return {**estado_cierre_periodo(habilitacion), "cantidad_bloqueadas": habilitacion["cantidad_bloqueadas"]}
     cantidad = await get_collection("Escuelas").count_documents({
         "periodo": habilitacion["periodo"], "activo": True, "bloqueo": True,
     })
@@ -161,20 +164,26 @@ async def consultar_cierre_periodo(periodo):
 
 
 async def cerrar_habilitacion_periodo(periodo):
-    """Cierra manualmente dentro del plazo; no modifica acreditaciones ni genera aún el histórico."""
+    """Guarda la copia histórica antes de confirmar el cierre manual, también cuando no hay bloqueados."""
     habilitacion = await obtener_habilitacion_para_cierre(periodo)
     estado = estado_cierre_periodo(habilitacion)
     if estado["cerrado"]:
         return estado
     if not estado["puede_cerrar"]:
         raise ValueError(estado["mensaje"])
+    fecha_cierre_real = datetime.now(timezone.utc)
+    cantidad = await guardar_bloqueados_historicos(habilitacion, fecha_cierre_real)
+    cierre = {
+        "cerrado": True, "historico_generado": True,
+        "cantidad_bloqueadas": cantidad, "fecha_cierre_real": fecha_cierre_real,
+    }
     resultado = await get_collection("Habilitaciones").update_one(
         {
             "_id": habilitacion["_id"], "activo": True, "cerrado": {"$ne": True},
             "fecha_cierre": habilitacion["fecha_cierre"], "periodo": habilitacion["periodo"],
         },
-        {"$set": {"cerrado": True}},
+        {"$set": cierre},
     )
     if resultado.modified_count != 1:
         raise ValueError("La habilitación cambió durante el cierre. Actualice el listado y revise su estado.")
-    return estado_cierre_periodo({**habilitacion, "cerrado": True})
+    return {**estado_cierre_periodo({**habilitacion, **cierre}), "cantidad_bloqueadas": cantidad}
