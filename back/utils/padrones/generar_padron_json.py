@@ -5,10 +5,10 @@ from pathlib import Path
 
 if __package__:
     from .parsear import parsear_registro
-    from .prefijos import PREFIJOS
+    from .prefijos import es_archivo_padron
 else:
     from parsear import parsear_registro
-    from prefijos import PREFIJOS
+    from prefijos import es_archivo_padron
 
 #Localiza las carpetas de entrada y salida
 # Raíz del proyecto: .../back/utils/padrones/descargarPadrones.py -> 3 niveles arriba. __file__ reperesenta el archivo del script, desde su ubicacion sube hasta la raiz del repo y costruye las rutas
@@ -20,15 +20,20 @@ def validar_archivos(periodo: str, base: Path) -> list[Path]:
     if not periodo or not periodo.isalnum():
         raise ValueError("El período debe contener solamente letras y números.")
 
-    archivos = [base / f"{prefijo}.{periodo}" for prefijo in PREFIJOS]
-    faltantes = [archivo.name for archivo in archivos if not archivo.is_file()]
-    if faltantes:
-        raise ValueError(f"Faltan archivos obligatorios: {', '.join(faltantes)}")
+    archivos = sorted(
+        archivo for archivo in base.iterdir()
+        if archivo.is_file() and es_archivo_padron(archivo.name, periodo)
+        and archivo.stat().st_size > 0
+    )
+    if not archivos:
+        raise ValueError("No hay archivos SUAC/TIAC con datos para procesar.")
 
-    inesperados = [ #guarda los archivos que no estan especificados en la constante PREFIJOS. Los archivos demás.
+    inesperados = [
         str(archivo.relative_to(base))
         for archivo in base.rglob("*")
-        if archivo.is_file() and archivo not in archivos
+        if archivo.is_file() and not (
+            archivo.parent == base and es_archivo_padron(archivo.name, periodo)
+        )
     ]
     if inesperados:
         raise ValueError(f"Archivos inesperados: {', '.join(inesperados)}")

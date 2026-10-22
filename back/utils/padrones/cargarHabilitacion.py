@@ -5,7 +5,8 @@ from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 from scripts.conf.engine import get_collection
 from scripts.querys.habilitaciones import add_habilitaciones
-from utils.padrones.descargarPadrones import DIR_LOCAL, descargar_archivos, nombres_archivos, variables_ambiente
+from utils.padrones.descargarPadrones import DIR_LOCAL, descargar_archivos, variables_ambiente
+from utils.padrones.prefijos import es_archivo_padron
 from utils.padrones.generar_padron_json import DESTINO, generar_padron_json
 from utils.padrones.importPadron import (
     importar_padron,
@@ -30,7 +31,9 @@ async def verificar_cierre_anterior(base):
 def preparar_archivos(documento):
     """Descarga por SFTP y genera el JSON en un hilo, sin escrituras en el servidor de origen."""
     host, usuario, clave, remoto = variables_ambiente()
-    descargar_archivos(host, usuario, clave, remoto, documento["periodo"])
+    archivos = descargar_archivos(host, usuario, clave, remoto, documento["periodo"])
+    if not archivos:
+        raise ValueError("No hay archivos SUAC/TIAC con datos para cargar.")
     generar_padron_json(
         documento["periodo"], login=documento.get("login"), empresa=documento.get("empresa"),
     )
@@ -40,7 +43,10 @@ def limpiar_archivos_procesados(periodo):
     """Borra únicamente las fuentes y el JSON locales del período ya cargado y registrado."""
     ordenar_periodo(periodo)
     periodo = periodo.upper()
-    archivos = [DIR_LOCAL / nombre for nombre in nombres_archivos(periodo)]
+    archivos = [
+        archivo for archivo in DIR_LOCAL.iterdir()
+        if archivo.is_file() and es_archivo_padron(archivo.name, periodo)
+    ] if DIR_LOCAL.exists() else []
     archivos.append(DESTINO / f"{periodo}.json")
     for archivo in archivos:
         try:

@@ -8,9 +8,9 @@ import paramiko
 from dotenv import load_dotenv
 
 if __package__:
-    from .prefijos import PREFIJOS
+    from .prefijos import es_archivo_padron
 else:
-    from prefijos import PREFIJOS
+    from prefijos import es_archivo_padron
 
 # Raíz del proyecto: .../back/utils/padrones/descargarPadrones.py -> 3 niveles arriba
 RAIZ = Path(__file__).resolve().parents[2]
@@ -38,11 +38,6 @@ def variables_ambiente():
     return HOST, USERNAME, PASSWORD, DIR_REMOTO
 
 
-def nombres_archivos(periodo):
-    """Genera los nombres PREFIJO.PERIODO."""
-    return [f"{prefijo}.{periodo}" for prefijo in PREFIJOS]
-
-
 def validar_periodo(periodo):
     if not periodo or not periodo.isascii() or not periodo.isalnum():
         raise ValueError("El período debe contener solamente letras y números ASCII.")
@@ -66,19 +61,21 @@ def descargar_archivos(host, username, password, dir_remoto, periodo, dir_local=
         sftp.get_channel().settimeout(30)
         print("Conectado al servidor.\n")
 
-        # En el servidor solo consultamos atributos (stat) y leemos archivos (get).
+        # En el servidor solo listamos atributos y leemos archivos (get).
         archivos_remotos = []
-        for archivo in nombres_archivos(periodo):
-            ruta_remota = f"{dir_remoto.rstrip('/')}/{periodo}/B/{archivo}"
-            try:
-                info = sftp.stat(ruta_remota)
-            except FileNotFoundError as e:
-                raise ValueError(f"Falta el archivo obligatorio: {ruta_remota}") from e
-            if not stat.S_ISREG(info.st_mode):
-                raise ValueError(f"No es un archivo regular: {ruta_remota}")
-            if info.st_size == 0:
-                raise ValueError(f"El archivo está vacío: {ruta_remota}")
+        directorio = f"{dir_remoto.rstrip('/')}/{periodo}/B"
+        for info in sorted(sftp.listdir_attr(directorio), key=lambda item: item.filename):
+            archivo = info.filename
+            if not es_archivo_padron(archivo, periodo):
+                continue
+            if not stat.S_ISREG(info.st_mode) or info.st_size == 0:
+                continue
+            ruta_remota = f"{directorio}/{archivo}"
             archivos_remotos.append((archivo, ruta_remota, info.st_size))
+
+        if not archivos_remotos:
+            print("No hay archivos SUAC/TIAC con datos para descargar.")
+            return []
 
         # La carpeta temporal es LOCAL. Una descarga fallida no borra las fuentes anteriores.
         dir_local.parent.mkdir(parents=True, exist_ok=True)
@@ -95,7 +92,7 @@ def descargar_archivos(host, username, password, dir_remoto, periodo, dir_local=
                     raise ValueError(f"Tamaño descargado inesperado: {archivo}")
                 print(f"[OK] {archivo} ({tamano} bytes)")
 
-            # Solo sustituimos las fuentes LOCALES cuando las seis descargas se completaron.
+            # Solo sustituimos las fuentes LOCALES cuando todas las descargas se completaron.
             anteriores = Path(temporal) / "anteriores"
             if dir_local.exists():
                 dir_local.rename(anteriores)
