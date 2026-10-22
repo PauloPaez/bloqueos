@@ -397,7 +397,7 @@ const buscarEscuelas = async (
               <thead>
                 <tr className="sticky-header">
                   {camposVisibles.map((field) => (
-                    <th key={field.name}>{field.label}</th>
+                    <th key={field.name} className={field.name === "importe_acreditado" ? "text-end" : undefined}>{field.label}</th>
                   ))}
                 </tr>
               </thead>
@@ -409,6 +409,8 @@ const buscarEscuelas = async (
                     {camposVisibles.map((field) => {
                       const valor = field.name === "importe_acreditado"
                         ? (item.importe_acreditado_formateado ?? item[field.name])
+                        : field.name === "tipo_archivo"
+                        ? (item.tipo_archivo_formateado ?? item[field.name])
                         : item[field.name];
                       if (field.type === "date" && valor) {
                         return <td key={field.name}>{new Date(valor).toLocaleDateString('es-ES')}</td>;
@@ -419,7 +421,7 @@ const buscarEscuelas = async (
                       if (field.name === "nota") {
                         return <td key={field.name}>{valor && valor.trim() !== "" ? "SI" : "NO"}</td>;
                       }
-                      return <td key={field.name}>{valor || "-"}</td>;
+                      return <td key={field.name} className={field.name === "importe_acreditado" ? "text-end" : undefined}>{valor || "-"}</td>;
                     })}
                   </tr>
                 ))}

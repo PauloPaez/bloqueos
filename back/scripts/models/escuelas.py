@@ -55,6 +55,7 @@ class EscuelasResponse(Escuelas):
     concepto: Optional[str] = Field(default=None)
     importe_acreditado_formateado: Optional[str] = Field(default=None)
     padron_formateado: Optional[str] = Field(default=None)
+    tipo_archivo_formateado: Optional[str] = Field(default=None)
 
 
 class EscuelasSearchResponse(BaseModel):

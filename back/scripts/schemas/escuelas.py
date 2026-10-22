@@ -8,13 +8,14 @@ from utils.formateoDatos import formatear_concepto, formatear_importe, _con_digi
 
 def escuelasSh(item):
     importe_acreditado = item.get("importe_acreditado")
+    abreviacion_banco = determinar_abreviacion_tipo_banco(item)
 
     return {
         "id": str(item.get("_id")),
         "concepto": formatear_concepto(
             item.get("tipo_archivo"),
             item.get("periodo"),
-            determinar_abreviacion_tipo_banco(item),
+            abreviacion_banco,
         ),
         "bloqueo": item.get("bloqueo"),
         "tipo_reg": item.get("tipo_reg"),
@@ -46,6 +47,7 @@ def escuelasSh(item):
         "reservado": item.get("reservado"),
         "cod_banco": item.get("cod_banco"),
         "tipo_archivo": item.get("tipo_archivo"),
+        "tipo_archivo_formateado": f"{item.get('tipo_archivo').strip()}.{abreviacion_banco}",
         "periodo": item.get("periodo"),
         "motivo": item.get("motivo"),
         "fecha_baja": item.get("fecha_baja"),

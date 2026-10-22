@@ -17,7 +17,7 @@ def _construir_query_predictiva(filtro: dict) -> dict:
     for campo, valor in filtro.items():
         if valor is None or valor == "":
             continue
-        if campo in {"motivo"}: #a este dict agrego los campos que quiero que sean exactos y no predictivos
+        if campo in {"motivo", "tipo_archivo"}: #a este dict agrego los campos que quiero que sean exactos y no predictivos
             query[campo] = valor
         else:
             query[campo] = (
