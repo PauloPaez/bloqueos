@@ -7,6 +7,15 @@ export const objetosApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ["Usuarios","Roles","Rutas","Login","Personas","Pedidos","Ofertas","Escuelas", "Motivos","Habilitaciones",],
     endpoints: (builder) => ({
+    getCantidadEscuelasBloqueadas: builder.query({
+      query: () => ({
+        url: "escuelas/search/?page=1&page_size=1",
+        method: "POST",
+        body: { activo: true, bloqueo: true },
+      }),
+      transformResponse: (response) => response.total,
+      providesTags: ["Escuelas"],
+    }),
     getCierrePeriodoEscuelas: builder.query({
       query: (periodo) => `escuelas/cierre-periodo/${encodeURIComponent(periodo)}/`,
       providesTags: ["Habilitaciones", "Escuelas"],
@@ -328,6 +337,7 @@ export const objetosApi = createApi({
 
 });
 export const {
+    useGetCantidadEscuelasBloqueadasQuery,
     useGetCierrePeriodoEscuelasQuery,
     useCerrarPeriodoEscuelasMutation,
 	useGetHabilitacionesQuery,

@@ -3,6 +3,7 @@ import {
   usePostEscuelasByFieldMutation,
   useGetCierrePeriodoEscuelasQuery,
   useCerrarPeriodoEscuelasMutation,
+  useGetCantidadEscuelasBloqueadasQuery,
 } from "../../store/apiSlice";
 import { useDispatch } from "react-redux";
 import {
@@ -16,7 +17,7 @@ import { API_BASE_URL, WS_BASE_URL } from "../../config/api";
 import '../../common/tables.css';
 import { formularioCampos } from './FormularioListar';
 import Pagination from "../Pagination/Pagination";
-import { Download } from "lucide-react";
+import { Download, Lock } from "lucide-react";
 import { descargarArchivo } from "../../common/descargarArchivo";
 import { toast } from 'sonner';
 import { AvisoCierrePeriodo, BotonCierrePeriodo } from './CierrePeriodo';
@@ -32,6 +33,14 @@ const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
   } = useFiltroListado(claveFiltro, { limpiarAlDesmontar: true });
   const [postEscuelas] = usePostEscuelasByFieldMutation();
   const [datos, setDatos] = useState([]);
+  const {
+    data: cantidadBloqueadas,
+    error: errorCantidadBloqueadas,
+    refetch: refetchCantidadBloqueadas,
+  } = useGetCantidadEscuelasBloqueadasQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+    pollingInterval: 60000,
+  });
   const periodosTabla = [...new Set(datos.map((item) => item.periodo).filter(Boolean))];
   const periodoTabla = periodosTabla.length === 1 ? periodosTabla[0] : null;
   const {
@@ -198,6 +207,7 @@ const buscarEscuelas = async (
     websocket.onmessage = (event) => {
       console.log("Notificación recibida:", event.data);
       refetch();
+      refetchCantidadBloqueadas();
       if (periodoTabla) refetchEstadoCierre();
     };
     websocket.onclose = () => {
@@ -206,7 +216,7 @@ const buscarEscuelas = async (
     return () => {
       websocket.close();
     };
-  }, [refetch, periodoTabla, refetchEstadoCierre]);
+  }, [refetch, periodoTabla, refetchEstadoCierre, refetchCantidadBloqueadas]);
    const handleRowClick = (dato) => {
     if (edicionDeshabilitada) return;
     dispatch(setModuloState({
@@ -318,7 +328,18 @@ const buscarEscuelas = async (
   return (
     <div className="schools-list">
       <header className="listado-header">
-        <h1 className="listado-titulo">Listado de Escuelas</h1>
+        <div className="schools-list-title">
+          <h1 className="listado-titulo">Listado de Escuelas</h1>
+          <span
+            className={`schools-blocked-count${cantidadBloqueadas > 0 ? ' schools-blocked-count-active' : ''}`}
+            aria-live="polite"
+            title={errorCantidadBloqueadas ? 'No se pudo consultar el total de escuelas bloqueadas' : 'Escuelas bloqueadas en el total de registros activos'}
+          >
+            <Lock size={12} aria-hidden="true" />
+            <span>{errorCantidadBloqueadas ? '—' : cantidadBloqueadas?.toLocaleString('es-AR') ?? '…'}</span>
+            {cantidadBloqueadas === 1 ? 'bloqueada' : 'bloqueadas'}
+          </span>
+        </div>
         <div className="conjunto-botones">
         <button
           type="button"
