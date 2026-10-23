@@ -3,6 +3,7 @@ from io import BytesIO
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from scripts.querys.escuelas import search_escuelas_in_db
+from scripts.querys.habilitaciones import search_habilitaciones_in_db
 from scripts.querys.motivos import get_motivos
 from utils.clasificacionBancos import agrupar_por_tipo_banco
 from utils.crearDocx import crearDocumento
@@ -24,6 +25,14 @@ async def generarDocumento():
             status_code=404, detail="No se encontraron datos para la generacion de documentos."
         )
 
+    periodo = resultado[0]["periodo"]
+    habilitaciones = await search_habilitaciones_in_db({"periodo": periodo, "activo": True})
+    if len(habilitaciones) != 1:
+        raise HTTPException(status_code=400, detail=f"Debe existir una única habilitación activa para el período {periodo}.")
+    fecha_pago = habilitaciones[0].get("fecha_pago")
+    if fecha_pago is None:
+        raise HTTPException(status_code=400, detail=f"Complete la fecha de pago de la habilitación {periodo} antes de generar el DOCX.")
+
     motivos_config = {
         item["motivo"].strip().casefold(): item.get("lleva_fecha", False)
         for item in await get_motivos()
@@ -34,7 +43,7 @@ async def generarDocumento():
     archivos = ( #(expresion for elemento in iterable if condicion) funcion generadora. Al ser un generador, la variable archivo recien toma valor cuando es iterada en la funcion crear_zip... Por cada vuelta el for de esa funcion le pide al generador el siguiente resultado. No procesa todos los grupos en la primera llamada a crear_zip, pero tampoco procesa solo uno: procesa uno, lo agrega al ZIP, pide el siguiente y sigue hasta terminar
         (
             f"bajas_acreditaciones_{tipo_banco}.docx",
-            crearDocumento(escuelas, motivos_config),
+            crearDocumento(escuelas, motivos_config, fecha_pago=fecha_pago),
         )
         for tipo_banco, escuelas in grupos.items()
         if escuelas

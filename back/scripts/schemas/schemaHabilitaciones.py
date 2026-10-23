@@ -15,6 +15,7 @@ class HabilitacionesBase(BaseModel):
     rol: str | None = Field(default=None)
     periodo: str | None = Field(default=None)
     fecha_cierre: datetime | None = Field(default=None)
+    fecha_pago: datetime | None = Field(default=None)
     cerrado: bool | None = Field(default=False)
     login: str | None = Field(default=None)
     empresa: str | None = Field(default=None)

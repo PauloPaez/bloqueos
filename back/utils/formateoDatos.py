@@ -104,7 +104,7 @@ def formatear_motivo_fecha_baja(
     motivo_configurado = motivos_config or {}
     lleva_fecha = motivo_configurado.get(_texto(motivo).strip().casefold(), False)
     if motivo and fecha_baja and lleva_fecha:
-        return f"{motivo} ({fecha_baja.date()})"
+        return f"{motivo} ({fecha_baja:%d-%m-%Y})"
     return _texto(motivo)
 #TODO: ver si agregar upper o no al formatear. Quiza lo deje asi y que en la base de datos se guarden en mayus
 #TODO: Nota: con fontSize 10 en word, entran todas las fechas. Obviamente habiendo movido el tamaño que ocupa cada columna

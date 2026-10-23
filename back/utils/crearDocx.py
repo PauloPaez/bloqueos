@@ -1,5 +1,6 @@
 import io
 from collections.abc import Mapping
+from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -20,7 +21,8 @@ def calcular_importe_total(escuelas:dict):
     return importe_total
 
 def crearDocumento(
-    escuelas: list[Escuelas], motivos_config: Mapping[str, bool] | None = None
+    escuelas: list[Escuelas], motivos_config: Mapping[str, bool] | None = None,
+    fecha_pago: datetime | None = None,
 ):
     # Calcula la ruta absoluta hacia back/utils desde este archivo
     # BASE_DIR = Path(__file__).resolve().parents[1] / "utils" Esta linea seria sin usar parent, que es practicamente lo mismo que parents[1]
@@ -42,6 +44,7 @@ def crearDocumento(
         "lista": filas,
         "concepto": concepto,
         "importe_total": formatear_importe(importe_total),
+        "fecha_pago": fecha_pago.strftime("%d/%m/%Y") if fecha_pago else "",
     }
 
     doc.render(context)

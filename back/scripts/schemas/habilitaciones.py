@@ -4,6 +4,7 @@ def habilitacionesSh(item):
         "rol": item.get("rol"),
         "periodo": item.get("periodo"),
         "fecha_cierre": item.get("fecha_cierre"),
+        "fecha_pago": item.get("fecha_pago"),
         "cerrado": item.get("cerrado", False),
         "login": item.get("login"),
         "empresa": item.get("empresa"),

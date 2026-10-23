@@ -1,3 +1,4 @@
 export const camposRequeridosFormulario = [
-  "rol"
+  "rol",
+  "fecha_pago"
 ];
