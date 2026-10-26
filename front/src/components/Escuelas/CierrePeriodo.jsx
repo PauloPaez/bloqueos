@@ -68,6 +68,9 @@ export function BotonCierrePeriodo({ estado, disabled, consultando, cerrando, er
         </Modal.Header>
         <Modal.Body>
           <p id="cierre-periodo-descripcion">Se cerrará la habilitación de este período. Revise las acreditaciones bloqueadas antes de confirmar.</p>
+          {/* PRUEBA LOCAL TEMPORAL: actualizar este aviso al activar el envío SFTP. */}
+          <p>Se guardará un TXT por archivo de origen que tenga bloqueados, dentro del repositorio en
+            {' '}<code>datos/{estado?.periodo}/Bloqueos/ESCU/</code>. Durante esta prueba no se enviarán archivos al servidor SFTP.</p>
           <div className="periodo-conteo" aria-live="polite">
             <strong>{consultando ? '…' : estado?.cantidad_bloqueadas?.toLocaleString('es-AR')}</strong>
             <span>acreditaciones bloqueadas en el período</span>

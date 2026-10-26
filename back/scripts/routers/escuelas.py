@@ -51,6 +51,9 @@ async def cerrar_periodo_escuelas(documento: CerrarPeriodoRequest):
         resultado = await cerrar_habilitacion_periodo(documento.periodo)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        print(f"ERROR al cerrar el período: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         print(f"ERROR al cerrar el período: {e}")
         raise HTTPException(status_code=500, detail="No se pudo cerrar el período.")

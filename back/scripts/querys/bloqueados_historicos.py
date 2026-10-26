@@ -2,15 +2,16 @@ from bson import ObjectId
 from scripts.conf.engine import get_collection
 
 
-async def guardar_bloqueados_historicos(habilitacion, fecha_cierre_real):
+async def guardar_bloqueados_historicos(habilitacion, fecha_cierre_real, bloqueados=None):
     """Copia los bloqueados del período; un reintento reemplaza solo la copia parcial de esta habilitación."""
     habilitacion_id = str(habilitacion["_id"])
     historicos = get_collection("BloqueadosHistoricos")
     filtro_historico = {"habilitacion_id": habilitacion_id}
     await historicos.create_index("habilitacion_id")
-    bloqueados = await get_collection("Escuelas").find({
-        "periodo": habilitacion["periodo"], "activo": True, "bloqueo": True,
-    }).to_list(length=None)
+    if bloqueados is None:
+        bloqueados = await get_collection("Escuelas").find({
+            "periodo": habilitacion["periodo"], "activo": True, "bloqueo": True,
+        }).to_list(length=None)
     # El cierre llama a esta función únicamente mientras la habilitación sigue abierta.
     await historicos.delete_many(filtro_historico)
     if bloqueados:

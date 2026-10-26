@@ -22,7 +22,7 @@ from utils.websockets_manager import (
     start_redis_listener,
 )
 logger = logging.getLogger(__name__)
-app = FastAPI(version="0.9.1")
+app = FastAPI(version="0.10.0")
 # AGREGAR ESTOS LOGS PARA DEBUG:
 try:
     from scripts.routers.usuarios import usuarios
