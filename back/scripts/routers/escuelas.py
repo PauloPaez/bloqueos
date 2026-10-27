@@ -24,7 +24,7 @@ from scripts.querys.motivos import get_motivos
 from scripts.schemas.escuelas import EscuelasPatch
 from scripts.schemas.schemaHabilitaciones import CerrarPeriodoRequest
 from scripts.querys.habilitaciones import consultar_cierre_periodo, cerrar_habilitacion_periodo
-from utils.clasificacionBancos import agrupar_por_tipo_banco
+from utils.formateoDatos import agrupar_por_concepto
 from utils.generacionExcel import generar_excel_bajas
 from utils.generacionZip import crear_zip
 
@@ -213,9 +213,9 @@ async def generarExcelBloqueados(
             if item.get("motivo")
         }
 
-        grupos = agrupar_por_tipo_banco(resultado)
+        grupos = agrupar_por_concepto(resultado)
         archivos = []
-        for tipo_banco, escuelas_tipo in grupos.items():
+        for concepto, escuelas_tipo in grupos.items():
             if not escuelas_tipo:
                 continue
 
@@ -226,7 +226,7 @@ async def generarExcelBloqueados(
                 motivos_config=motivos_config,
             )
             archivos.append(
-                (f"bajas_acreditaciones_{tipo_banco}.xlsx", contenido)
+                (f"bloqueo_acreditaciones_{concepto}.xlsx", contenido)
             )
 
         zip_generado = crear_zip(archivos)

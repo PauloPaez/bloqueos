@@ -1,5 +1,5 @@
 import re
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
@@ -144,3 +144,11 @@ def preparar_fila_baja(
             row.get("motivo"), row.get("fecha_baja"), motivos_config
         ),
     }
+
+
+def agrupar_por_concepto(escuelas: Iterable[Any]) -> dict[str, list[Any]]:
+    grupos: dict[str, list[Any]] = {}
+    for escuela in escuelas:
+        concepto = preparar_fila_baja(escuela)["concepto"]
+        grupos.setdefault(concepto, []).append(escuela)
+    return grupos

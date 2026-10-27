@@ -1,10 +1,13 @@
 import asyncio
 import logging
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from scripts.conf.engine import close_db, init_db
+from scripts.routers.bloqueados_historicos import bloqueados_historicos
 from scripts.routers.escuelas import escuelas
 from scripts.routers.generacionDocs import routerDocs
+from scripts.routers.habilitaciones import habilitaciones
 from scripts.routers.login import login
 from scripts.routers.motivos import motivos
 from scripts.routers.notificaciones import notificaciones
@@ -12,8 +15,6 @@ from scripts.routers.personas import personas
 from scripts.routers.roles import roles
 from scripts.routers.rutas import rutas
 from scripts.routers.usuarios import usuarios
-from scripts.routers.habilitaciones import habilitaciones
-from scripts.routers.bloqueados_historicos import bloqueados_historicos
 from utils.websockets_manager import (
     add_connection,
     notify_clients,
@@ -21,8 +22,9 @@ from utils.websockets_manager import (
     remove_connection,
     start_redis_listener,
 )
+
 logger = logging.getLogger(__name__)
-app = FastAPI(version="0.10.0")
+app = FastAPI(version="0.11.0")
 # AGREGAR ESTOS LOGS PARA DEBUG:
 try:
     from scripts.routers.usuarios import usuarios
