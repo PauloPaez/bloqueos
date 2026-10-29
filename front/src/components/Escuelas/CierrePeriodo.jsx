@@ -18,25 +18,32 @@ function fechaLimite(fecha) {
 export function AvisoCierrePeriodo({ estado }) {
   if (!estado) return null;
   const dias = estado.dias_restantes;
-  if (!estado.cerrado && dias !== null && dias > 7) return null;
-  const tipo = estado.cerrado ? 'cerrado' : dias === null || dias < 0 ? 'vencido' : 'aviso';
-  const Icono = estado.cerrado ? CheckCircle2 : tipo === 'vencido' ? Lock : TriangleAlert;
+  const tipo = estado.cerrado ? 'cerrado' : dias === null || dias < 0 ? 'vencido' : dias > 7 ? 'normal' : 'aviso';
+  const Icono = estado.cerrado ? CheckCircle2
+    : tipo === 'normal' ? CalendarClock
+    : tipo === 'vencido' ? Lock : TriangleAlert;
   const mensaje = estado.cerrado ? 'Período cerrado'
     : dias === null ? 'El período no tiene fecha de cierre'
     : dias < 0 ? 'El plazo de cierre venció'
     : dias === 0 ? 'Hoy es el último día para cerrar el período'
     : `${dias === 1 ? 'Queda' : 'Quedan'} ${dias} ${dias === 1 ? 'día' : 'días'} para cerrar el período`;
+  const detalle = tipo === 'normal'
+    ? `Faltan ${dias} días`
+    : estado.cerrado
+      ? `${estado.cantidad_bloqueadas} acreditaciones bloqueadas`
+      : `Fecha límite: ${fechaLimite(estado.fecha_limite)}`;
+  const textoPrincipal = tipo === 'normal'
+    ? `Fecha límite de cierre: ${fechaLimite(estado.fecha_limite)}`
+    : mensaje;
   return (
-    <div className={`periodo-aviso periodo-aviso-${tipo}`} role={tipo === 'cerrado' ? 'status' : 'alert'}
+    <div className={`periodo-aviso periodo-aviso-${tipo}`} role={tipo === 'normal' || tipo === 'cerrado' ? 'status' : 'alert'}
       title={`${nombrePeriodo(estado.periodo)} · ${mensaje} · Fecha límite: ${fechaLimite(estado.fecha_limite)}`}>
       <Icono size={16} aria-hidden="true" />
       <p>
         <span className="periodo-detalle">{nombrePeriodo(estado.periodo)} · </span>
-        <strong>{mensaje}</strong>
+        <strong>{textoPrincipal}</strong>
         <span className="periodo-detalle periodo-detalle-amplio">
-          {' · '}{estado.cerrado
-            ? `${estado.cantidad_bloqueadas} acreditaciones bloqueadas`
-            : `Fecha límite: ${fechaLimite(estado.fecha_limite)}`}
+          {' · '}{detalle}
         </span>
       </p>
     </div>

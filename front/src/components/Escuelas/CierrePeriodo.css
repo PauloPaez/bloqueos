@@ -21,8 +21,9 @@
 
 .periodo-aviso > svg { flex-shrink: 0; }
 .periodo-aviso p { margin: 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.periodo-aviso strong { font-weight: 500; }
+.periodo-aviso strong { font-weight: 700; }
 .periodo-detalle { opacity: .75; }
+.periodo-aviso-normal { background: transparent; border-color: #e5e7eb; color: #000000; }
 .periodo-aviso-aviso { background: #fffbeb; border-color: #fcd34d; color: #78350f; }
 .periodo-aviso-vencido { background: #fef2f2; border-color: #fecaca; color: #7f1d1d; }
 .periodo-aviso-cerrado { background: #ecfdf5; border-color: #a7f3d0; color: #064e3b; }
@@ -47,7 +48,8 @@
 .periodo-dialogo .alert { margin-top: 12px; }
 
 @media (max-width: 575px) {
-  .periodo-detalle-amplio { display: none; }
+  .periodo-aviso { align-items: flex-start; }
+  .periodo-aviso p { white-space: normal; overflow: visible; text-overflow: clip; }
   .periodo-conteo { flex-wrap: wrap; }
 }
 .schools-list .listado-header,
