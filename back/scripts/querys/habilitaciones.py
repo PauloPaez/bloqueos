@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 from datetime import datetime, timezone
 from typing import Dict, Any
 from zoneinfo import ZoneInfo
-from datetime import datetime
+from datetime import time
 from pymongo.errors import DuplicateKeyError
 # ----------------------------------------------------
 from scripts.schemas.habilitaciones import habilitacionesSh
@@ -133,25 +133,31 @@ async def obtener_habilitacion_para_cierre(periodo):
 
 
 def estado_cierre_periodo(habilitacion):
-    """Informa el plazo de cierre manual, inclusive durante todo el día límite de Argentina."""
+    """Informa el plazo de cierre manual usando fecha y hora de Argentina."""
     periodo = habilitacion["periodo"]
     fecha = habilitacion.get("fecha_cierre")
+    hora = habilitacion.get("hora_cierre")
     cerrado = habilitacion.get("cerrado") is True
-    hoy = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).date()
+    zona = ZoneInfo("America/Argentina/Buenos_Aires")
+    ahora = datetime.now(zona)
     fecha_limite = fecha.date() if fecha is not None else None
-    puede_cerrar = not cerrado and fecha_limite is not None and hoy <= fecha_limite
+    hora_limite = time.fromisoformat(hora) if hora else time.max
+    vencimiento = datetime.combine(fecha_limite, hora_limite, tzinfo=zona) if fecha_limite else None
+    puede_cerrar = not cerrado and vencimiento is not None and ahora <= vencimiento
     if cerrado:
         mensaje = f"El período {periodo} ya está cerrado."
     elif fecha_limite is None:
         mensaje = f"El período {periodo} no tiene fecha de cierre. Defínala en habilitaciones antes de cerrar."
-    elif hoy > fecha_limite:
-        mensaje = f"El plazo para cerrar el período {periodo} venció el {fecha_limite:%d/%m/%Y}."
+    elif ahora > vencimiento:
+        detalle_limite = f"{fecha_limite:%d/%m/%Y} a las {hora}" if hora else f"{fecha_limite:%d/%m/%Y} (fin del día)"
+        mensaje = f"El plazo para cerrar el período {periodo} venció el {detalle_limite}."
     else:
-        mensaje = f"Puede cerrar el período {periodo} hasta el {fecha_limite:%d/%m/%Y}, inclusive."
+        detalle_limite = f"{fecha_limite:%d/%m/%Y} a las {hora}" if hora else f"{fecha_limite:%d/%m/%Y}, inclusive"
+        mensaje = f"Puede cerrar el período {periodo} hasta el {detalle_limite}."
     return {
         "periodo": periodo, "cerrado": cerrado, "puede_cerrar": puede_cerrar,
         "fecha_limite": fecha_limite.isoformat() if fecha_limite else None, "mensaje": mensaje,
-        "dias_restantes": (fecha_limite - hoy).days if fecha_limite else None,
+        "dias_restantes": (fecha_limite - ahora.date()).days if fecha_limite else None,
     }
 
 
