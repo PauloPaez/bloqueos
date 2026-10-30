@@ -311,11 +311,11 @@ const buscarEscuelas = async (
     <div className="schools-list">
       <header className="listado-header">
         <div className="schools-list-title">
-          <h1 className="listado-titulo">Listado de Escuelas</h1>
+          <h1 className="listado-titulo">Listado de acreditaciones</h1>
           <span
             className={`schools-blocked-count${cantidadBloqueadas > 0 ? ' schools-blocked-count-active' : ''}`}
             aria-live="polite"
-            title={errorCantidadBloqueadas ? 'No se pudo consultar el total de escuelas bloqueadas' : 'Escuelas bloqueadas en el total de registros activos'}
+            title={errorCantidadBloqueadas ? 'No se pudo consultar el total de acreditaciones bloqueadas' : 'Acreditaciones bloqueadas en el total de registros activos'}
           >
             <Lock size={12} aria-hidden="true" />
             <span>{errorCantidadBloqueadas ? '—' : cantidadBloqueadas?.toLocaleString('es-AR') ?? '…'}</span>
@@ -382,7 +382,7 @@ const buscarEscuelas = async (
       {isLoading ? (
         <div className="text-center my-4" role="status" aria-live="polite">
           <div className="spinner-border text-primary" aria-hidden="true" />
-          <p className="mt-2">Buscando escuelas...</p>
+          <p className="mt-2">Buscando acreditaciones...</p>
         </div>
       ) : datos.length > 0 ? (
         <div className="table-container-wrapper">
@@ -399,7 +399,7 @@ const buscarEscuelas = async (
                 {datos.map((item, index) => (
                   <tr key={index} onClick={() => handleRowClick(item)}
                     aria-disabled={edicionDeshabilitada}
-                    title={edicionDeshabilitada ? estadoCierre?.mensaje : 'Editar escuela'}>
+                    title={edicionDeshabilitada ? estadoCierre?.mensaje : 'Editar acreditación'}>
                     {camposVisibles.map((field) => {
                       const valor = field.name === "importe_acreditado"
                         ? (item.importe_acreditado_formateado ?? item[field.name])

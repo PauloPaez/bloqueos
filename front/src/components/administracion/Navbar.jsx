@@ -62,10 +62,11 @@ const Navbar = () => {
     if (!user?.opciones?.length) return [];
 
     const groupedMenus = user.opciones.reduce((acc, opcion) => {
-      const category = opcion.path.split("/")[1];
+      const categoriaRuta = opcion.path.split("/")[1];
+      const category = categoriaRuta === "Escuelas" ? "Acreditaciones" : categoriaRuta;
       if (!acc[category]) acc[category] = [];
       acc[category].push({
-        label: opcion.componente.replace(/([A-Z])/g, " $1").trim(),
+        label: opcion.componente.replace(/([A-Z])/g, " $1").trim().replace(/Escuelas/g, "Acreditaciones"),
         to: opcion.path,
       });
       return acc;

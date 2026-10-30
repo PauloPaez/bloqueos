@@ -52,7 +52,7 @@ const obtenerMensajeError = (error) => {
   if (error?.status === 'FETCH_ERROR') {
     return 'No se pudo conectar con el servidor.';
   }
-  return 'Ocurrió un error al guardar la escuela.';
+  return 'Ocurrió un error al guardar la acreditación.';
 };
 
 const alinearConfirmacion = (modal, bodyEdicion) => {
@@ -259,7 +259,7 @@ const EditarEscuelas = () => {
             || `Se actualizaron padrones adicionales asociados al DNI ${escuelas.documento_nro}.`;
           (cantidad > 0 ? toast.success : toast.info)(mensaje);
         } else {
-          const mensaje = respuesta?.result?.message || 'Escuela actualizada correctamente.';
+          const mensaje = respuesta?.result?.message || 'Acreditación actualizada correctamente.';
           toast.success(mensaje);
         }
 
@@ -293,7 +293,7 @@ const EditarEscuelas = () => {
         dialogClassName="edit-school-dialog"
       >
     <Modal.Header closeButton className="edit-school-header">
-      <Modal.Title className="edit-school-title">Editar Escuela</Modal.Title>
+      <Modal.Title className="edit-school-title">Editar acreditación</Modal.Title>
     </Modal.Header>
 
     <Modal.Body ref={modalEdicionBodyRef} className="edit-school-body">
