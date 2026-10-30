@@ -143,7 +143,9 @@ def estado_cierre_periodo(habilitacion):
     fecha_limite = fecha.date() if fecha is not None else None
     hora_limite = time.fromisoformat(hora) if hora else time.max
     vencimiento = datetime.combine(fecha_limite, hora_limite, tzinfo=zona) if fecha_limite else None
-    puede_cerrar = not cerrado and vencimiento is not None and ahora <= vencimiento
+    vencido = vencimiento is not None and ahora > vencimiento
+    segundos_restantes = max(0, int((vencimiento - ahora).total_seconds())) if vencimiento else None
+    puede_cerrar = not cerrado and vencimiento is not None and not vencido
     if cerrado:
         mensaje = f"El período {periodo} ya está cerrado."
     elif fecha_limite is None:
@@ -157,6 +159,7 @@ def estado_cierre_periodo(habilitacion):
     return {
         "periodo": periodo, "cerrado": cerrado, "puede_cerrar": puede_cerrar,
         "fecha_limite": fecha_limite.isoformat() if fecha_limite else None, "mensaje": mensaje,
+        "hora_limite": hora, "vencido": vencido, "segundos_restantes": segundos_restantes,
         "dias_restantes": (fecha_limite - ahora.date()).days if fecha_limite else None,
     }
 
