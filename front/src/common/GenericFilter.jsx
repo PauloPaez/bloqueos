@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Search } from 'lucide-react';
+import { ChevronDown, RotateCcw, Search } from 'lucide-react';
 import useFiltroListado from '../hooks/useFiltroListado';
 import './GenericFilter.css';
 
@@ -16,6 +16,7 @@ const GenericFilter = ({
   const clave = claveFiltro || modulo || 'default';
   const { valores: valoresPersistidos, guardarFiltro } = useFiltroListado(clave);
   const [valoresTemporales, setValoresTemporales] = useState({});
+  const [mostrarMasFiltros, setMostrarMasFiltros] = useState(false);
   const filtroInicializado = useRef(false);
   const ultimoValorAutomatico = useRef(null);
   // La configuración suele crearse como un nuevo arreglo en cada render.
@@ -33,10 +34,21 @@ const GenericFilter = ({
         valoresPersistidos || {},
         item.clave
       );
+      const valorPersistido = valoresPersistidos?.[item.clave];
 
-      valoresIniciales[item.clave] = tieneValorPersistido
-        ? valoresPersistidos[item.clave]
-        : item.tipo === 'checkbox' ? false : '';
+      if (item.tipo === 'tristate') {
+        if (!tieneValorPersistido || valorPersistido === false || valorPersistido === 'all') {
+          valoresIniciales[item.clave] = item.valor || 'all';
+        } else if (valorPersistido === true || valorPersistido === 'true') {
+          valoresIniciales[item.clave] = 'true';
+        } else {
+          valoresIniciales[item.clave] = valorPersistido === 'false' ? 'false' : item.valor || 'all';
+        }
+      } else {
+        valoresIniciales[item.clave] = tieneValorPersistido
+          ? valorPersistido
+          : item.tipo === 'checkbox' ? false : '';
+      }
     });
     setValoresTemporales(valoresIniciales);
   }, [configuracionKey, clave, valoresPersistidos]);
@@ -79,17 +91,18 @@ const GenericFilter = ({
     
     configuracion.forEach(item => {
       const valor = valoresTemporales[item.clave];
-      
-      const shouldInclude = (
-        valor !== undefined &&
-        valor !== null &&
-        !(['list', 'select'].includes(item.tipo) && valor === '') &&
-        !(item.tipo === 'checkbox' && valor === false) &&
-        valor !== ''
-      );
+      const shouldInclude = item.tipo === 'tristate'
+        ? valor === 'true' || valor === 'false'
+        : (
+          valor !== undefined &&
+          valor !== null &&
+          !(['list', 'select'].includes(item.tipo) && valor === '') &&
+          !(item.tipo === 'checkbox' && valor === false) &&
+          valor !== ''
+        );
   
       if (shouldInclude) {
-        nuevosFiltros[item.clave] = valor;
+        nuevosFiltros[item.clave] = item.tipo === 'tristate' ? valor === 'true' : valor;
         todosVacios = false;
       }
     });
@@ -112,7 +125,9 @@ const GenericFilter = ({
   const limpiarFiltros = () => {
     const valoresReset = {};
     configuracion.forEach(item => {
-      valoresReset[item.clave] = item.tipo === 'checkbox' ? false : '';
+      if (item.tipo === 'checkbox') valoresReset[item.clave] = false;
+      else if (item.tipo === 'tristate') valoresReset[item.clave] = item.valor || 'all';
+      else valoresReset[item.clave] = '';
     });
 
     const filtroReset = { ...filtroInicial, ...postFijo };
@@ -126,6 +141,32 @@ const GenericFilter = ({
       aplicarFiltros();
     }
   };
+
+  const clasesGrid = [
+    'generic-filter-grid',
+    configuracion.length <= INLINE_APPLY_THRESHOLD && 'generic-filter-grid-compact',
+    configuracion.some((item) => item.tipo === 'tristate') && 'generic-filter-grid-has-tristate',
+    configuracion.some((item) => item.masFiltros) && 'generic-filter-grid-has-more',
+  ].filter(Boolean).join(' ');
+  const filtrosAdicionales = configuracion.filter((item) => item.masFiltros);
+  const resumenFiltrosAdicionales = filtrosAdicionales.map((item) => {
+    const valor = valoresTemporales[item.clave];
+    if (item.tipo === 'tristate') {
+      if (!valor || valor === (item.valor || 'all')) return null;
+      const opciones = item.opciones || [
+        { value: 'all', label: 'Todos' },
+        { value: 'true', label: 'Sí' },
+        { value: 'false', label: 'No' },
+      ];
+      const opcion = opciones.find((actual) => actual.value === valor);
+      return `${item.etiqueta}: ${opcion?.label || valor}`;
+    }
+    if (item.tipo === 'checkbox') return valor ? `${item.etiqueta}: Sí` : null;
+    if (valor === undefined || valor === null || valor === '') return null;
+    const opcion = item.opciones?.find((actual) => actual.value === valor);
+    return `${item.etiqueta}: ${opcion?.label || valor}`;
+  }).filter(Boolean).join(' · ');
+  const idFiltrosAdicionales = `generic-filter-more-${clave}`;
 
   // Renderizar input según el tipo
   const renderInput = (item) => {
@@ -191,6 +232,34 @@ const GenericFilter = ({
             />
           </div>
         );
+      case 'tristate': {
+        const opciones = item.opciones || [
+          { value: 'all', label: 'Todos' },
+          { value: 'true', label: 'Sí', indicador: 'positivo' },
+          { value: 'false', label: 'No', indicador: 'neutro' },
+        ];
+
+        return (
+          <div className="generic-filter-tristate" role="radiogroup" aria-labelledby={`filter-label-${item.clave}`}>
+            {opciones.map((opcion) => (
+              <label className="generic-filter-tristate-option" key={opcion.value}>
+                <input
+                  className="generic-filter-tristate-radio"
+                  type="radio"
+                  name={`filter-${item.clave}`}
+                  value={opcion.value}
+                  checked={valoresTemporales[item.clave] === opcion.value}
+                  onChange={() => handleChange(item.clave, opcion.value)}
+                />
+                <span className="generic-filter-tristate-segment">
+                  {opcion.indicador && <span className={`generic-filter-tristate-dot generic-filter-tristate-dot-${opcion.indicador}`} aria-hidden="true" />}
+                  {opcion.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        );
+      }
 
       default:
         return (
@@ -206,22 +275,32 @@ const GenericFilter = ({
     }
   };
 
+  const renderField = (item) => (
+    <div
+      key={item.clave}
+      className={`generic-filter-field ${item.tipo === 'checkbox' ? 'generic-filter-field-switch' : ''} ${item.columnSpan > 1 ? 'generic-filter-field-wide' : ''}`}
+      style={item.columnSpan > 1 ? { '--generic-filter-column-span': item.columnSpan } : undefined}
+    >
+      <label
+        className="generic-filter-label"
+        id={item.tipo === 'tristate' ? `filter-label-${item.clave}` : undefined}
+        htmlFor={item.tipo === 'tristate' ? undefined : `filter-${item.clave}`}
+      >
+        {item.etiqueta}
+      </label>
+      {renderInput(item)}
+    </div>
+  );
+
   return (
     <div className="generic-filter card mb-4">
       <div className="generic-filter-body"> 
-        <div className={`generic-filter-grid ${configuracion.length <= INLINE_APPLY_THRESHOLD ? 'generic-filter-grid-compact' : ''}`}>
-          {configuracion.filter((item) => item.tipo !== 'checkbox').map((item) => (
-            <div key={item.clave} className="generic-filter-field">
-              <label className="generic-filter-label" htmlFor={`filter-${item.clave}`}>
-                {item.etiqueta}
-              </label>
-              {renderInput(item)}
-            </div>
-          ))}
+        <div className={clasesGrid}>
+          {configuracion.filter((item) => item.tipo !== 'checkbox' && !item.masFiltros).map(renderField)}
 
-          {configuracion.some((item) => item.tipo === 'checkbox') && (
+          {configuracion.some((item) => item.tipo === 'checkbox' && !item.masFiltros) && (
             <div className="generic-filter-switches">
-              {configuracion.filter((item) => item.tipo === 'checkbox').map((item) => (
+              {configuracion.filter((item) => item.tipo === 'checkbox' && !item.masFiltros).map((item) => (
                 <div key={item.clave} className="generic-filter-field generic-filter-field-switch">
                   <label className="generic-filter-label" htmlFor={`filter-${item.clave}`}>
                     {item.etiqueta}
@@ -232,6 +311,21 @@ const GenericFilter = ({
             </div>
           )}
           <div className="generic-filter-actions">
+            {filtrosAdicionales.length > 0 && (
+              <button
+                type="button"
+                className={`generic-filter-more-toggle ${mostrarMasFiltros ? 'generic-filter-more-toggle-open' : ''}`}
+                aria-expanded={mostrarMasFiltros}
+                aria-controls={idFiltrosAdicionales}
+                onClick={() => setMostrarMasFiltros((mostrar) => !mostrar)}
+              >
+                <ChevronDown size={16} aria-hidden="true" />
+                Más filtros
+                {resumenFiltrosAdicionales && (
+                  <span className="generic-filter-more-summary">{resumenFiltrosAdicionales}</span>
+                )}
+              </button>
+            )}
             <button
               type="button"
               className="btn generic-filter-clear"
@@ -246,6 +340,15 @@ const GenericFilter = ({
             </button>
           </div>
         </div>
+        {filtrosAdicionales.length > 0 && (
+          <div
+            id={idFiltrosAdicionales}
+            className="generic-filter-more-grid"
+            hidden={!mostrarMasFiltros}
+          >
+            {filtrosAdicionales.map(renderField)}
+          </div>
+        )}
       </div>
     </div>
   );

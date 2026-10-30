@@ -65,8 +65,75 @@
   cursor: pointer;
 }
 
+.generic-filter-tristate {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-height: 38px;
+  padding: 3px;
+  border: 1px solid #ced4da;
+  border-radius: 0.5rem;
+  background-color: #fff;
+}
+
+.generic-filter-tristate-option {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.generic-filter-tristate-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.generic-filter-tristate-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 30px;
+  padding: 0.25rem 0.35rem;
+  border-radius: 0.35rem;
+  color: #9f9fa9;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.generic-filter-tristate-radio:checked + .generic-filter-tristate-segment {
+  background-color: black;
+  color: #fff;
+  font-weight: 600;
+}
+
+.generic-filter-tristate-radio:focus-visible + .generic-filter-tristate-segment {
+  outline: 3px solid rgba(33, 37, 41, 0.45);
+  outline-offset: 2px;
+}
+
+.generic-filter-tristate-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.generic-filter-tristate-dot-positivo { background-color: #00bc7d; }
+.generic-filter-tristate-dot-neutro { background-color: #9f9fa9; }
+
 .generic-filter-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   justify-content: flex-end;
@@ -74,6 +141,40 @@
   padding-bottom: 15px; */
   grid-column: 1 / -1;
 }
+
+.generic-filter-more-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: auto;
+  padding: 0.375rem 0.25rem;
+  border: 0;
+  background: transparent;
+  color: #212529;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.generic-filter-more-toggle:hover { color: #000; }
+.generic-filter-more-toggle:focus-visible { outline: 2px solid #212529; outline-offset: 2px; }
+.generic-filter-more-toggle svg { transition: transform 150ms ease; }
+.generic-filter-more-toggle-open svg { transform: rotate(180deg); }
+
+.generic-filter-more-summary {
+  color: #6c757d;
+  font-weight: 400;
+}
+
+.generic-filter-more-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.generic-filter-more-grid[hidden] { display: none; }
 
 .generic-filter-clear {
   display: inline-flex;
@@ -109,6 +210,10 @@
   .generic-filter-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .generic-filter-more-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 992px) {
@@ -140,6 +245,34 @@
     grid-column: -2 / -1;
   }
 
+  .generic-filter-grid-has-tristate {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .generic-filter-grid-has-more {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .generic-filter-field-wide {
+    grid-column: span var(--generic-filter-column-span);
+  }
+
+  .generic-filter-grid.generic-filter-grid-has-tristate .generic-filter-actions {
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+
+  .generic-filter-grid.generic-filter-grid-has-more .generic-filter-actions {
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+
+  .generic-filter-more-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
   .generic-filter-field-switch {
     display: flex;
     flex-direction: column;
@@ -148,5 +281,12 @@
 
   .generic-filter-switches {
     grid-column: auto;
+  }
+}
+
+@media (max-width: 575px) {
+  .generic-filter-more-toggle {
+    flex-basis: 100%;
+    margin-right: 0;
   }
 }
