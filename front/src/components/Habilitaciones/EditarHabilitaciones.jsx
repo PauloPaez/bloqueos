@@ -101,7 +101,15 @@ const EditarHabilitaciones = () => {
         periodo: `${mesPeriodo}${String(anioPeriodo).slice(-2)}`,
       };
 
-      if (!habilitaciones || controlDatosFormulario(habilitaciones)) {
+      if (!habilitaciones) {
+        alert('⚠️ Faltan completar datos formulario');
+        return;
+      }
+      if (!habilitaciones.fecha_cierre || !habilitaciones.hora_cierre) {
+        alert('Indique la fecha y la hora de cierre de la habilitación.');
+        return;
+      }
+      if (controlDatosFormulario(habilitaciones)) {
         alert('⚠️ Faltan completar datos formulario');
         return;
       }

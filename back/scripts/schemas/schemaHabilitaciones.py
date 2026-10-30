@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from typing import Literal
 from zoneinfo import ZoneInfo
 
@@ -15,6 +16,7 @@ class HabilitacionesBase(BaseModel):
     rol: str | None = Field(default=None)
     periodo: str | None = Field(default=None)
     fecha_cierre: datetime | None = Field(default=None)
+    hora_cierre: str | None = Field(default=None)
     fecha_pago: datetime | None = Field(default=None)
     cerrado: bool | None = Field(default=False)
     login: str | None = Field(default=None)
@@ -46,10 +48,19 @@ class HabilitacionesEntrada(HabilitacionesBase): #esto lo hice ya que el respons
             raise ValueError("La fecha de cierre no puede ser anterior a hoy.")
         return value
 
+    @field_validator("hora_cierre")
+    @classmethod
+    def validar_hora_cierre(cls, value):
+        if value is not None and not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", value):
+            raise ValueError("La hora de cierre debe tener formato HH:MM.")
+        return value
+
 
 class HabilitacionesCreate(HabilitacionesEntrada):
     rol: str
     periodo: str
+    fecha_cierre: datetime
+    hora_cierre: str
     cerrado: Literal[False] = False  # Toda habilitación se crea abierta; el cierre es manual.
 
     @field_validator("cerrado", mode="before")
@@ -80,6 +91,10 @@ class HabilitacionesUpdate(HabilitacionesEntrada):
             raise ValueError("El cierre del período debe realizarse desde la pantalla de escuelas.")
         if "periodo" in self.model_fields_set and self.periodo is None:
             raise ValueError("El período debe tener formato MESAA.")
+        if "fecha_cierre" in self.model_fields_set and self.fecha_cierre is not None and not self.hora_cierre:
+            raise ValueError("Indique la hora de cierre junto con la fecha.")
+        if "hora_cierre" in self.model_fields_set and self.hora_cierre is None:
+            raise ValueError("La hora de cierre no puede quedar vacía.")
         return self
 
 
