@@ -98,6 +98,9 @@ export function BotonCierrePeriodo({ estado, disabled, consultando, cerrando, er
             Fecha límite de cierre: {fechaLimite(estado?.fecha_limite, estado?.hora_limite)}.
           </p>
           {error && <div className="alert alert-danger mb-0" role="alert">{error}</div>}
+          {!error && estado?.vencido && estado?.puede_cerrar && (
+            <p role="status">Venció el plazo de edición. La tabla permanecerá bloqueada después del cierre.</p>
+          )}
           {!error && estado && !estado.puede_cerrar && <p role="alert">{estado.mensaje}</p>}
         </Modal.Body>
         <Modal.Footer>

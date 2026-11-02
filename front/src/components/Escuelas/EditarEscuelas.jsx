@@ -82,7 +82,7 @@ const EditarEscuelas = () => {
     refetchOnMountOrArgChange: true,
     pollingInterval: 60000,
   });
-  const edicionDeshabilitada = consultandoCierre || errorEstadoCierre || !estadoCierre?.puede_cerrar;
+  const edicionDeshabilitada = consultandoCierre || errorEstadoCierre || !estadoCierre?.puede_editar;
 
   const [postEscuelas] = usePostEscuelasMutation();
   const [patchEscuelas] = usePatchEscuelasMutation();
@@ -212,7 +212,7 @@ const EditarEscuelas = () => {
         if (edicionDeshabilitada) return;
         // Revalidar también con el formulario abierto antes de enviar cualquier cambio.
         const estadoActual = await refetchEstadoCierre().unwrap();
-        if (!estadoActual.puede_cerrar) {
+        if (!estadoActual.puede_editar) {
           toast.error(estadoActual.mensaje);
           setDatosBloqueoPendientes(null);
           return;

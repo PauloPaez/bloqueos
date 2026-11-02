@@ -145,19 +145,21 @@ def estado_cierre_periodo(habilitacion):
     vencimiento = datetime.combine(fecha_limite, hora_limite, tzinfo=zona) if fecha_limite else None
     vencido = vencimiento is not None and ahora > vencimiento
     segundos_restantes = max(0, int((vencimiento - ahora).total_seconds())) if vencimiento else None
-    puede_cerrar = not cerrado and vencimiento is not None and not vencido
+    puede_cerrar = not cerrado and vencimiento is not None
+    puede_editar = puede_cerrar and not vencido
     if cerrado:
         mensaje = f"El período {periodo} ya está cerrado."
     elif fecha_limite is None:
         mensaje = f"El período {periodo} no tiene fecha de cierre. Defínala en habilitaciones antes de cerrar."
     elif ahora > vencimiento:
         detalle_limite = f"{fecha_limite:%d/%m/%Y} a las {hora}" if hora else f"{fecha_limite:%d/%m/%Y} (fin del día)"
-        mensaje = f"El plazo para cerrar el período {periodo} venció el {detalle_limite}."
+        mensaje = f"El plazo para editar el período {periodo} venció el {detalle_limite}. Puede cerrar el período."
     else:
         detalle_limite = f"{fecha_limite:%d/%m/%Y} a las {hora}" if hora else f"{fecha_limite:%d/%m/%Y}, inclusive"
         mensaje = f"Puede cerrar el período {periodo} hasta el {detalle_limite}."
     return {
         "periodo": periodo, "cerrado": cerrado, "puede_cerrar": puede_cerrar,
+        "puede_editar": puede_editar,
         "fecha_limite": fecha_limite.isoformat() if fecha_limite else None, "mensaje": mensaje,
         "hora_limite": hora, "vencido": vencido, "segundos_restantes": segundos_restantes,
         "dias_restantes": (fecha_limite - ahora.date()).days if fecha_limite else None,

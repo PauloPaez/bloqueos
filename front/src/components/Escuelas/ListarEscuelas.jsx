@@ -55,7 +55,7 @@ const ListarEscuelas = ({ claveFiltro = "escuelas:listar" }) => {
   });
   const [cerrarPeriodo, { isLoading: cerrandoPeriodo }] = useCerrarPeriodoEscuelasMutation();
   const [errorCerrar, setErrorCerrar] = useState('');
-  const edicionDeshabilitada = consultandoCierre || !!errorEstadoCierre || !estadoCierre?.puede_cerrar || cerrandoPeriodo;
+  const edicionDeshabilitada = consultandoCierre || !!errorEstadoCierre || !estadoCierre?.puede_editar || cerrandoPeriodo;
 
   useEffect(() => {
     setErrorCerrar('');

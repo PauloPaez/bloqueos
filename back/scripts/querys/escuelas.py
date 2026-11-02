@@ -80,7 +80,7 @@ async def validar_periodo_editable(periodo):
     if habilitacion is None:
         raise EscuelaValidationError("No hay una habilitación activa para el período de esta acreditación.")
     estado = estado_cierre_periodo(habilitacion)#verifica si se puede cerrar o no el periodo. En este caso, funciona para habilitar la modificacion de la escuela/acreditacion
-    if not estado["puede_cerrar"]:
+    if not estado["puede_editar"]:
         raise EscuelaValidationError(f"No se puede modificar la acreditación. {estado['mensaje']}")
 
 
