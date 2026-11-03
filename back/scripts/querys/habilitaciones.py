@@ -1,20 +1,19 @@
-# querys/habilitaciones.py
-import json
-from bson.objectid import ObjectId
-from datetime import datetime, timezone
-from typing import Dict, Any
+from datetime import datetime, time, timezone
+from typing import Any, Dict
 from zoneinfo import ZoneInfo
-from datetime import time
+
+from bson.objectid import ObjectId
 from pymongo.errors import DuplicateKeyError
-# ----------------------------------------------------
-from scripts.schemas.habilitaciones import habilitacionesSh
 from scripts.conf.engine import get_collection
-from scripts.schemas.schemaHabilitaciones import normalizar_periodo
 from scripts.querys.bloqueados_historicos import guardar_bloqueados_historicos
+from scripts.schemas.habilitaciones import habilitacionesSh
+from scripts.schemas.schemaHabilitaciones import normalizar_periodo
 from utils.generacionTXT import generar_txt_por_archivo
-from utils.padrones.archivosCierre import guardar_txt_cierre, RecuperacionPendiente
-# -----------------------------------------------------
-# coleccion = database.Habilitaciones
+from utils.padrones.archivosCierre import (
+    RecuperacionPendiente,
+    descartar_txt_local_prueba,
+    guardar_txt_cierre,
+)
 
 
 async def get_habilitaciones():
@@ -115,6 +114,40 @@ async def get_habilitaciones_distinct(campo) -> list:
 
     except Exception as e:
         raise Exception(f"Error al buscar documento: {e}")
+
+
+async def reabrir_habilitacion(id):
+    """Descarta los TXT y el histórico, y abre el período. Si falla, sigue cerrado y se puede reintentar."""
+    if not ObjectId.is_valid(id):
+        raise ValueError("El ID de la habilitación no es válido.")
+    coleccion = get_collection("Habilitaciones")
+    control = get_collection("ControlCargas")
+    intento = str(ObjectId())
+    try:
+        await control.insert_one({"_id": "padrones", "operacion": "reapertura",
+                                  "intento": intento, "habilitacion_id": id})
+    except DuplicateKeyError:
+        raise ValueError("Hay una carga, cierre o reapertura en curso o pendiente de revisión.")
+    try:
+        habilitacion = await coleccion.find_one({"_id": ObjectId(id), "activo": True, "cerrado": True})
+        if habilitacion is None:
+            raise ValueError("No se encontró una habilitación activa y cerrada para reabrir.")
+        periodo = habilitacion["periodo"]
+        # Escuelas contiene un solo período: si no es este, sus datos ya no se pueden volver a cerrar.
+        if not await get_collection("Escuelas").find_one({"periodo": periodo, "activo": True}, {"_id": 1}):
+            raise ValueError(f"No se puede reabrir {periodo} porque sus acreditaciones ya no están cargadas.")
+        # La habilitación se abre al final: así un fallo intermedio se resuelve reintentando.
+        descartar_txt_local_prueba(periodo)
+        await get_collection("BloqueadosHistoricos").delete_many({"habilitacion_id": str(habilitacion["_id"])})
+        await coleccion.update_one(
+            {"_id": habilitacion["_id"]},
+            {"$set": {"cerrado": False},
+             "$unset": {"historico_generado": "", "cantidad_bloqueadas": "", "fecha_cierre_real": ""}},
+        )
+    finally:
+        await control.delete_one({"_id": "padrones", "intento": intento})
+    return {"id": str(habilitacion["_id"]), "periodo": periodo, "cerrado": False,
+            "message": "Período reabierto. Actualice la fecha de cierre antes de editar."}
 
 
 async def obtener_habilitacion_para_cierre(periodo):

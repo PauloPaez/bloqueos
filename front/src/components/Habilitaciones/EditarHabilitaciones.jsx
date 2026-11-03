@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { usePostHabilitacionesMutation, usePatchHabilitacionesMutation } from '../../store/apiSlice';
+import { usePostHabilitacionesMutation, usePatchHabilitacionesMutation, useReabrirHabilitacionMutation } from '../../store/apiSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { resetModulo } from '../../store/appSlice';
 import { formularioCampos } from './FormularioEditar';
@@ -26,6 +26,7 @@ const EditarHabilitaciones = () => {
 
   const [postHabilitaciones, { isLoading: cargando }] = usePostHabilitacionesMutation();
   const [patchHabilitaciones] = usePatchHabilitacionesMutation();
+  const [reabrirHabilitacion, { isLoading: reabriendo }] = useReabrirHabilitacionMutation();
   const cargaEnCurso = useRef(false);
   const [errorCarga, setErrorCarga] = useState('');
 
@@ -161,6 +162,22 @@ const EditarHabilitaciones = () => {
     dispatch(resetModulo({ modulo: 'habilitaciones' }));
   };
 
+  const handleReabrir = async () => {
+    if (!filaSeleccionada?.id || reabriendo) return;
+    const confirmar = window.confirm(
+      `¿Reabrir ${filaSeleccionada.periodo}? Solo se puede reabrir el período activo más reciente. Se descartarán su histórico de bloqueados y los TXT. Actualice también la fecha de cierre para volver a editar las acreditaciones.`,
+    );
+    if (!confirmar) return;
+    setErrorCarga('');
+    try {
+      const resultado = await reabrirHabilitacion(filaSeleccionada.id).unwrap();
+      alert(resultado.message || 'Período reabierto. Actualice la fecha de cierre para poder editar las acreditaciones.');
+      dispatch(resetModulo({ modulo: 'habilitaciones' }));
+    } catch (error) {
+      setErrorCarga(error?.data?.detail || 'No se pudo reabrir el período. Reintente la operación.');
+    }
+  };
+
   return (
     <form
       style={{
@@ -286,6 +303,16 @@ const EditarHabilitaciones = () => {
       })}
 
       <div className="d-flex justify-content-between mt-3">
+        {filaSeleccionada?.cerrado && (
+          <button
+            type="button"
+            className="btn btn-outline-danger"
+            disabled={cargando || reabriendo}
+            onClick={handleReabrir}
+          >
+            {reabriendo ? 'Reabriendo…' : 'Reabrir período'}
+          </button>
+        )}
         <button
           type="button"
           className={`btn ${

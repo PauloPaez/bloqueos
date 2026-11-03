@@ -28,6 +28,13 @@ export const objetosApi = createApi({
       }),
       invalidatesTags: ["Habilitaciones", "Escuelas"],
     }),
+	reabrirHabilitacion: builder.mutation({
+		query: (id) => ({
+			url: `habilitaciones/${id}/reabrir/`,
+			method: "POST",
+		}),
+		invalidatesTags: ["Habilitaciones", "Escuelas"],
+	}),
 	getHabilitaciones: builder.query({ 
     		query: () => "habilitaciones/",
     		providesTags: ["Habilitaciones"],
@@ -340,6 +347,7 @@ export const {
     useGetCantidadEscuelasBloqueadasQuery,
     useGetCierrePeriodoEscuelasQuery,
     useCerrarPeriodoEscuelasMutation,
+	useReabrirHabilitacionMutation,
 	useGetHabilitacionesQuery,
 	usePostHabilitacionesMutation,
 	usePutHabilitacionesMutation,

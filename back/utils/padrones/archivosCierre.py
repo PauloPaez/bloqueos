@@ -47,6 +47,14 @@ def guardar_txt_local_prueba(periodo, archivos):
     except BaseException:
         borrar_creados(creados, lambda ruta: ruta.unlink(missing_ok=True))
         raise
+
+
+def descartar_txt_local_prueba(periodo):
+    """Borra los TXT del cierre; si ya no están, no hace nada."""
+    periodo = validar_periodo(periodo)
+    carpeta = RAIZ_PRUEBA / periodo / "Bloqueos" / "ESCU"
+    for archivo in carpeta.glob(f"BLOQUEO-*.{periodo}.txt"):
+        archivo.unlink(missing_ok=True)
 # FIN PRUEBA LOCAL TEMPORAL.
 
 

@@ -1,4 +1,3 @@
-# routers/habilitaciones.py
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, status
@@ -8,18 +7,35 @@ from scripts.querys.habilitaciones import (
     get_habilitaciones_distinct,
     patch_habilitaciones,
     put_habilitaciones,
+    reabrir_habilitacion,
     search_habilitaciones_in_db,
 )
 from scripts.schemas.schemaHabilitaciones import (
     HabilitacionesCreate,
     HabilitacionesResponse,
     HabilitacionesUpdate,
-    normalizar_periodo,
 )
-from utils.websockets_manager import notify_clients
 from utils.padrones.cargarHabilitacion import crear_habilitacion_con_padron
+from utils.websockets_manager import notify_clients
 
 habilitaciones = APIRouter()
+
+
+@habilitaciones.post("/habilitaciones/{id}/reabrir/")
+async def post_reabrir_habilitacion(id: str):
+    try:
+        resultado = await reabrir_habilitacion(id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"ERROR al reabrir la habilitación: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo reabrir el período. Reintente la operación.")
+    for modulo in ("habilitaciones", "escuelas"):
+        try:
+            await notify_clients(modulo, "Período reabierto")
+        except Exception as e:
+            print(f"ERROR al notificar la reapertura de {modulo}: {e}")
+    return resultado
 
 
 @habilitaciones.get("/habilitaciones/", response_model=List[HabilitacionesResponse])
