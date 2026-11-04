@@ -52,7 +52,7 @@ const Login = () => {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(0deg, #f3b661 0%, #ec6608 120%)',
         padding: '1rem',
         boxSizing: 'border-box',
       }}
@@ -126,7 +126,7 @@ const Login = () => {
             <div
               style={{
                 height: '3px',
-                background: 'linear-gradient(90deg, #667eea, #764ba2)',
+                background: '#ec6608',
                 width: '60px',
                 margin: '0 auto',
                 borderRadius: '2px',
@@ -157,7 +157,7 @@ const Login = () => {
                   background: 'rgba(255,255,255,0.9)'
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = '#667eea';
+                  e.target.style.borderColor = '#ec6608';
                   e.target.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.05), 0 0 0 3px rgba(102, 126, 234, 0.1)';
                   e.target.style.transform = 'translateY(-1px)';
                 }}
@@ -221,7 +221,7 @@ const Login = () => {
                   background: 'rgba(255,255,255,0.9)'
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = '#667eea';
+                  e.target.style.borderColor = '#ec6608';
                   e.target.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.05), 0 0 0 3px rgba(102, 126, 234, 0.1)';
                   e.target.style.transform = 'translateY(-1px)';
                 }}
@@ -237,7 +237,7 @@ const Login = () => {
               type="submit"
               className="btn w-100"
               style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: '#ec6608',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.75rem',
@@ -280,14 +280,14 @@ const Login = () => {
           </form>
 
           {/* Pie de tarjeta */}
-        <div className="text-center mt-3">
+        {/* <div className="text-center mt-3">
           <small
             style={{ cursor: 'pointer', color: '#667eea', fontWeight: 500 }}
             onClick={() => setMostrarRegistro(true)}
           >
             ¿No tienes una cuenta? Regístrate aquí
           </small>
-        </div>
+        </div> */}
         </div>
       </div>
     </div>
