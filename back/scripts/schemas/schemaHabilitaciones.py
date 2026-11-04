@@ -89,8 +89,8 @@ class HabilitacionesUpdate(HabilitacionesEntrada):
     def validar_periodo_enviado(self):
         if "cerrado" in self.model_fields_set:
             raise ValueError("El cierre del período debe realizarse desde la pantalla de escuelas.")
-        if "periodo" in self.model_fields_set and self.periodo is None:
-            raise ValueError("El período debe tener formato MESAA.")
+        if "periodo" in self.model_fields_set:
+            raise ValueError("El período no se puede modificar.")
         if "fecha_cierre" in self.model_fields_set and self.fecha_cierre is not None and not self.hora_cierre:
             raise ValueError("Indique la hora de cierre junto con la fecha.")
         if "hora_cierre" in self.model_fields_set and self.hora_cierre is None:

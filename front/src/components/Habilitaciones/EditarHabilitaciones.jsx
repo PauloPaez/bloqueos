@@ -92,14 +92,15 @@ const EditarHabilitaciones = () => {
     setErrorCarga('');
     try {
       const { mesPeriodo, anioPeriodo } = data;
+      // El período solo se define al crear; después no se puede cambiar.
       // MESAA representa los años 2000 a 2099 usando sus últimos dos dígitos.
-      if (!mesesPeriodo.includes(mesPeriodo) || !/^20\d{2}$/.test(String(anioPeriodo))) {
+      if (!filaSeleccionada?.id && (!mesesPeriodo.includes(mesPeriodo) || !/^20\d{2}$/.test(String(anioPeriodo)))) {
         alert('Seleccione el mes e ingrese un año entre 2000 y 2099.');
         return;
       }
       const habilitaciones = data.habilitaciones?.[0] && {
         ...data.habilitaciones[0],
-        periodo: `${mesPeriodo}${String(anioPeriodo).slice(-2)}`,
+        ...(!filaSeleccionada?.id && { periodo: `${mesPeriodo}${String(anioPeriodo).slice(-2)}` }),
       };
 
       if (!habilitaciones) {
@@ -193,6 +194,8 @@ const EditarHabilitaciones = () => {
       )}
       {errorCarga && <div className="alert alert-danger" role="alert">{errorCarga}</div>}
       <fieldset disabled={cargando}>
+      {/* Los datos de un período cerrado son definitivos: solo se pueden cambiar reabriéndolo. */}
+      <fieldset disabled={Boolean(filaSeleccionada?.cerrado)}>
       {camposVisibles.map((field) => {
         const separador = separadoresFormulario.find(
           (s) => s.before === field.name
@@ -200,7 +203,7 @@ const EditarHabilitaciones = () => {
 
         const fieldProps = {
           ...(field.name === 'periodo' ? {} : register(`habilitaciones.0.${field.name}`)),
-          disabled: field.disabled || cargando || (field.name === 'activo' && filaSeleccionada?.cerrado && filaSeleccionada?.activo),
+          disabled: field.disabled || cargando,
           placeholder:
             field.placeholder !== 'no_visible'
               ? field.placeholder
@@ -244,6 +247,7 @@ const EditarHabilitaciones = () => {
                     <select
                       id="habilitaciones-mes"
                       className="form-select"
+                      disabled={Boolean(filaSeleccionada?.id)}
                       {...register('mesPeriodo')}
                     >
                       <option value="">Seleccione mes</option>
@@ -264,6 +268,7 @@ const EditarHabilitaciones = () => {
                       min="2000"
                       max="2099"
                       step="1"
+                      disabled={Boolean(filaSeleccionada?.id)}
                       {...register('anioPeriodo')}
                     />
                   </div>
@@ -301,6 +306,7 @@ const EditarHabilitaciones = () => {
           </React.Fragment>
         );
       })}
+      </fieldset>
 
       <div className="d-flex justify-content-between mt-3">
         {filaSeleccionada?.cerrado && (
@@ -320,6 +326,7 @@ const EditarHabilitaciones = () => {
               ? 'btn-outline-warning'
               : 'btn-outline-primary'
           }`}
+          disabled={Boolean(filaSeleccionada?.cerrado)}
           onClick={handleSubmit(onSubmit)}
         >
           {cargando ? 'Cargando acreditaciones…' : filaSeleccionada?.id ? 'Actualizar' : 'Grabar'}
