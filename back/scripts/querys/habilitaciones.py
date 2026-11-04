@@ -116,6 +116,11 @@ async def get_habilitaciones_distinct(campo) -> list:
         raise Exception(f"Error al buscar documento: {e}")
 
 
+async def habilitacion_esta_cerrada(id) -> bool:
+    documento = await get_collection("Habilitaciones").find_one({"_id": ObjectId(id), "cerrado": True}, {"_id": 1})
+    return documento is not None
+
+
 async def reabrir_habilitacion(id):
     """Descarta los TXT y el histórico, y abre el período. Si falla, sigue cerrado y se puede reintentar."""
     if not ObjectId.is_valid(id):

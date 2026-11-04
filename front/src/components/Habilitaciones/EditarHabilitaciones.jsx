@@ -165,7 +165,7 @@ const EditarHabilitaciones = () => {
   const handleReabrir = async () => {
     if (!filaSeleccionada?.id || reabriendo) return;
     const confirmar = window.confirm(
-      `¿Reabrir ${filaSeleccionada.periodo}? Solo se puede reabrir el período activo más reciente. Se descartarán su histórico de bloqueados y los TXT. Actualice también la fecha de cierre para volver a editar las acreditaciones.`,
+      `¿Reabrir ${filaSeleccionada.periodo}? Solo se puede reabrir si sus acreditaciones siguen cargadas. Se descartarán su histórico de bloqueados y los TXT. Actualice también la fecha de cierre para volver a editar las acreditaciones.`,
     );
     if (!confirmar) return;
     setErrorCarga('');
@@ -200,7 +200,7 @@ const EditarHabilitaciones = () => {
 
         const fieldProps = {
           ...(field.name === 'periodo' ? {} : register(`habilitaciones.0.${field.name}`)),
-          disabled: field.disabled || cargando,
+          disabled: field.disabled || cargando || (field.name === 'activo' && filaSeleccionada?.cerrado && filaSeleccionada?.activo),
           placeholder:
             field.placeholder !== 'no_visible'
               ? field.placeholder

@@ -5,6 +5,7 @@ from scripts.querys.habilitaciones import (
     get_habilitaciones,
     get_habilitaciones_by_id,
     get_habilitaciones_distinct,
+    habilitacion_esta_cerrada,
     patch_habilitaciones,
     put_habilitaciones,
     reabrir_habilitacion,
@@ -95,8 +96,17 @@ async def post_habilitaciones(habilitacion: HabilitacionesCreate):
     return {"message": "Acreditaciones cargadas y habilitación registrada", **result}
 
 
+async def validar_desactivacion(item: HabilitacionesUpdate):
+    """Un período cerrado no se puede desactivar; primero hay que reabrirlo."""
+    # activo vale False por defecto: solo cuenta si la solicitud lo envió.
+    if "activo" in item.model_fields_set and item.activo is not True:
+        if await habilitacion_esta_cerrada(item.id):
+            raise HTTPException(status_code=400, detail="No se puede desactivar un período cerrado.")
+
+
 @habilitaciones.put("/habilitaciones/")
 async def update_habilitaciones(item: HabilitacionesUpdate):
+    await validar_desactivacion(item)
     try:
         result= await put_habilitaciones(item.model_dump(exclude_unset=True))
         await notify_clients("habilitaciones", "habilitaciones actualizado")
@@ -109,6 +119,7 @@ async def update_habilitaciones(item: HabilitacionesUpdate):
 
 @habilitaciones.patch("/habilitaciones/")
 async def partial_update_habilitaciones(habilitacion: HabilitacionesUpdate):
+    await validar_desactivacion(habilitacion)
     try:
         result = await patch_habilitaciones(habilitacion.model_dump(exclude_unset=True))
         if result["status"] == "failed":
