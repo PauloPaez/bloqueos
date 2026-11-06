@@ -1,10 +1,8 @@
 import asyncio
-from datetime import datetime, timezone
 
 from bson import ObjectId
-from pymongo.errors import DuplicateKeyError
 from scripts.conf.engine import get_collection
-from scripts.querys.habilitaciones import add_habilitaciones
+from scripts.querys.habilitaciones import add_habilitaciones, reservar_padrones
 from utils.padrones.descargarPadrones import DIR_LOCAL, descargar_archivos, variables_ambiente
 from utils.padrones.prefijos import es_archivo_padron
 from utils.padrones.generar_padron_json import DESTINO, generar_padron_json
@@ -57,68 +55,32 @@ def limpiar_archivos_procesados(periodo):
 
 
 async def crear_habilitacion_con_padron(documento):
-    """Ejecuta los tres procesos y registra la habilitación solo después de completarse la carga."""
+    """Carga las acreditaciones y registra la habilitación al final. Si falla, no queda registrada y se puede reintentar."""
     base = get_collection("Habilitaciones").database
-    control = base["ControlCargas"]
     documento = {**documento, "_id": ObjectId(), "cerrado": False, "activo": True}
-    # El _id fijo impide cargas simultáneas entre workers. Sin TTL: no vence durante una carga lenta.
-    reserva = {
-        "_id": "padrones", "inicio": datetime.now(timezone.utc), "habilitacion": documento,
-    }
-    try:
-        await control.insert_one(reserva)
-    except DuplicateKeyError:
-        raise ValueError("Hay una carga en curso o pendiente de revisión. No inicie otra carga.")
-
-    etapa = "validar el período y su cierre"
-    importacion_iniciada = False
-    importado = False
-    try:
+    async with reservar_padrones():
         await validar_periodo_nuevo(base, documento["periodo"])
         await verificar_cierre_anterior(base)
         etapa = "descargar los archivos y generar el JSON"
-        # shield evita liberar la reserva mientras un hilo sigue escribiendo tras una desconexión.
-        preparacion = asyncio.create_task(asyncio.to_thread(preparar_archivos, documento))
-        await asyncio.shield(preparacion)
-        etapa = "importar las acreditaciones"
-        importacion_iniciada = True
-        resultado = await importar_padron(documento["periodo"])
-        importado = True
-        etapa = "registrar la habilitación"
         try:
-            await add_habilitaciones(documento)
-        except Exception:
-            # Un error de red puede llegar después de que insert_one haya sido aplicado.
-            if await base["Habilitaciones"].find_one({"_id": documento["_id"]}) is None:
-                raise
-    except Exception as error:
-        print(f"ERROR al {etapa}: {error}")
-        if not importacion_iniciada:
-            await control.delete_one({"_id": "padrones", "habilitacion._id": documento["_id"]})
-            if etapa == "validar el período y su cierre" and isinstance(error, ValueError):
-                raise
-        # Tras iniciar la importación se conserva la reserva para revisar un posible cambio en Escuelas.
-        # También queda reservada ante una cancelación: el hilo podría continuar trabajando.
-        if importado:
-            raise RuntimeError(
-                "Las acreditaciones se cargaron, pero no se pudo confirmar el registro de la habilitación. "
-                "No repita la carga: revise Habilitaciones y ControlCargas."
-            ) from error
-        raise RuntimeError(
-            f"No se pudo completar la carga al {etapa}. "
-            + ("Escuelas puede contener una carga parcial. Revise Escuelas y ControlCargas antes de reintentar." if importacion_iniciada else "No se importaron acreditaciones.")
-        ) from error
+            await asyncio.to_thread(preparar_archivos, documento)
+            etapa = "importar las acreditaciones"
+            resultado = await importar_padron(documento["periodo"])
+            etapa = "registrar la habilitación"
+            try:
+                await add_habilitaciones(documento)
+            except Exception:
+                # Un error de red puede llegar después de que insert_one haya sido aplicado.
+                if await base["Habilitaciones"].find_one({"_id": documento["_id"]}) is None:
+                    raise
+        except Exception as error:
+            print(f"ERROR al {etapa}: {error}")
+            raise RuntimeError(f"No se pudo completar la carga al {etapa}. Reintente la operación.") from error
 
-    # Limpiamos solo después del guardado confirmado y todavía con la reserva tomada.
-    # Una limpieza fallida no convierte una carga completada en un error para el usuario.
-    try:
-        await asyncio.to_thread(limpiar_archivos_procesados, documento["periodo"])
-    except Exception as error:
-        print(f"ERROR al limpiar los archivos de la carga completada: {error}")
-
-    # El guardado ya terminó: un fallo al liberar la reserva tampoco invalida la carga.
-    try:
-        await control.delete_one({"_id": "padrones", "habilitacion._id": documento["_id"]})
-    except Exception as error:
-        print(f"ERROR al liberar ControlCargas después de guardar la habilitación: {error}")
+        # Limpiamos solo después del guardado confirmado y todavía con la reserva tomada.
+        # Una limpieza fallida no convierte una carga completada en un error para el usuario.
+        try:
+            await asyncio.to_thread(limpiar_archivos_procesados, documento["periodo"])
+        except Exception as error:
+            print(f"ERROR al limpiar los archivos de la carga completada: {error}")
     return {"id": str(documento["_id"]), "periodo": documento["periodo"], "cantidad": resultado["cantidad"]}

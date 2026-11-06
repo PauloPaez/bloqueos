@@ -22,6 +22,12 @@ def borrar_creados(creados, borrar):
         raise RecuperacionPendiente("No se pudieron borrar archivos del intento: " + "; ".join(errores))
 
 
+def mensaje_existentes(destino, periodo):
+    """Al cerrar, cualquier TXT previo del período es inválido: se pide borrarlos todos."""
+    return (f"Ya existen archivos de cierre en {destino}. Pida al encargado de los archivos que borre "
+            f"los BLOQUEO-*.{periodo}.txt para poder cerrar el período y generar los TXT.")
+
+
 # INICIO PRUEBA LOCAL TEMPORAL: replica /datos dentro del repositorio.
 # No consulta el .env ni abre una conexión SFTP. Eliminar este destino al activar SFTP.
 RAIZ_PRUEBA = Path(__file__).resolve().parents[3] / "datos"
@@ -34,9 +40,8 @@ def guardar_txt_local_prueba(periodo, archivos):
     try:
         if archivos:
             destino.mkdir(parents=True, exist_ok=True)
-            for nombre in archivos:
-                if (destino / nombre).exists():
-                    raise ValueError(f"Ya existe el archivo de cierre: {nombre}. No se sobrescribió.")
+            if any(destino.glob(f"BLOQUEO-*.{periodo}.txt")):
+                raise ValueError(mensaje_existentes(destino, periodo))
             for nombre, contenido in archivos.items():
                 ruta = destino / nombre
                 # xb garantiza que tampoco sobrescribimos si el archivo aparece después del control.
@@ -86,12 +91,9 @@ def guardar_txt_sftp(periodo, archivos):
             else:
                 if not stat.S_ISDIR(info.st_mode):
                     raise ValueError(f"No es un directorio: {carpeta}")
-        for nombre in archivos:
-            try:
-                sftp.lstat(f"{destino}/{nombre}")
-            except FileNotFoundError:
-                continue
-            raise ValueError(f"Ya existe el archivo de cierre: {nombre}. No se sobrescribió.")
+        if any(nombre.startswith("BLOQUEO-") and nombre.endswith(f".{periodo}.txt")
+               for nombre in sftp.listdir(destino)):
+            raise ValueError(mensaje_existentes(destino, periodo))
         try:
             for nombre, contenido in archivos.items():
                 ruta = f"{destino}/{nombre}"

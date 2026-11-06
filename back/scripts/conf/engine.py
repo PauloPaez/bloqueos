@@ -49,9 +49,3 @@ def get_collection(name: str):
         raise RuntimeError("Base de datos no inicializada. ¿Olvidaste llamar a init_db()?")
 
     return database[name]
-
-# from motor.motor_asyncio import AsyncIOMotorClient
-# cliente = AsyncIOMotorClient('mongodb+srv://paulo:Paulo2023@cluster0.prraayx.mongodb.net/BLOQUEOS_DPI?retryWrites=true&w=majority')
-# database = cliente.BLOQUEOS_DPI
-
-

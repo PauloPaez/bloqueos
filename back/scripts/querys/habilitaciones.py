@@ -1,16 +1,16 @@
+import asyncio
+from contextlib import asynccontextmanager
 from datetime import datetime, time, timezone
 from typing import Any, Dict
 from zoneinfo import ZoneInfo
 
 from bson.objectid import ObjectId
-from pymongo.errors import DuplicateKeyError
 from scripts.conf.engine import get_collection
 from scripts.querys.bloqueados_historicos import guardar_bloqueados_historicos
 from scripts.schemas.habilitaciones import habilitacionesSh
 from scripts.schemas.schemaHabilitaciones import normalizar_periodo
 from utils.generacionTXT import generar_txt_por_archivo
 from utils.padrones.archivosCierre import (
-    RecuperacionPendiente,
     descartar_txt_local_prueba,
     guardar_txt_cierre,
 )
@@ -121,19 +121,25 @@ async def habilitacion_esta_cerrada(id) -> bool:
     return documento is not None
 
 
+# Vive en memoria: si el proceso se corta, desaparece y se puede reintentar. Requiere un solo proceso.
+candado_padrones = asyncio.Lock()
+
+
+@asynccontextmanager
+async def reservar_padrones():
+    """Impide operaciones simultáneas de carga, cierre o reapertura."""
+    if candado_padrones.locked():
+        raise ValueError("Hay una carga, cierre o reapertura en curso. Intente más tarde.")
+    async with candado_padrones:
+        yield
+
+
 async def reabrir_habilitacion(id):
     """Descarta los TXT y el histórico, y abre el período. Si falla, sigue cerrado y se puede reintentar."""
     if not ObjectId.is_valid(id):
         raise ValueError("El ID de la habilitación no es válido.")
     coleccion = get_collection("Habilitaciones")
-    control = get_collection("ControlCargas")
-    intento = str(ObjectId())
-    try:
-        await control.insert_one({"_id": "padrones", "operacion": "reapertura",
-                                  "intento": intento, "habilitacion_id": id})
-    except DuplicateKeyError:
-        raise ValueError("Hay una carga, cierre o reapertura en curso o pendiente de revisión.")
-    try:
+    async with reservar_padrones():
         habilitacion = await coleccion.find_one({"_id": ObjectId(id), "activo": True, "cerrado": True})
         if habilitacion is None:
             raise ValueError("No se encontró una habilitación activa y cerrada para reabrir.")
@@ -149,17 +155,13 @@ async def reabrir_habilitacion(id):
             {"$set": {"cerrado": False},
              "$unset": {"historico_generado": "", "cantidad_bloqueadas": "", "fecha_cierre_real": ""}},
         )
-    finally:
-        await control.delete_one({"_id": "padrones", "intento": intento})
     return {"id": str(habilitacion["_id"]), "periodo": periodo, "cerrado": False,
             "message": "Período reabierto. Actualice la fecha de cierre antes de editar."}
 
 
 async def obtener_habilitacion_para_cierre(periodo):
-    """Identifica la habilitación activa de las acreditaciones mostradas, sin cerrar durante una carga."""
+    """Identifica la habilitación activa de las acreditaciones mostradas."""
     periodo = normalizar_periodo(periodo)
-    if await get_collection("ControlCargas").find_one({"_id": "padrones"}):
-        raise ValueError("Hay una carga en curso o pendiente de revisión. No se puede cerrar el período.")
     if not await get_collection("Escuelas").find_one({"periodo": periodo, "activo": True}, {"_id": 1}):
         raise ValueError("El período no corresponde a las acreditaciones activas cargadas.")
     documentos = await get_collection("Habilitaciones").find({"periodo": periodo, "activo": True}).to_list(length=2)
@@ -206,6 +208,8 @@ def estado_cierre_periodo(habilitacion):
 
 async def consultar_cierre_periodo(periodo):
     """Devuelve el plazo y cuenta las bloqueadas de todo el período, sin paginación ni filtros de pantalla."""
+    if candado_padrones.locked():
+        raise ValueError("Hay una carga, cierre o reapertura en curso. Intente más tarde.")
     habilitacion = await obtener_habilitacion_para_cierre(periodo)
     if habilitacion.get("historico_generado") is True and habilitacion.get("cerrado") is True:
         return {**estado_cierre_periodo(habilitacion), "cantidad_bloqueadas": habilitacion["cantidad_bloqueadas"]}
@@ -216,32 +220,9 @@ async def consultar_cierre_periodo(periodo):
 
 
 async def cerrar_habilitacion_periodo(periodo):
-    """Publica los TXT y guarda el histórico antes de confirmar el cierre manual."""
-    habilitacion = await obtener_habilitacion_para_cierre(periodo)
-    estado = estado_cierre_periodo(habilitacion)
-    if estado["cerrado"]:
-        return estado
-    if not estado["puede_cerrar"]:
-        raise ValueError(estado["mensaje"])
-    # La misma reserva de la carga evita dos cierres o una carga nueva durante el envío.
-    control = get_collection("ControlCargas")
-    reserva = {"_id": "padrones", "operacion": "cierre", "intento": str(ObjectId()),
-               "habilitacion_id": str(habilitacion["_id"])}
-    try:
-        await control.insert_one(reserva)
-    except DuplicateKeyError:
-        raise ValueError("Hay una carga o cierre en curso o pendiente de revisión.")
-
-    pendiente_revision = False
-    historico_iniciado = False
-    actualizacion_iniciada = False
-    fecha_cierre_real = datetime.now(timezone.utc)
-    coleccion = get_collection("Habilitaciones")
-    try:
-        # Volvemos a leer luego de reservar: otra solicitud pudo haber cerrado antes.
-        habilitacion = await coleccion.find_one({"_id": habilitacion["_id"]})
-        if habilitacion is None or habilitacion.get("activo") is not True:
-            raise ValueError("La habilitación cambió. Actualice el listado.")
+    """Publica los TXT y guarda el histórico; marca cerrado al final. Si falla, sigue abierto y se puede reintentar."""
+    async with reservar_padrones():
+        habilitacion = await obtener_habilitacion_para_cierre(periodo)
         estado = estado_cierre_periodo(habilitacion)
         if estado["cerrado"]:
             return estado
@@ -251,57 +232,15 @@ async def cerrar_habilitacion_periodo(periodo):
             "periodo": habilitacion["periodo"], "activo": True, "bloqueo": True,
         }).to_list(length=None)
         archivos = generar_txt_por_archivo(bloqueados, habilitacion["periodo"])
+        fecha_cierre_real = datetime.now(timezone.utc)
         # El destino activo es LOCAL DE PRUEBA, definido y comentado en archivosCierre.py.
         # Si falla el histórico o el cierre, el contexto elimina solo sus propios TXT.
         with guardar_txt_cierre(habilitacion["periodo"], archivos) as rutas:
-            historico_iniciado = True
             cantidad = await guardar_bloqueados_historicos(habilitacion, fecha_cierre_real, bloqueados)
             cierre = {
                 "cerrado": True, "historico_generado": True,
                 "cantidad_bloqueadas": cantidad, "fecha_cierre_real": fecha_cierre_real,
             }
-            actualizacion_iniciada = True
-            resultado = await coleccion.update_one(
-                {"_id": habilitacion["_id"], "activo": True, "cerrado": {"$ne": True},
-                 "fecha_cierre": habilitacion["fecha_cierre"], "periodo": habilitacion["periodo"]},
-                {"$set": cierre},
-            )
-            if resultado.modified_count != 1:
-                raise ValueError("La habilitación cambió durante el cierre. Actualice el listado y revise su estado.")
-        return {**estado_cierre_periodo({**habilitacion, **cierre}),
-                "cantidad_bloqueadas": cantidad, "archivos_generados": rutas}
-    except BaseException as error:
-        errores_recuperacion = []
-        if isinstance(error, RecuperacionPendiente):
-            errores_recuperacion.append(str(error))
-        if actualizacion_iniciada:
-            # También deshacemos un update que pudo haberse aplicado antes de perder la respuesta.
-            campos = ("cerrado", "historico_generado", "cantidad_bloqueadas", "fecha_cierre_real")
-            restaurar = {campo: habilitacion[campo] for campo in campos if campo in habilitacion}
-            quitar = {campo: "" for campo in campos if campo not in habilitacion}
-            try:
-                await coleccion.update_one(
-                    {"_id": habilitacion["_id"], "fecha_cierre_real": fecha_cierre_real},
-                    {"$set": restaurar, "$unset": quitar},
-                )
-            except Exception as recuperacion:
-                errores_recuperacion.append(f"habilitación: {recuperacion}")
-        if historico_iniciado:
-            try:
-                await get_collection("BloqueadosHistoricos").delete_many({
-                    "habilitacion_id": str(habilitacion["_id"]), "fecha_cierre_real": fecha_cierre_real,
-                })
-            except Exception as recuperacion:
-                errores_recuperacion.append(f"histórico: {recuperacion}")
-        if errores_recuperacion:
-            pendiente_revision = True
-            raise RuntimeError("El cierre falló y quedó pendiente de revisión. Se conserva ControlCargas. "
-                               + "; ".join(errores_recuperacion)) from error
-        raise
-    finally:
-        if not pendiente_revision:
-            try:
-                await control.delete_one({"_id": "padrones", "intento": reserva["intento"]})
-            except Exception as error:
-                # Un cierre confirmado no se deshace por fallar la liberación de la reserva.
-                print(f"ERROR al liberar la reserva del cierre; revisar ControlCargas: {error}")
+            await get_collection("Habilitaciones").update_one({"_id": habilitacion["_id"]}, {"$set": cierre})
+    return {**estado_cierre_periodo({**habilitacion, **cierre}),
+            "cantidad_bloqueadas": cantidad, "archivos_generados": rutas}

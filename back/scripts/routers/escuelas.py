@@ -56,7 +56,7 @@ async def cerrar_periodo_escuelas(documento: CerrarPeriodoRequest):
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         print(f"ERROR al cerrar el período: {e}")
-        raise HTTPException(status_code=500, detail="No se pudo cerrar el período.")
+        raise HTTPException(status_code=500, detail="No se pudo cerrar el período. Reintente la operación.")
     for modulo in ("habilitaciones", "escuelas"):
         try:
             await notify_clients(modulo, resultado["mensaje"])
