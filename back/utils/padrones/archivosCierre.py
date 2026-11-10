@@ -3,7 +3,6 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import paramiko
-
 from utils.padrones.descargarPadrones import validar_periodo, variables_ambiente
 
 
@@ -22,12 +21,6 @@ def borrar_creados(creados, borrar):
         raise RecuperacionPendiente("No se pudieron borrar archivos del intento: " + "; ".join(errores))
 
 
-def mensaje_existentes(destino, periodo):
-    """Al cerrar, cualquier TXT previo del período es inválido: se pide borrarlos todos."""
-    return (f"Ya existen archivos de cierre en {destino}. Pida al encargado de los archivos que borre "
-            f"los BLOQUEO-*.{periodo}.txt para poder cerrar el período y generar los TXT.")
-
-
 # INICIO PRUEBA LOCAL TEMPORAL: replica /datos dentro del repositorio.
 # No consulta el .env ni abre una conexión SFTP. Eliminar este destino al activar SFTP.
 RAIZ_PRUEBA = Path(__file__).resolve().parents[3] / "datos"
@@ -40,11 +33,11 @@ def guardar_txt_local_prueba(periodo, archivos):
     try:
         if archivos:
             destino.mkdir(parents=True, exist_ok=True)
-            if any(destino.glob(f"BLOQUEO-*.{periodo}.txt")):
-                raise ValueError(mensaje_existentes(destino, periodo))
+            # Con el período abierto, cualquier TXT previo es inválido: se reemplaza por los nuevos.
+            descartar_txt_local_prueba(periodo)
             for nombre, contenido in archivos.items():
                 ruta = destino / nombre
-                # xb garantiza que tampoco sobrescribimos si el archivo aparece después del control.
+                # xb garantiza que no sobrescribimos si el archivo aparece después del borrado.
                 with ruta.open("xb") as salida:
                     creados.append(ruta)
                     salida.write(contenido)
@@ -81,8 +74,12 @@ def guardar_txt_sftp(periodo, archivos):
         sftp = ssh.open_sftp()
         sftp.get_channel().settimeout(30)
         # /datos/PERIODO debe existir: solo creamos sus carpetas de salida faltantes.
-        if not stat.S_ISDIR(sftp.stat(f"/datos/{periodo}").st_mode):
-            raise ValueError("El directorio remoto del período no es una carpeta.")
+        try:
+            info_periodo = sftp.stat(f"/datos/{periodo}")
+        except FileNotFoundError:
+            raise ValueError(f"No existe la carpeta /datos/{periodo} en el servidor SFTP.") from None
+        if not stat.S_ISDIR(info_periodo.st_mode):
+            raise ValueError(f"/datos/{periodo} en el servidor SFTP no es una carpeta.")
         for carpeta in (f"/datos/{periodo}/Bloqueos", destino):
             try:
                 info = sftp.stat(carpeta)
@@ -91,9 +88,8 @@ def guardar_txt_sftp(periodo, archivos):
             else:
                 if not stat.S_ISDIR(info.st_mode):
                     raise ValueError(f"No es un directorio: {carpeta}")
-        if any(nombre.startswith("BLOQUEO-") and nombre.endswith(f".{periodo}.txt")
-               for nombre in sftp.listdir(destino)):
-            raise ValueError(mensaje_existentes(destino, periodo))
+        # Con el período abierto, cualquier TXT previo es inválido: se reemplaza por los nuevos.
+        borrar_txt_remotos(sftp, destino, periodo)
         try:
             for nombre, contenido in archivos.items():
                 ruta = f"{destino}/{nombre}"
@@ -116,7 +112,35 @@ def guardar_txt_sftp(periodo, archivos):
                     print(f"ERROR al cerrar la conexión SFTP del cierre: {error}")
 
 
-# PRUEBA LOCAL TEMPORAL — ÚNICO DESTINO ACTIVO DEL CIERRE.
-# Al pasar a producción, reemplazar la asignación por guardar_txt_sftp.
+def borrar_txt_remotos(sftp, destino, periodo):
+    """Borra solo los BLOQUEO-*.PERIODO.txt de la carpeta del cierre; no toca otros archivos."""
+    for nombre in sftp.listdir(destino):
+        if nombre.startswith("BLOQUEO-") and nombre.endswith(f".{periodo}.txt"):
+            sftp.remove(f"{destino}/{nombre}")
+
+
+def descartar_txt_sftp(periodo):
+    """Borra los TXT del cierre en el servidor; si la carpeta no existe, no hace nada ni la crea."""
+    periodo = validar_periodo(periodo)
+    host, usuario, clave, _ = variables_ambiente()
+    destino = f"/datos/{periodo}/Bloqueos/ESCU"
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(host, username=usuario, password=clave, timeout=15)
+        sftp = ssh.open_sftp()
+        sftp.get_channel().settimeout(30)
+        try:
+            borrar_txt_remotos(sftp, destino, periodo)
+        except FileNotFoundError:
+            pass  # El período nunca generó TXT en el servidor.
+    finally:
+        # Cerrar la conexión SSH también cierra el canal SFTP.
+        ssh.close()
+
+
+# PRUEBA LOCAL TEMPORAL — ÚNICO DESTINO ACTIVO DEL CIERRE Y LA REAPERTURA.
+# Al pasar a producción, reemplazar las dos asignaciones por guardar_txt_sftp y descartar_txt_sftp.
 # No cambiar esto hasta confirmar que finalizaron las pruebas locales.
-guardar_txt_cierre = guardar_txt_local_prueba
+guardar_txt_cierre = guardar_txt_sftp
+descartar_txt_cierre = descartar_txt_sftp

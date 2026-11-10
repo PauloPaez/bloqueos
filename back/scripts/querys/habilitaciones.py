@@ -11,7 +11,7 @@ from scripts.schemas.habilitaciones import habilitacionesSh
 from scripts.schemas.schemaHabilitaciones import normalizar_periodo
 from utils.generacionTXT import generar_txt_por_archivo
 from utils.padrones.archivosCierre import (
-    descartar_txt_local_prueba,
+    descartar_txt_cierre,
     guardar_txt_cierre,
 )
 
@@ -148,7 +148,7 @@ async def reabrir_habilitacion(id):
         if not await get_collection("Escuelas").find_one({"periodo": periodo, "activo": True}, {"_id": 1}):
             raise ValueError(f"No se puede reabrir {periodo} porque sus acreditaciones ya no están cargadas.")
         # La habilitación se abre al final: así un fallo intermedio se resuelve reintentando.
-        descartar_txt_local_prueba(periodo)
+        descartar_txt_cierre(periodo)
         await get_collection("BloqueadosHistoricos").delete_many({"habilitacion_id": str(habilitacion["_id"])})
         await coleccion.update_one(
             {"_id": habilitacion["_id"]},
