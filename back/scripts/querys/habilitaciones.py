@@ -233,7 +233,7 @@ async def cerrar_habilitacion_periodo(periodo):
         }).to_list(length=None)
         archivos = generar_txt_por_archivo(bloqueados, habilitacion["periodo"])
         fecha_cierre_real = datetime.now(timezone.utc)
-        # El destino activo es LOCAL DE PRUEBA, definido y comentado en archivosCierre.py.
+        # El destino activo (SFTP, con respaldo local) está definido en archivosCierre.py.
         # Si falla el histórico o el cierre, el contexto elimina solo sus propios TXT.
         with guardar_txt_cierre(habilitacion["periodo"], archivos) as rutas:
             cantidad = await guardar_bloqueados_historicos(habilitacion, fecha_cierre_real, bloqueados)

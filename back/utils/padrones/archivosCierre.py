@@ -21,8 +21,9 @@ def borrar_creados(creados, borrar):
         raise RecuperacionPendiente("No se pudieron borrar archivos del intento: " + "; ".join(errores))
 
 
-# INICIO PRUEBA LOCAL TEMPORAL: replica /datos dentro del repositorio.
-# No consulta el .env ni abre una conexión SFTP. Eliminar este destino al activar SFTP.
+# INICIO DESTINO LOCAL DE RESPALDO: replica /datos dentro del repositorio.
+# No consulta el .env ni abre una conexión SFTP. Se usa solo si SFTP falla en producción;
+# eliminarlo cuando se confirme que SFTP funciona allí.
 RAIZ_PRUEBA = Path(__file__).resolve().parents[3] / "datos"
 
 
@@ -53,12 +54,12 @@ def descartar_txt_local_prueba(periodo):
     carpeta = RAIZ_PRUEBA / periodo / "Bloqueos" / "ESCU"
     for archivo in carpeta.glob(f"BLOQUEO-*.{periodo}.txt"):
         archivo.unlink(missing_ok=True)
-# FIN PRUEBA LOCAL TEMPORAL.
+# FIN DESTINO LOCAL DE RESPALDO.
 
 
 @contextmanager
 def guardar_txt_sftp(periodo, archivos):
-    """Destino real preparado, pero NO conectado al cierre mientras dure la prueba local."""
+    """Destino activo del cierre: escribe los TXT en /datos/PERIODO/Bloqueos/ESCU del servidor."""
     if not archivos:
         yield []
         return
@@ -139,8 +140,8 @@ def descartar_txt_sftp(periodo):
         ssh.close()
 
 
-# PRUEBA LOCAL TEMPORAL — ÚNICO DESTINO ACTIVO DEL CIERRE Y LA REAPERTURA.
-# Al pasar a producción, reemplazar las dos asignaciones por guardar_txt_sftp y descartar_txt_sftp.
-# No cambiar esto hasta confirmar que finalizaron las pruebas locales.
+# DESTINO ACTIVO DEL CIERRE Y LA REAPERTURA: SFTP.
+# Si SFTP falla en producción, volver al respaldo local reemplazando las dos asignaciones
+# por guardar_txt_local_prueba y descartar_txt_local_prueba (y el aviso de CierrePeriodo.jsx).
 guardar_txt_cierre = guardar_txt_sftp
 descartar_txt_cierre = descartar_txt_sftp
