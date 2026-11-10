@@ -188,7 +188,7 @@ def estado_cierre_periodo(habilitacion):
     puede_cerrar = not cerrado and vencimiento is not None
     puede_editar = puede_cerrar and not vencido
     if cerrado:
-        mensaje = f"El período {periodo} ya está cerrado."
+        mensaje = f"El período {periodo} fue cerrado con éxito."
     elif fecha_limite is None:
         mensaje = f"El período {periodo} no tiene fecha de cierre. Defínala en habilitaciones antes de cerrar."
     elif ahora > vencimiento:

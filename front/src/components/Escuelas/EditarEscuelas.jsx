@@ -82,7 +82,11 @@ const EditarEscuelas = () => {
     refetchOnMountOrArgChange: true,
     pollingInterval: 60000,
   });
-  const edicionDeshabilitada = consultandoCierre || errorEstadoCierre || !estadoCierre?.puede_editar;
+  // Sin dato todavía (primera consulta) o con error, la edición queda bloqueada.
+  const puedeEditar = !errorEstadoCierre && estadoCierre?.puede_editar === true;
+  const mensajeCierre = errorEstadoCierre
+    ? 'No se pudo verificar el período. La edición está deshabilitada.'
+    : estadoCierre?.mensaje;
 
   const [postEscuelas] = usePostEscuelasMutation();
   const [patchEscuelas] = usePatchEscuelasMutation();
@@ -209,7 +213,7 @@ const EditarEscuelas = () => {
   const onSubmit = async (data, bloqueoConfirmado = false) => {
     try {
       if (filaSeleccionada?.id) {
-        if (edicionDeshabilitada) return;
+        if (!puedeEditar) return;
         // Revalidar también con el formulario abierto antes de enviar cualquier cambio.
         const estadoActual = await refetchEstadoCierre().unwrap();
         if (!estadoActual.puede_editar) {
@@ -297,12 +301,8 @@ const EditarEscuelas = () => {
     </Modal.Header>
 
     <Modal.Body ref={modalEdicionBodyRef} className="edit-school-body">
-      {edicionDeshabilitada && (
-        <div className="alert alert-secondary" role="status">
-          {consultandoCierre ? 'Consultando si el período permite editar…'
-            : errorEstadoCierre ? 'No se pudo verificar el período. La edición está deshabilitada.'
-            : estadoCierre?.mensaje || 'No se pudo verificar el período. La edición está deshabilitada.'}
-        </div>
+      {!puedeEditar && mensajeCierre && (
+        <div className="alert alert-secondary" role="status">{mensajeCierre}</div>
       )}
       <form className="edit-school-form" onSubmit={handleSubmit((data) => onSubmit(data))}>
         {camposVisibles.map((field) => {
@@ -313,7 +313,7 @@ const EditarEscuelas = () => {
           const fieldProps = {
             ...register(`escuelas.0.${field.name}`),
             disabled:
-              edicionDeshabilitada ||
+              !puedeEditar ||
               field.disabled ||
               (['motivo', 'fecha_baja'].includes(field.name) && !bloqueoSeleccionado),
             placeholder:
@@ -441,7 +441,7 @@ const EditarEscuelas = () => {
           <button
             type="submit"
             className="btn btn-primary edit-school-submit"
-            disabled={edicionDeshabilitada}
+            disabled={!puedeEditar || consultandoCierre}
           >
             <Save size={16} aria-hidden="true" />
             {filaSeleccionada?.id ? "Actualizar" : "Grabar"}
@@ -476,13 +476,6 @@ const EditarEscuelas = () => {
           {datosBloqueoPendientes?.escuelas?.[0]?.documento_nro}. Se aplicará a varios
           registros a la vez.
         </p>
-        {edicionDeshabilitada && (
-          <p role="status">
-            {consultandoCierre ? 'Consultando si el período permite editar…'
-              : errorEstadoCierre ? 'No se pudo verificar el período. La edición está deshabilitada.'
-              : estadoCierre?.mensaje}
-          </p>
-        )}
         <div className="edit-school-confirm-footer">
           <button
             type="button"
@@ -495,7 +488,7 @@ const EditarEscuelas = () => {
           <button
             type="button"
             className="edit-school-confirm-action"
-            disabled={edicionDeshabilitada}
+            disabled={!puedeEditar}
             onClick={() => {
               const data = datosBloqueoPendientes;
               setDatosBloqueoPendientes(null);
