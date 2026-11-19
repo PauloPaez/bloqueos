@@ -12,11 +12,14 @@ const FiltroMotivos = ({
     'placeholder': 'Motivo',
     'tipo': 'str',
     'valor': ''},
-    // {   'clave': 'activo',
-    // 'etiqueta': 'Activo',
-    // 'placeholder': 'Activo',
-    // 'tipo': 'checkbox',
-    // 'valor': ''},
+    {   'clave': 'lleva_fecha',
+    'etiqueta': 'Lleva fecha',
+    'tipo': 'tristate',
+    'valor': 'all'},
+    {   'clave': 'activo',
+    'etiqueta': 'Activo',
+    'tipo': 'tristate',
+    'valor': 'all'},
 ];
   
   return (

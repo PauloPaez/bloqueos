@@ -1,0 +1,154 @@
+.motivos-agregar {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+/* Pisa el min-width: max-content de tables.css: combinado con el width: 100%
+   de abajo hacía que la tabla midiera millones de píxeles de ancho. */
+.motivos-tabla {
+  min-width: 100%;
+}
+
+/* Medidas del diseño de Figma: encabezado de 40px en una sola línea y celdas compactas */
+.motivos-tabla .sticky-header {
+  background-color: #ececf0;
+}
+
+.motivos-tabla .sticky-header th {
+  height: 2.5rem;
+  padding: 0 0.5rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.motivos-tabla td {
+  padding: 0.5rem;
+}
+
+/* La columna Motivo ocupa el espacio sobrante; las de Sí / No quedan angostas */
+.motivos-tabla th:first-child,
+.motivos-tabla td:first-child {
+  width: 100%;
+}
+
+/* Sin el puntero de mano cuando la fila no abre el modal */
+.motivos-tabla tbody tr:hover {
+  cursor: default;
+}
+
+.motivos-tabla tbody tr.motivos-fila-editable:hover {
+  cursor: pointer;
+}
+
+.motivos-tabla .motivos-fila-inactiva td {
+  color: #9f9fa9;
+}
+
+.motivos-etiqueta-inactivo {
+  margin-left: 0.5rem;
+  padding: 0 0.375rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.motivos-booleano {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* Mismo punto de color que el filtro Todos / Sí / No */
+.motivos-punto {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background-color: #d4d4d8;
+}
+
+.motivos-punto-si {
+  background-color: #00bc7d;
+}
+
+.motivos-col-accion {
+  width: 3rem;
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+  text-align: right;
+}
+
+/* Lápiz: aparece al pasar el mouse por la fila o al llegar con teclado */
+.motivos-editar {
+  display: inline-flex;
+  padding: 0.375rem;
+  border: 0;
+  border-radius: 0.375rem;
+  color: #717182;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.motivos-editar:hover {
+  background-color: #e9ebef;
+}
+
+.motivos-fila-editable:hover .motivos-editar,
+.motivos-editar:focus-visible {
+  opacity: 1;
+}
+
+.motivos-tabla tbody tr.motivos-fila-vacia:hover {
+  background-color: transparent;
+}
+
+.motivos-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  color: #717182;
+  white-space: normal;
+}
+
+.motivos-vacio svg {
+  opacity: 0.6;
+}
+
+.motivos-vacio p {
+  margin: 0;
+}
+
+.motivos-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e9ecef;
+  background-color: #fafafa;
+  color: #717182;
+}
+
+.motivos-pie-filtros {
+  font-size: 0.875rem;
+}
+
+/* Con solo 3 filtros, Limpiar / Aplicar van en la misma línea que los campos.
+   GenericFilter.css los manda a una fila propia cuando hay filtros Todos / Sí / No. */
+@media (min-width: 992px) {
+  /* Como en Figma: 4 columnas iguales, la última para los botones */
+  .motivos-filtro .generic-filter-grid.generic-filter-grid-has-tristate {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .motivos-filtro .generic-filter-grid.generic-filter-grid-has-tristate .generic-filter-actions {
+    grid-column: auto;
+    justify-self: end;
+  }
+}

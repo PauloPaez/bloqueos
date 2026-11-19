@@ -1,26 +1,40 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { usePostMotivosMutation, usePatchMotivosMutation } from '../../store/apiSlice';
+import { usePostMotivosMutation, usePatchMotivosMutation, useGetMotivosQuery } from '../../store/apiSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { resetModulo } from '../../store/appSlice';
 import { formularioCampos } from './FormularioEditar';
-import { separadoresFormulario } from './formularioSeparadores';
 import { obtenerCamposAValidar } from './camposValidacion';
+import { Modal } from 'react-bootstrap';
+import { Plus, Save } from 'lucide-react';
+import { toast } from 'sonner';
+import './EditarMotivos.css';
+
+// Minúsculas y sin acentos, para que "liquidacion" coincida con "Liquidación".
+const normalizar = (texto) =>
+  (texto ?? '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 const EditarMotivos = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.acceso.user);
-  const filaSeleccionada = useSelector(
-    (state) => state.modulos.motivos).datos
+  const { datos: filaSeleccionada, mostrarModal } = useSelector(
+    (state) => state.modulos.motivos
+  );
+  const esEdicion = Boolean(filaSeleccionada?.id);
 
 // TODO: Arreglar problema al actualizar motivos, activo = false no aparece
   const [postMotivos] = usePostMotivosMutation();
   const [patchMotivos] = usePatchMotivosMutation();
+  const { data: motivos = [] } = useGetMotivosQuery();
+  const [faltanDatos, setFaltanDatos] = useState(false);
 
-  const { register, handleSubmit, setValue, reset } = useForm({
-    defaultValues: {
-      motivos: [{}],
-    },
+  // Valores de un motivo nuevo. Se pasan siempre a reset(): reset(valores) de la
+  // edición reemplaza los valores por defecto, y un reset() vacío volvería a
+  // cargar el último motivo editado.
+  const formularioVacio = { motivos: [{ motivo: '', lleva_fecha: false }] };
+
+  const { register, handleSubmit, reset, watch, formState: { isDirty } } = useForm({
+    defaultValues: formularioVacio,
   });
 
   useEffect(() => {
@@ -31,32 +45,47 @@ const EditarMotivos = () => {
     if (field.placeholder === 'no_visible') return false;
 
     // El campo 'activo' solo se muestra si hay fila seleccionada
-    if (field.name === 'activo' && !filaSeleccionada?.id) {
+    if (field.name === 'activo' && !esEdicion) {
       return false;
     }
     return true;
   });
+  const camposTexto = camposVisibles.filter((field) => field.type !== 'checkbox');
+  const camposSwitch = camposVisibles.filter((field) => field.type === 'checkbox');
 
-
+  // Cada vez que se abre el modal: carga la fila elegida o deja el formulario vacío.
+  // Se usa reset con valores para que isDirty compare contra los datos originales.
   useEffect(() => {
-    if (filaSeleccionada?.id) {
+    if (!mostrarModal) return;
+    setFaltanDatos(false);
+
+    if (esEdicion) {
+      const valores = {};
       camposVisibles.forEach((field) => {
-        if (field.type === 'date' && filaSeleccionada[field.name]) {
-          setValue(
-            `motivos.0.${field.name}`,
-            filaSeleccionada[field.name].split('T')[0]
-          );
-        } else {
-          setValue(
-            `motivos.0.${field.name}`,
-            filaSeleccionada[field.name] ?? null
-          );
-        }
+        valores[field.name] = filaSeleccionada[field.name] ?? null;
       });
+      reset({ motivos: [valores] });
     } else {
-      reset();
+      reset(formularioVacio);
     }
-  }, [filaSeleccionada]);
+  }, [mostrarModal, filaSeleccionada]);
+
+  // Avisa mientras se escribe si otro motivo de la empresa ya usa ese nombre.
+  const motivoEscrito = watch('motivos.0.motivo') ?? '';
+  const motivoDuplicado =
+    normalizar(motivoEscrito) !== '' &&
+    motivos.some(
+      (item) =>
+        item.id !== filaSeleccionada?.id &&
+        item.empresa === user.empresa &&
+        normalizar(item.motivo) === normalizar(motivoEscrito)
+    );
+
+  const errorMotivo = motivoDuplicado
+    ? 'Ya existe un motivo con ese nombre.'
+    : faltanDatos && !motivoEscrito
+      ? 'Ingresá el nombre del motivo.'
+      : null;
 
   const controlDatosFormulario = (motivos) => {
     const camposAValidar = obtenerCamposAValidar();
@@ -72,146 +101,154 @@ const EditarMotivos = () => {
       const motivos = data.motivos?.[0];
 
       if (!motivos || controlDatosFormulario(motivos)) {
-        alert('⚠️ Faltan completar datos formulario');
+        setFaltanDatos(true);
         return;
       }
+
+      if (motivoDuplicado) return;
 
       const motivosData = {
         ...motivos,
         empresa: user.empresa,
         login: user.login,
-        ...(filaSeleccionada?.id ? {} : { activo: true }),
+        ...(esEdicion ? {} : { activo: true }),
       };
 
-      if (filaSeleccionada?.id) {
+      if (esEdicion) {
         await patchMotivos({
           id: filaSeleccionada.id,
           ...motivosData,
         }).unwrap();
 
-        dispatch(resetModulo({ modulo: 'motivos' }));
+        const seDesactivo = filaSeleccionada.activo && !motivos.activo;
+        toast.success('Motivo actualizado.', {
+          description: seDesactivo
+            ? `"${motivos.motivo}" quedó inactivo y ya no se ofrecerá al bloquear escuelas.`
+            : undefined,
+        });
       } else {
         await postMotivos(motivosData).unwrap();
+        toast.success('Motivo creado.');
       }
 
-      reset();
+      handleReset();
     } catch (error) {
       console.error('Error al enviar datos:', error);
+      toast.error('No se pudo guardar el motivo.');
     }
   };
 
   const handleReset = () => {
-    reset();
+    reset(formularioVacio);
     dispatch(resetModulo({ modulo: 'motivos' }));
   };
 
+  const sinCambios = esEdicion && !isDirty;
+
   return (
-    <form
-      style={{
-        padding: '20px',
-        backgroundColor: filaSeleccionada?.id ? '#fcf4dd' : '#ffffff',
-      }}
+    <Modal
+      show={Boolean(mostrarModal)}
+      onHide={handleReset}
+      backdrop="static"
+      centered
+      dialogClassName="motivo-dialog"
     >
-      {camposVisibles.map((field) => {
-        const separador = separadoresFormulario.find(
-          (s) => s.before === field.name
-        );
+      <Modal.Header closeButton className="motivo-header">
+        <div>
+          <Modal.Title className="motivo-title">
+            {esEdicion ? 'Editar motivo' : 'Nuevo motivo'}
+          </Modal.Title>
+          <p className="motivo-description">
+            {esEdicion
+              ? 'Los cambios se aplican a los próximos bloqueos.'
+              : 'Quedará disponible al bloquear escuelas.'}
+          </p>
+        </div>
+      </Modal.Header>
 
-        const fieldProps = {
-          ...register(`motivos.0.${field.name}`),
-          disabled: field.disabled,
-          placeholder:
-            field.placeholder !== 'no_visible'
-              ? field.placeholder
-              : undefined,
-        };
+      <Modal.Body className="motivo-body">
+        <form className="motivo-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <hr className="motivo-separator" />
 
-        return (
-          <React.Fragment key={field.name}>
-            {separador && (
-              <div className="my-4">
-                <hr className="border border-warning opacity-100" />
-                {separador.label && (
-                  <div
-                    style={{
-                      fontWeight: 'bold',
-                      color: '#0d6efd',
-                      textAlign: 'center',
-                      marginTop: '0.5rem',
-                    }}
-                  >
-                    {separador.label}
-                  </div>
-                )}
-              </div>
-            )}
+          {camposTexto.map((field) => {
+            const valor = watch(`motivos.0.${field.name}`) ?? '';
+            const mostrarContador =
+              field.maxLength && valor.length >= field.maxLength * 0.8;
+            const error = field.name === 'motivo' ? errorMotivo : null;
 
-            <div
-              className={`mb-3 ${
-                field.type === 'checkbox' ? 'form-check' : ''
-              }`}
-            >
-              {field.type !== 'checkbox' && (
-                <label className="form-label">{field.label}</label>
-              )}
-
-              {field.type === 'select' ? (
-                <select className="form-control" {...fieldProps}>
-                  <option value="">
-                    Seleccione {field.label.toLowerCase()}
-                  </option>
-                  {(datosSelect[field.optionsKey] || []).map((op, i) => (
-                    <option key={i} value={op}>
-                      {op}
-                    </option>
-                  ))}
-                </select>
-              ) : field.type === 'checkbox' ? (
-                <>
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    {...fieldProps}
-                  />
-                  <label className="form-check-label">
+            return (
+              <div key={field.name} className="motivo-field">
+                <div className="motivo-label-row">
+                  <label className="motivo-label" htmlFor={`motivo-${field.name}`}>
                     {field.label}
                   </label>
-                </>
-              ) : (
+                  {mostrarContador && (
+                    <span className="motivo-counter">
+                      {valor.length}/{field.maxLength}
+                    </span>
+                  )}
+                </div>
                 <input
+                  id={`motivo-${field.name}`}
                   type={field.type}
-                  className="form-control"
-                  {...fieldProps}
+                  className={`form-control motivo-control ${error ? 'is-invalid' : ''}`}
+                  placeholder={field.placeholder}
+                  maxLength={field.maxLength}
+                  autoComplete="off"
+                  autoFocus={!esEdicion}
+                  {...register(`motivos.0.${field.name}`)}
                 />
-              )}
-            </div>
-          </React.Fragment>
-        );
-      })}
+                {error && <p className="motivo-error">{error}</p>}
+              </div>
+            );
+          })}
 
-      <div className="d-flex justify-content-between mt-3">
-        <button
-          type="button"
-          className="btn btn-outline-danger"
-          onClick={handleReset}
-        >
-          Reset
-        </button>
-        <button
-          type="button"
-          className={`btn ${
-            filaSeleccionada?.id
-              ? 'btn-outline-warning'
-              : 'btn-outline-primary'
-          }`}
-          onClick={handleSubmit(onSubmit)}
-        >
-          {filaSeleccionada?.id ? 'Actualizar' : 'Grabar'}
-        </button>
-      </div>
-    </form>
+          {camposSwitch.length > 0 && (
+            <div className="motivo-switches">
+              {camposSwitch.map((field) => (
+                <div key={field.name} className="motivo-switch-row">
+                  <div>
+                    <label className="motivo-label" htmlFor={`motivo-${field.name}`}>
+                      {field.label}
+                    </label>
+                    {field.descripcion && (
+                      <p className="motivo-switch-description">{field.descripcion}</p>
+                    )}
+                  </div>
+                  <div className="form-check form-switch m-0 p-0">
+                    <input
+                      id={`motivo-${field.name}`}
+                      type="checkbox"
+                      role="switch"
+                      className="form-check-input motivo-switch"
+                      {...register(`motivos.0.${field.name}`)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <hr className="motivo-separator" />
+
+          <div className="motivo-footer">
+            <button type="button" className="btn btn-outline-dark motivo-cancel" onClick={handleReset}>
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="btn btn-dark motivo-submit"
+              disabled={sinCambios}
+              title={sinCambios ? 'No hay cambios para guardar' : undefined}
+            >
+              {esEdicion ? <Save size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
+              {esEdicion ? 'Guardar cambios' : 'Crear motivo'}
+            </button>
+          </div>
+        </form>
+      </Modal.Body>
+    </Modal>
   );
 };
 
 export default EditarMotivos;
-

@@ -1,0 +1,159 @@
+.motivo-dialog {
+  max-width: 28rem;
+}
+
+.motivo-dialog .modal-content {
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+  border-radius: 0.75rem;
+  box-shadow: 0 1rem 3rem rgba(33, 37, 41, 0.2);
+}
+
+.motivo-header {
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 0;
+}
+
+.motivo-title {
+  color: black;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.motivo-description {
+  margin: 0.25rem 0 0;
+  color: #717182;
+  font-size: 0.875rem;
+}
+
+.motivo-body {
+  padding: 0 1.5rem 1.25rem;
+}
+
+.motivo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.motivo-separator {
+  margin: 0;
+  border-color: #e9ecef;
+  opacity: 1;
+}
+
+.motivo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.motivo-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.motivo-label {
+  margin: 0;
+  color: black;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.motivo-counter {
+  color: #717182;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.motivo-control {
+  min-height: 38px;
+  background-color: #f3f3f5;
+  border-color: #e9ecef;
+}
+
+.motivo-control:focus {
+  border-color: #86b7fe;
+  background-color: #f3f3f5;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.motivo-error {
+  margin: 0;
+  color: #d4183d;
+  font-size: 0.875rem;
+}
+
+/* Switches agrupados en una caja con divisores */
+.motivo-switches {
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+}
+
+.motivo-switch-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+}
+
+.motivo-switch-row + .motivo-switch-row {
+  border-top: 1px solid #e9ecef;
+}
+
+.motivo-switch-description {
+  margin: 0.125rem 0 0;
+  color: #717182;
+  font-size: 0.875rem;
+}
+
+.motivo-switch {
+  width: 2.25rem;
+  height: 1.25rem;
+  margin: 0.125rem 0 0;
+  cursor: pointer;
+}
+
+.motivo-switch:checked {
+  border-color: #030213;
+  background-color: #030213;
+}
+
+.motivo-switch:focus {
+  border-color: #030213;
+  box-shadow: 0 0 0 0.2rem rgba(3, 2, 19, 0.15);
+}
+
+.motivo-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.motivo-cancel {
+  color: black;
+  border-color: #dee2e6;
+}
+
+.motivo-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 576px) {
+  .motivo-dialog {
+    margin: 0.75rem;
+  }
+
+  .motivo-header,
+  .motivo-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

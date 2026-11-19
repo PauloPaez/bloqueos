@@ -4,14 +4,14 @@ import ListarMotivos from './ListarMotivos';
 
 const ActualizarMotivos = () => {
   return (
-    <LayoutActualizar
-      editar={<EditarMotivos />}
-      listar={<ListarMotivos claveFiltro="motivos:actualizar" />}
-      ratioEditar={25}
-      ratioListar={75}
-      tituloEditar="Editar Motivos"
-      tituloListar="Listado de Motivos"
-    />
+    <>
+      <LayoutActualizar
+        ocultarEditar={true}
+        listar={<ListarMotivos claveFiltro="motivos:actualizar" editable />}
+      />
+
+      <EditarMotivos />
+    </>
   );
 };
 
