@@ -24,7 +24,7 @@ from utils.websockets_manager import (
 )
 
 logger = logging.getLogger(__name__)
-app = FastAPI(version="0.12.0")
+app = FastAPI(version="0.13.0")#, docs_url=None, redoc_url=None, openapi_url=None)
 # AGREGAR ESTOS LOGS PARA DEBUG:
 try:
     from scripts.routers.usuarios import usuarios

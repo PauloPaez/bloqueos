@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
 # ----------------------------------------------------
 from scripts.conf.engine import get_collection
+from utils.claves import es_hash, hashear_clave, verificar_clave
 # -----------------------------------------------------
 
 
@@ -13,7 +14,11 @@ async def get_login(datos):
         filtro = {"login": datos.login, "activo": True}
         usuario = await coleccionUsr.find_one(filtro, {"clave": 1, "roles": 1, "empresas": 1})
         # La clave se compara acá y no dentro de la consulta a Mongo
-        if usuario and usuario.get("clave") == datos.clave:
+        if usuario and verificar_clave(usuario.get("clave"), datos.clave):
+            # Si la clave estaba en texto plano, se guarda hasheada (se migra en el primer login)
+            if not es_hash(usuario["clave"]):
+                await coleccionUsr.update_one(
+                    {"_id": usuario["_id"]}, {"$set": {"clave": hashear_clave(datos.clave)}})
             roles = usuario.get("roles", [])
             # Buscar las rutas asociadas a los roles del usuario
             cursor = coleccionRutas.find({"rol": {"$in": roles}}, {

@@ -6,7 +6,16 @@ from typing import Dict, Any
 # ----------------------------------------------------
 from scripts.schemas.usuarios import usuariosSh
 from scripts.conf.engine import get_collection
+from utils.claves import hashear_clave
 # -----------------------------------------------------
+
+
+def preparar_clave(document: dict):
+    # Si viene una clave nueva se guarda hasheada; si viene vacía se quita para no pisar la actual
+    if document.get("clave"):
+        document["clave"] = hashear_clave(document["clave"])
+    else:
+        document.pop("clave", None)
 
 
 async def get_usuarios():
@@ -47,6 +56,7 @@ async def search_usuarios_in_db(filter: Dict[str, Any]):
 
 async def add_usuarios(document: dict) -> ObjectId:
     coleccion = get_collection("Usuarios")
+    preparar_clave(document)
     # Inserta el documento en la colección y devuelve el ID generado
     result = await coleccion.insert_one(document)
     return result.inserted_id
@@ -56,6 +66,7 @@ async def put_usuarios(document):
     coleccion = get_collection("Usuarios")
     filtro = {"_id": ObjectId(document['id'])}
     document.pop('id')
+    preparar_clave(document)
 
     set_query = {"$set": document}
 
@@ -77,6 +88,7 @@ async def patch_usuarios(document: dict):
 
         filtro = {"_id": ObjectId(doc_id)}
         document.pop("id")
+        preparar_clave(document)
 
         patch_query = {"$set": document}
         respuesta = await coleccion.update_one(filtro, patch_query)
