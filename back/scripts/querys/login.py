@@ -1,21 +1,19 @@
 from bson.objectid import ObjectId
-from typing import Dict, Any
 # ----------------------------------------------------
 from scripts.conf.engine import get_collection
 # -----------------------------------------------------
 
 
-async def get_login(filter: Dict[str, Any]):
+async def get_login(datos):
     coleccionUsr = get_collection("Usuarios")
     coleccionRutas = get_collection("Rutas")
     try:
-        app = filter["app"]
-        del filter["app"]
-        # Buscar el usuario
-        print("Filtro de login:", filter)
-        usuario = await coleccionUsr.find_one(filter, {"roles": 1, "empresas": 1})
-        print("Usuario encontrado:", usuario)
-        if usuario:
+        app = datos.app
+        # El filtro lo arma el servidor: el cliente no decide qué se busca ni si el usuario está activo
+        filtro = {"login": datos.login, "activo": True}
+        usuario = await coleccionUsr.find_one(filtro, {"clave": 1, "roles": 1, "empresas": 1})
+        # La clave se compara acá y no dentro de la consulta a Mongo
+        if usuario and usuario.get("clave") == datos.clave:
             roles = usuario.get("roles", [])
             # Buscar las rutas asociadas a los roles del usuario
             cursor = coleccionRutas.find({"rol": {"$in": roles}}, {
@@ -32,7 +30,7 @@ async def get_login(filter: Dict[str, Any]):
             ]
 
             resultado = {"opciones": rutas_filtradas}
-            resultado["login"] = filter["login"]
+            resultado["login"] = datos.login
             resultado["empresa"] = usuario["empresas"][0]
             resultado["id"] = str(usuario["_id"])
             return resultado  # Devuelve el resultado con las rutas filtradas
