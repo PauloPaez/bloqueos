@@ -24,10 +24,11 @@ def variables_ambiente():
         raise ValueError(f"No se encontró el archivo .env en {ARCHIVO_ENV}")
 
     load_dotenv(ARCHIVO_ENV)
-    HOST = os.getenv("HOST")
-    USERNAME = os.getenv("LOGIN")
-    PASSWORD = os.getenv("PASSWORD")
-    DIR_REMOTO = os.getenv("DIR_REMOTO")
+    # Prefijo SFTP_: evita choques con variables del sistema (por ejemplo HOST) y aclara su uso.
+    HOST = os.getenv("SFTP_HOST")
+    USERNAME = os.getenv("SFTP_LOGIN")
+    PASSWORD = os.getenv("SFTP_PASSWORD")
+    DIR_REMOTO = os.getenv("SFTP_DIR_REMOTO")
 
     # Validar antes de imprimir
     if any(not valor or not valor.strip() for valor in [HOST, USERNAME, PASSWORD, DIR_REMOTO]):
